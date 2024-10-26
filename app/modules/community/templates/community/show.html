@@ -1,0 +1,14 @@
+{% extends "base_template.html" %}
+
+{% block title %}Community details{% endblock %}
+
+{% block content %}
+
+<h1>{{ community.name }}</h1>
+<p>{{ community.description}}</p>
+<a href="{{ url_for('community.index') }}">Back to Communities</a>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('community.scripts') }}"></script>
+{% endblock %}
