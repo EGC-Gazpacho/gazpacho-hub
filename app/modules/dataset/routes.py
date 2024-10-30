@@ -244,7 +244,7 @@ def download_dataset(dataset_id):
     return resp
 
 
-#Descargar los datos en .json
+# Descargar los datos en .json
 def convert_uvl_to_json(content):
     lines = content.splitlines()
     result = {}
@@ -255,7 +255,6 @@ def convert_uvl_to_json(content):
 
     for line in lines:
         stripped_line = line.strip()
-        
         if stripped_line.startswith("features"):
             result["features"] = {}
             current_feature = result["features"]
@@ -284,7 +283,8 @@ def convert_uvl_to_json(content):
 
     return result
 
-#Descargar los elementos en xml
+# Descargar los elementos en xml
+
 
 def convert_uvl_to_xml(content):
     # Crear el elemento raíz
@@ -318,7 +318,7 @@ def convert_uvl_to_xml(content):
     return xml_str
 
 
-#Convierte el uvl en yaml
+# Convierte el uvl en yaml
 def convert_uvl_to_yaml(content):
     yaml_data = {
         'features': {},
@@ -366,7 +366,7 @@ def convert_uvl_to_yaml(content):
                 if current_mandatory and "Connection" in current_mandatory:
                     current_mandatory["Connection"]["alternative"].append(stripped_line.strip('"'))
                 elif current_feature == "features" and "optional" in yaml_data[current_feature]["Chat"]:
-                    yaml_data[current_feature]["Chat"]["optional"].append(stripped_line.strip('"'))  # Agregar a optional
+                    yaml_data[current_feature]["Chat"]["optional"].append(stripped_line.strip('"'))
             elif stripped_line == "Messages":
                 current_messages = {}
                 current_mandatory["Messages"] = current_messages
@@ -387,9 +387,8 @@ def convert_uvl_to_yaml(content):
 
     return yaml.dump(yaml_data, default_flow_style=False, sort_keys=False)
  
-
 @dataset_bp.route("/dataset/download_informat/<file_format>/<int:dataset_id>", methods=["GET"])
-def download_dataset_json(file_format,dataset_id):
+def download_dataset_json(file_format, dataset_id):
     if file_format not in ["json", "xml", "yaml"]:
         abort(400, "Formato no soportado")  # Solo acepta json,xmly yaml
 
@@ -419,7 +418,6 @@ def download_dataset_json(file_format,dataset_id):
                             elif file_format == "yaml":
                                 converted_content = convert_uvl_to_yaml(content)
                                 new_file_name = file[:-4] + '.yaml'
-                                
                             zipf.writestr(new_file_name, converted_content)
                         except Exception as e:
                             print(f"Error al convertir {file}: {e}")
@@ -469,6 +467,7 @@ def download_dataset_json(file_format,dataset_id):
 
     return resp
 
+
 @dataset_bp.route("/doi/<path:doi>/", methods=["GET"])
 def subdomain_index(doi):
 
@@ -486,7 +485,6 @@ def subdomain_index(doi):
 
     # Get dataset
     dataset = ds_meta_data.data_set
-    
     # Save the cookie to the user's browser
     user_cookie = ds_view_record_service.create_cookie(dataset=dataset)
     resp = make_response(render_template("dataset/view_dataset.html", dataset=dataset))
