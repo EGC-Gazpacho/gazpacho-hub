@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from zipfile import ZipFile
 from xml.etree.ElementTree import Element, SubElement, tostring
 import xml.dom.minidom as minidom
-import yaml
 
 from flask import (
     redirect,
@@ -246,7 +245,6 @@ def download_dataset(dataset_id):
 
 
 #Descargar los datos en .json
-
 def convert_uvl_to_json(content):
     lines = content.splitlines()
     result = {}
@@ -291,7 +289,6 @@ def convert_uvl_to_json(content):
 def convert_uvl_to_xml(content):
     # Crear el elemento raíz
     root = Element("UVLData")
-
     current_parent = root  # Empezamos en el nodo raíz
     parent_stack = []  # Pila para gestionar el nivel jerárquico
     indentation_level = 0  # Seguimiento de los niveles de sangría
@@ -320,9 +317,8 @@ def convert_uvl_to_xml(content):
     xml_str = minidom.parseString(tostring(root)).toprettyxml(indent="  ")
     return xml_str
 
+
 #Convierte el uvl en yaml
-
-
 def convert_uvl_to_yaml(content):
     yaml_data = {
         'features': {},
@@ -391,11 +387,6 @@ def convert_uvl_to_yaml(content):
 
     return yaml.dump(yaml_data, default_flow_style=False, sort_keys=False)
  
-
-            
-       
-
-
 
 @dataset_bp.route("/dataset/download_informat/<file_format>/<int:dataset_id>", methods=["GET"])
 def download_dataset_json(file_format,dataset_id):
@@ -495,7 +486,7 @@ def subdomain_index(doi):
 
     # Get dataset
     dataset = ds_meta_data.data_set
-
+    
     # Save the cookie to the user's browser
     user_cookie = ds_view_record_service.create_cookie(dataset=dataset)
     resp = make_response(render_template("dataset/view_dataset.html", dataset=dataset))
