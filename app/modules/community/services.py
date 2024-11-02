@@ -26,7 +26,7 @@ class CommunityService(BaseService):
             self.update(community_id, **form.data)
             return True, 'Community updated successfully.'
         return False, 'Community not found.'
-    
+
     def delete_community(self, user, community_id):
         if not self.is_user_community_creator(user, community_id):
             return False, 'Only the community creator can delete this community.'
