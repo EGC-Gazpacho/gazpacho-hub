@@ -15,7 +15,7 @@ class User(db.Model, UserMixin):
 
     data_sets = db.relationship('DataSet', backref='user', lazy=True)
     profile = db.relationship('UserProfile', backref='user', uselist=False)
-    
+
     community_associations = db.relationship('UserCommunity', back_populates='user')
     communities = db.relationship('Community', secondary='user_community', viewonly=True)
 
