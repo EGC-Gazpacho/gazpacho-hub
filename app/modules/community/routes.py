@@ -1,5 +1,5 @@
-from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_required, current_user
+from flask import render_template, redirect, url_for, flash
+from flask_login import login_required
 
 from app.modules.community.forms import CommunityForm
 from app.modules.community import community_bp
@@ -73,5 +73,5 @@ def delete_community(community_id):
         flash('Community deleted successfully!', 'success')
     else:
         flash('Error deleting community', 'error')
-    
+
     return redirect(url_for('community.index'))
