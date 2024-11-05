@@ -8,7 +8,7 @@ import uuid
 from flask import request
 
 from app.modules.auth.services import AuthenticationService
-from app.modules.dataset.models import DSViewRecord, DataSet, DSMetaData
+from app.modules.dataset.models import DSViewRecord, DataSet, DSMetaData, DSMetrics
 from app.modules.dataset.repositories import (
     AuthorRepository,
     DOIMappingRepository,
@@ -157,6 +157,7 @@ class DataSetService(BaseService):
             dataset = self.create(commit=False, user_id=current_user.id, ds_meta_data_id=dsmetadata.id)
 
             total_features = 0
+            total_models = len(form.feature_models)
 
             for feature_model in form.feature_models:
                 uvl_filename = feature_model.uvl_filename.data
@@ -181,10 +182,10 @@ class DataSetService(BaseService):
                 )
                 fm.files.append(file)
 
-                '''dataset.ds_metrics = DSMetrics(
-                    number_of_models=str(len(form.feature_models)),
-                    number_of_features=str(total_features)
-                )'''
+                dsmetrics = DSMetrics(number_of_models=str(total_models), number_of_features=str(total_features))
+                dsmetadata.ds_metrics = dsmetrics
+
+                dataset.ds_meta_data = dsmetadata
 
             self.repository.session.commit()
         except Exception as exc:
