@@ -25,9 +25,9 @@ from app.modules.hubfile.repositories import (
 )
 from core.services.BaseService import BaseService
 
-import re
 
 logger = logging.getLogger(__name__)
+
 
 
 def calculate_checksum_and_size(file_path):
@@ -82,7 +82,6 @@ def parse_uvl(file_path):
         "feature_hierarchy": feature_hierarchy,
         "constraints": constraints
     }
-
 
 
 class DataSetService(BaseService):
