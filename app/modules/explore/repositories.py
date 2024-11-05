@@ -1,7 +1,7 @@
 import re
 from sqlalchemy import any_, or_
 import unidecode
-from app.modules.dataset.models import Author, DSMetaData, DataSet, PublicationType
+from app.modules.dataset.models import Author, DSMetaData, DataSet, PublicationType, DSMetrics
 from app.modules.featuremodel.models import FMMetaData, FeatureModel
 from core.repositories.BaseRepository import BaseRepository
 
@@ -52,8 +52,9 @@ class ExploreRepository(BaseRepository):
         if tags:
             datasets = datasets.filter(DSMetaData.tags.ilike(any_(f"%{tag}%" for tag in tags)))
 
-        if number_of_features is not None:
-            datasets = datasets.filter(DSMetaData.DSMetrics.number_of_features == number_of_features)
+        if number_of_features != "any":
+            datasets = datasets.join(DSMetaData.ds_metrics)
+            datasets = datasets.filter(DSMetrics.number_of_features == number_of_features)
 
         # Order by created_at
         if sorting == "oldest":
