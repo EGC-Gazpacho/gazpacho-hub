@@ -25,6 +25,8 @@ from app.modules.hubfile.repositories import (
 )
 from core.services.BaseService import BaseService
 
+import re
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,6 +36,53 @@ def calculate_checksum_and_size(file_path):
         content = file.read()
         hash_md5 = hashlib.md5(content).hexdigest()
         return hash_md5, file_size
+
+def parse_uvl(file_path):
+    features = []
+    constraints = []
+    feature_hierarchy = {}
+
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    # Track hierarchy for feature organization
+    current_parent = None
+    for line in lines:
+        line = line.strip()
+
+        # Identify feature sections
+        if line.startswith("features"):
+            continue
+        elif line.startswith("constraints"):
+            # Stop collecting features and move to constraints
+            break
+        elif line in ["mandatory", "optional", "alternative", "or"]:
+            current_parent = line
+            feature_hierarchy[current_parent] = []
+        else:
+            # Extract features (ignoring quotes if any)
+            feature = line.replace('"', '')
+            if feature:
+                features.append(feature)
+                if current_parent:
+                    feature_hierarchy[current_parent].append(feature)
+
+    # Extract constraints section
+    constraints_section = False
+    for line in lines:
+        line = line.strip()
+        if line.startswith("constraints"):
+            constraints_section = True
+            continue
+        if constraints_section:
+            constraints.append(line)
+
+    return {
+        "features": features,
+        "feature_hierarchy": feature_hierarchy,
+        "constraints": constraints
+    }
+
 
 
 class DataSetService(BaseService):
@@ -107,6 +156,8 @@ class DataSetService(BaseService):
 
             dataset = self.create(commit=False, user_id=current_user.id, ds_meta_data_id=dsmetadata.id)
 
+            total_features = 0
+
             for feature_model in form.feature_models:
                 uvl_filename = feature_model.uvl_filename.data
                 fmmetadata = self.fmmetadata_repository.create(commit=False, **feature_model.get_fmmetadata())
@@ -121,11 +172,20 @@ class DataSetService(BaseService):
                 # associated files in feature model
                 file_path = os.path.join(current_user.temp_folder(), uvl_filename)
                 checksum, size = calculate_checksum_and_size(file_path)
+                parse_result = parse_uvl(file_path)
+                feature_count = len(parse_result["features"])
+                total_features += feature_count
 
                 file = self.hubfilerepository.create(
                     commit=False, name=uvl_filename, checksum=checksum, size=size, feature_model_id=fm.id
                 )
                 fm.files.append(file)
+
+                '''dataset.ds_metrics = DSMetrics(
+                    number_of_models=str(len(form.feature_models)),
+                    number_of_features=str(total_features)
+                )'''
+
             self.repository.session.commit()
         except Exception as exc:
             logger.info(f"Exception creating dataset from form...: {exc}")
