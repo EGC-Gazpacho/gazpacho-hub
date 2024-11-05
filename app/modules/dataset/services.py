@@ -29,13 +29,13 @@ from core.services.BaseService import BaseService
 logger = logging.getLogger(__name__)
 
 
-
 def calculate_checksum_and_size(file_path):
     file_size = os.path.getsize(file_path)
     with open(file_path, "rb") as file:
         content = file.read()
         hash_md5 = hashlib.md5(content).hexdigest()
         return hash_md5, file_size
+
 
 def parse_uvl(file_path):
     features = []
