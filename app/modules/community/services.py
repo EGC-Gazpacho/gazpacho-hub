@@ -11,7 +11,7 @@ class CommunityService(BaseService):
         return self.repository.get_all()
 
     def get_user_communities(self, user):
-        return self.user_community_repository.get_user_communties(user.id)
+        return self.user_community_repository.get_user_communities(user.id)
 
     def is_user_community_member(self, user, community_id):
         return self.user_community_repository.is_user_member_of_community(user.id, community_id)
