@@ -1,0 +1,30 @@
+name: CodiumAI PR-Agent Reviewer
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  codium_review:
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: write
+
+    name: Run pr agent on every pull request, respond to user comments
+
+    steps:
+      - name: CodiumAI PR-Agent Review
+        uses: Codium-ai/pr-agent@main
+        env:
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_action_config.auto_review: "true"
+          github_action_config.pr_actions: "opened,reopened,ready_for_review"
+          pr_reviewer.require_score_review: "true"
+          pr_reviewer.enable_auto_approval: "true"
+          pr_reviewer.maximal_review_effort: 5
+          pr_reviewer.inline_code_comments: "true"
+          pr_reviewer.persistent_comment: "true"
+          pr_reviewer.require_ticket_analysis_review: "true"
