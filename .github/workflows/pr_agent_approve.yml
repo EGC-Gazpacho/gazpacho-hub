@@ -3,15 +3,23 @@ name: PR Agent Approval
 on:
   pull_request_review:
     types: [submitted]
+
 jobs:
   auto_approve:
-    if: github.event.pull_request.base.ref == 'develop' && github.event.review.state == 'approved' && github.event.review.user.login == 'codiumai-pr-agent-free[bot]'
+    if: github.event.review.state == 'approved' && github.event.review.user.login == 'codiumai-pr-agent-free[bot]'
     runs-on: ubuntu-latest
 
     permissions:
       pull-requests: write
 
     steps:
+      - name: Debug
+        run: |
+          echo ${{ github.event_name }}
+          echo ${{ github.ref }}
+          echo ${{ github.event.pull_request.head.ref }}
+          echo ${{ github.event.pull_request.base.ref }}
+
       - name: Checkout Repository
         uses: actions/checkout@v2
 
