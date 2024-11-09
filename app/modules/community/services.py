@@ -182,11 +182,14 @@ class CommunityService(BaseService):
         if self.is_user_community_creator(user_id, community_id):
             return False, 'You cannot remove the creator of the community.'
 
+        if not self.is_user_community_admin(user_id, community_id):
+            return False, 'User is already an admin of this community.'
+
         try:
             self.user_community_repository.update_role(user_id, community_id, UserRole.ADMIN)
-            return True, 'User removed successfully.'
+            return True, 'User promoted successfully.'
         except Exception as e:
-            return False, f'An error occurred while removing member of the community. Please try again: {e}'
+            return False, f'An error occurred while promoting member of the community. Please try again: {e}'
 
     def user_request_pending(self, user_id, community_id):
         return self.join_request_repository.is_request_already_made(user_id, community_id)

@@ -136,6 +136,7 @@ def admin_community(community_id):
             is_private = community.type == CommunityType.PRIVATE
             return render_template('community/admin.html', community=community, is_private=is_private)
     flash('You are not authorized to view this page.', 'error')
+    return render_template('')
 
 
 @community_bp.route('/community/<int:community_id>/requests/<int:request_id>/accept', methods=['POST'])
