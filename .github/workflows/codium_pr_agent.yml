@@ -3,6 +3,7 @@ name: CodiumAI PR-Agent Reviewer
 on:
   pull_request:
     types: [opened]
+  workflow_dispatch: 
 
 jobs:
   codium_review:
@@ -11,6 +12,7 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+      contents: write
 
     name: Run pr agent on every pull request, respond to user comments
 
@@ -21,6 +23,8 @@ jobs:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "false"
+          github_action_config.auto_improve: "false"
           github_action_config.pr_actions: "opened,reopened,ready_for_review"
           pr_reviewer.require_score_review: "true"
           pr_reviewer.enable_auto_approval: "true"
