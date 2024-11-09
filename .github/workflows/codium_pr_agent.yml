@@ -7,6 +7,7 @@ on:
 
 jobs:
   codium_review:
+    if: contains(join(github.event.pull_request.labels.*.name), 'codium-review')
     runs-on: ubuntu-latest
 
     permissions:
@@ -28,7 +29,13 @@ jobs:
           github_action_config.pr_actions: "opened,reopened,ready_for_review"
           pr_reviewer.require_score_review: "true"
           pr_reviewer.enable_auto_approval: "true"
-          pr_reviewer.maximal_review_effort: 5
-          pr_reviewer.inline_code_comments: "true"
           pr_reviewer.persistent_comment: "true"
           pr_reviewer.require_ticket_analysis_review: "true"
+          pr_reviewer.require_tests_review: "false"
+          pr_reviewer.require_estimate_effort_to_review: "false"
+          pr_reviewer.require_security_review: "false"
+          pr_reviewer.enable_review_labels_security: "false"
+          pr_reviewer.enable_review_labels_effort: "false"
+          config.model: "gpt-4o-mini-2024-07-18"
+          config.model_turbo: "gpt-4o-mini-2024-07-18"
+          config.fallback_models: "gpt-4o-mini-2024-07-18"
