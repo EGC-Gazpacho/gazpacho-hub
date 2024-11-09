@@ -1,29 +1,25 @@
-
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, Optional
 
-
-
-
 class DataSetFormGithub(FlaskForm):
-    commit_message = StringField('Mensaje del commit', validators=[DataRequired()])
-    owner = StringField('Propietario del repositorio', validators=[DataRequired()])
-    repo_name = StringField('Nombre del repositorio', validators=[DataRequired()])
+    title = StringField('Dataset Title', validators=[DataRequired()])
+    commit_message = StringField('Commit Message', validators=[DataRequired()])
+    owner = StringField('Repository Owner', validators=[DataRequired()])
+    repo_name = StringField('Repository Name', validators=[DataRequired()])
     
-    repo_type = SelectField('Tipo de Repositorio', choices=[
-        ('new', 'Nuevo Repositorio'),
-        ('existing', 'Repositorio Existente')
+    repo_type = SelectField('Repository Type', choices=[
+        ('new', 'New Repository'),
+        ('existing', 'Existing Repository')
     ])
 
-    access_token = PasswordField('Token de Acceso Personal', validators=[DataRequired()])
-    license = SelectField('Licencia del Dataset', choices=[
+    access_token = PasswordField('Personal Access Token', validators=[DataRequired()])
+    license = SelectField('Dataset License', choices=[
         ('MIT', 'MIT'),
         ('GPL', 'GPL'),
         ('Apache', 'Apache'),
         ('CC BY', 'CC BY'),
-        ('Ninguna', 'Ninguna')
+        ('None', 'None')
     ])
         
-    submit = SubmitField('Subir Dataset a GitHub')
-    
+    submit = SubmitField('Upload Dataset to GitHub')

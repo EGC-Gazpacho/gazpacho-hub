@@ -1,6 +1,6 @@
 import os
 from flask_login import login_required, current_user
-from flask import app, jsonify, redirect, render_template, request
+from flask import app, jsonify, redirect, render_template, request, flash, url_for
 import logging
 from app.modules.github import github_bp
 from app.modules.github.forms import DataSetFormGithub
@@ -17,8 +17,15 @@ dataset_service = DataSetService()
 def create_dataset_github():
     form = DataSetFormGithub()  
     if request.method == "POST":
+        
+        commit_message = request.form['commit_message']
+        owner = request.form['owner']
+        repo_name = request.form['repo_name']
+        repo_type = request.form['repo_type']
+        access_token = request.form['access_token']
+        license = request.form['license']      
         try:
-
+            
             if 'file' not in request.files:
                 raise ValueError("No file part in the request")
 
@@ -30,19 +37,8 @@ def create_dataset_github():
                 raise ValueError("Only .uvl files are allowed")
 
             dataset = file.read()
-
-            commit_message = request.form['commit_message']
-            owner = request.form['owner']
-            repo_name = request.form['repo_name']
-            repo_type = request.form['repo_type']
-            access_token = request.form['access_token']
-            license = request.form['license']            
-            
-            
-            
-            upload_to_github(owner, repo_name, file.filename, dataset, access_token, commit_message)
-
-            return jsonify({"message": "Dataset created and uploaded to GitHub successfully"}), 200
+            response_message, status_code = upload_to_github(owner, repo_name, file.filename, dataset, access_token, commit_message, license, repo_type)
+            return jsonify({"message": response_message}), status_code
         
         except Exception as exc:
             logger.exception(f"Exception while creating dataset or uploading to GitHub: {exc}")
@@ -52,12 +48,14 @@ def create_dataset_github():
 
 @github_bp.route('/github/dropzone', methods=['POST'])
 def dropzone():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return jsonify({"error": "No file part"}), 400
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
 
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({"error": "No selected file"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    return jsonify({'message': 'File processed successfully without being saved or uploaded.'}), 200
+        
+    
 
-        return jsonify({"error": "Invalid file format"}), 400

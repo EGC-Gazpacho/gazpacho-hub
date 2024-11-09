@@ -1,58 +1,4 @@
-2024-11-05 16:10:05,981 - app - ERROR - Exception on /github/upload [GET]
-Traceback (most recent call last):
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask_restful/__init__.py", line 298, in error_router
-    return original_handler(e)
-           ^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/routes.py", line 63, in create_dataset_github
-    return jsonify({"message": "Dataset created and uploaded to GitHub successfully"}), 200
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1304, in render
-    self.environment.handle_exception()
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 1, in top-level template code
-    {% extends "base_template.html" %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/templates/base_template.html", line 207, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 296, in block 'content'
-    {% block scripts %}
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 306, in block 'scripts'
-    url: "{{ url_for('your_upload_endpoint') }}",  // Ruta de tu función de Flask para subir archivos
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1084, in url_for
-    return self.handle_url_build_error(error, endpoint, values)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1073, in url_for
-    rv = url_adapter.build(  # type: ignore[union-attr]
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 924, in build
-    raise BuildError(endpoint, values, method, self)
-werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'your_upload_endpoint'. Did you mean 'flamapy.to_splot' instead?
-2024-11-05 16:10:05,991 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2024-11-05 16:11:47,329 - app - ERROR - Exception on /github/upload [GET]
+2024-11-05 16:32:00,986 - app - ERROR - Exception on /github/upload [GET]
 Traceback (most recent call last):
   File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
     response = self.full_dispatch_request()
@@ -75,34 +21,72 @@ Traceback (most recent call last):
   File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/routes.py", line 69, in create_dataset_github
     return render_template("upload_dataset_github.html", form=form)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1304, in render
-    self.environment.handle_exception()
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 768, in compile
+    self.handle_exception(source=source_hint)
   File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 1, in top-level template code
-    {% extends "base_template.html" %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/templates/base_template.html", line 207, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 296, in block 'content'
-    {% block scripts %}
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 306, in block 'scripts'
-    url: "{{ url_for('your_upload_endpoint') }}",  // Ruta de tu función de Flask para subir archivos
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1084, in url_for
-    return self.handle_url_build_error(error, endpoint, values)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1073, in url_for
-    rv = url_adapter.build(  # type: ignore[union-attr]
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 924, in build
-    raise BuildError(endpoint, values, method, self)
-werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'your_upload_endpoint'. Did you mean 'flamapy.to_splot' instead?
-2024-11-05 16:11:47,332 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 311, in template
+    {% endblock %}
+jinja2.exceptions.TemplateSyntaxError: Unexpected end of template. Jinja was looking for the following tags: 'endblock'. The innermost block that needs to be closed is 'block'.
+2024-11-05 16:32:00,989 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2024-11-05 16:32:01,653 - app - ERROR - Exception on /github/upload [GET]
+Traceback (most recent call last):
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask_restful/__init__.py", line 298, in error_router
+    return original_handler(e)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/routes.py", line 69, in create_dataset_github
+    return render_template("upload_dataset_github.html", form=form)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 768, in compile
+    self.handle_exception(source=source_hint)
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 311, in template
+    {% endblock %}
+jinja2.exceptions.TemplateSyntaxError: Unexpected end of template. Jinja was looking for the following tags: 'endblock'. The innermost block that needs to be closed is 'block'.
+2024-11-05 16:32:01,655 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.

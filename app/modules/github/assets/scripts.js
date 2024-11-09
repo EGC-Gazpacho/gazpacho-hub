@@ -6,105 +6,58 @@
         function generateIncrementalId() {
             return currentId++;
         }
-        function hide_loading() {
-        document.getElementById("upload_button").style.display = "block";
-        document.getElementById("loading").style.display = "none";
-    }
+    
+        function check_info() {
+            let commitMessage = document.querySelector('input[name="commit_message"]');
+            let owner = document.querySelector('input[name="owner"]');
+            let repo_name = document.querySelector('input[name="repo_name"]');
+            let token = document.querySelector('input[name="access_token"]');
 
-        function addField(newAuthor, name, text, className = 'col-lg-6 col-12 mb-3') {
-            let fieldWrapper = document.createElement('div');
-            fieldWrapper.className = className;
-
-            let label = document.createElement('label');
-            label.className = 'form-label';
-            label.for = name;
-            label.textContent = text;
-
-            let field = document.createElement('input');
-            field.name = name;
-            field.className = 'form-control';
-
-            fieldWrapper.appendChild(label);
-            fieldWrapper.appendChild(field);
-            newAuthor.appendChild(fieldWrapper);
-        }
-
-        function addRemoveButton(newAuthor) {
-            let buttonWrapper = document.createElement('div');
-            buttonWrapper.className = 'col-12 mb-2';
-
-            let button = document.createElement('button');
-            button.textContent = 'Remove author';
-            button.className = 'btn btn-danger btn-sm';
-            button.type = 'button';
-            button.addEventListener('click', function (event) {
-                event.preventDefault();
-                newAuthor.remove();
-            });
-
-            buttonWrapper.appendChild(button);
-            newAuthor.appendChild(buttonWrapper);
-        }
-
-        function createAuthorBlock(idx, suffix) {
-            let newAuthor = document.createElement('div');
-            newAuthor.className = 'author row';
-            newAuthor.style.cssText = "border:2px dotted #ccc;border-radius:10px;padding:10px;margin:10px 0; background-color: white";
-
-            addField(newAuthor, `${suffix}authors-${idx}-name`, 'Name *');
-            addField(newAuthor, `${suffix}authors-${idx}-affiliation`, 'Affiliation');
-            addField(newAuthor, `${suffix}authors-${idx}-orcid`, 'ORCID');
-            addRemoveButton(newAuthor);
-
-            return newAuthor;
-        }
-
-        function check_title_and_description() {
-            let titleInput = document.querySelector('input[name="title"]');
-            let descriptionTextarea = document.querySelector('textarea[name="desc"]');
-
-            titleInput.classList.remove("error");
-            descriptionTextarea.classList.remove("error");
+            commitMessage.classList.remove("error");
+            owner.classList.remove("error");
+            repo_name.classList.remove("error");
+            token.classList.remove("error");
             clean_upload_errors();
 
-            let titleLength = titleInput.value.trim().length;
-            let descriptionLength = descriptionTextarea.value.trim().length;
 
-            if (titleLength < 3) {
-                write_upload_error("title must be of minimum length 3");
-                titleInput.classList.add("error");
-            }
+            let commitMessageLength = commitMessage.value.trim().length;
+            let ownerLength = owner.value.trim().length;
+            let repo_nameLength = repo_name.value.trim().length;
+            let tokenLength = token.value.trim().length;
 
-            if (descriptionLength < 3) {
-                write_upload_error("description must be of minimum length 3");
-                descriptionTextarea.classList.add("error");
-            }
+           if (commitMessageLength < 3) {
+               write_upload_error("Commit message must be of minimum length 3");
+               commitMessage.classList.add("error");
+           }
+           if (ownerLength < 1) {
+               write_upload_error("Repository owner is required");
+               owner.classList.add("error");
+           }
+              if (repo_nameLength < 1) {
+                write_upload_error("Repository name is required");
+                repo_name.classList.add("error");
+              }
 
-            return (titleLength >= 3 && descriptionLength >= 3);
+                if (tokenLength < 1) {
+                    write_upload_error("Access token is required");
+                    token.classList.add("error");
+                }
+           return (commitMessageLength >= 3 && ownerLength > 0  && repo_nameLength > 0 && tokenLength > 0);
         }
 
-
-
-        document.addEventListener('click', function (event) {
-            if (event.target && event.target.classList.contains('add_author_to_uvl')) {
-
-                let authorsButtonId = event.target.id;
-                let authorsId = authorsButtonId.replace("_button", "");
-                let authors = document.getElementById(authorsId);
-                let id = authorsId.replace("_form_authors", "")
-                let newAuthor = createAuthorBlock(amount_authors, `feature_models-${id}-`);
-                authors.appendChild(newAuthor);
-
-            }
-        });
+ 
 
         function show_loading() {
             document.getElementById("upload_button_github").style.display = "none";
             document.getElementById("loading").style.display = "block";
         }
 
-    
+        function hide_loading() {
+            document.getElementById("upload_button_github").style.display = "block";
+            document.getElementById("loading").style.display = "none";
+        }
 
+    
         function clean_upload_errors() {
             let upload_error = document.getElementById("upload_error");
             upload_error.innerHTML = "";
@@ -121,6 +74,96 @@
             upload_error.style.display = 'block';
         }
 
+
+
+        window.onload = function () {
+
+            document.getElementById('upload_button_github').addEventListener('click', function () {
+        
+                clean_upload_errors();
+                show_loading();
+        
+                let check = check_info();  
+                if (check) {
+        
+                    if (dropzoneInstanceGithub && dropzoneInstanceGithub.getAcceptedFiles().length > 0) {
+                        const formData = new FormData();
+                        formData.append("commit_message", document.getElementById('commit_message').value);  
+                        formData.append("owner", document.getElementById('owner').value);
+                        formData.append("repo_name", document.getElementById('repo_name').value);
+                        formData.append("repo_type", document.getElementById('repo_type').value);
+                        formData.append("access_token", document.getElementById('access_token').value);
+                        formData.append("license", document.getElementById('license').value);
+        
+                        dropzoneInstanceGithub.getAcceptedFiles().forEach(function(file) {
+                            formData.append("file", file); 
+                        });
+        
+                        fetch('/github/upload', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => {
+                            const errorContainer = document.getElementById('upload_github_error');
+                            if (!response.ok) {
+                                if (response.status === 401) {
+                                    errorContainer.style.display = 'block';
+                                    document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + "), verify your access token.";
+                                    hide_loading();
+                                    throw new Error("Bad credentials. Verify your access token.");
+                                    
+                                } else if (response.status === 404 || response.status === 400) {
+                                    errorContainer.style.display = 'block';
+                                    document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + "), verify the repository owner and name.";
+                                    hide_loading();
+                                    throw new Error("Repository not found. Verify the repository owner and name.");
+                                }
+                                else if (response.status === 422) {
+                                    errorContainer.style.display = 'block';
+                                    document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + "), you have in your repository a file with the same name.";
+                                    hide_loading();
+                                    throw new Error("Repository not found. Verify the repository owner and name.");
+                                }
+                                
+                                else {
+                                    errorContainer.style.display = 'block';
+                                    document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + ")";
+                                    hide_loading();
+                                    throw new Error(`Error ${response.status} - ${response.statusText}`);
+                                }
+                            }
+                            return response.json();
+                        }).catch(error => {
+                            const errorContainer = document.getElementById('upload_github_error');
+                             errorContainer.style.display = 'block';
+                             document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + ")";
+                             console.error('Error:', error);
+                            hide_loading();
+                        })
+                        
+                        
+                        
+                        .then(data => {
+                            if (data.message) {
+                                console.log('Success:', data.message);
+                            }
+                            //window.location.href = "/";
+                            hide_loading(); 
+                            const errorContainer = document.getElementById('upload_github_error');
+                            errorContainer.style.display = 'none';                        
+                        });
+                    } else {
+                        hide_loading(); 
+                    }
+                } else {
+                    hide_loading();  
+                }
+            });
+        };
+                   
+              
+                
+       
         function toBase64(str) {
             return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
         }
