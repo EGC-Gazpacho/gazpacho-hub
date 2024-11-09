@@ -48,6 +48,15 @@ def login():
 
     return render_template('auth/login_form.html', form=form)
 
+@auth_bp.route('/listarUsuarios', methods=['GET'])
+def listar():
+    if current_user.is_authenticated:
+        if request.method == 'GET':
+            users=authentication_service.list_users()
+            return render_template("auth/list_users.html", users=users, error='Invalid credentials')
+    else:
+        return render_template('auth/login_form.html', form=LoginForm())
+
 
 @auth_bp.route('/logout')
 def logout():
