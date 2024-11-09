@@ -100,3 +100,19 @@ def leave_community(community_id):
     success, message = community_service.leave_community(current_user, community_id)
     flash(message, 'success' if success else 'error')
     return redirect(url_for('community.get_community', community_id=community_id))
+
+
+@community_bp.route('/user-communities', methods=['GET'])
+@login_required
+def user_communities():
+    user_community = community_service.get_user_communities(current_user)
+    communities = [
+        {
+            'id': uc.community.id,
+            'name': uc.community.name,
+            'description': uc.community.description,
+            'joined_at': uc.joined_at
+        }
+        for uc in user_community
+    ]
+    return render_template('community/user_communities.html', communities=communities)
