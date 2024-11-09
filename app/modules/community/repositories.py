@@ -33,5 +33,8 @@ class UserCommunityRepository(BaseRepository):
             db.session.delete(association)
             db.session.commit()
 
-    def get_user_communties(self, user_id):
+    def delete_all_by_community_id(self, community_id):
+        self.model.query.filter_by(community_id=community_id).delete()
+
+    def get_user_communities(self, user_id):
         return self.model.query.filter_by(user_id=user_id).all()

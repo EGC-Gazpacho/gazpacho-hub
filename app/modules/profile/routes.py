@@ -46,11 +46,11 @@ def my_profile():
 
     print(user_datasets_pagination.items)
 
+    total_communities = db.session.query(UserCommunity).filter_by(user_id=current_user.id).count()
     communities = db.session.query(UserCommunity) \
         .order_by(UserCommunity.joined_at.desc()) \
         .filter(UserCommunity.user_id == current_user.id) \
         .limit(3).all()
-    total_communities = len(communities) if communities else 0
 
     return render_template(
         'profile/summary.html',
