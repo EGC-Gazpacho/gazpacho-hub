@@ -7,7 +7,7 @@ on:
 
 jobs:
   codium_review:
-    if: contains(join(github.event.pull_request.labels.*.name), 'codium-review')
+    if: contains(github.event.pull_request.body || '', '/codium-review')
     runs-on: ubuntu-latest
 
     permissions:
