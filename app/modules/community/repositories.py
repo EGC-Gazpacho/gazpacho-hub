@@ -36,6 +36,9 @@ class UserCommunityRepository(BaseRepository):
     def delete_all_by_community_id(self, community_id):
         self.model.query.filter_by(community_id=community_id).delete()
 
+    def get_user_communities(self, user_id):
+        return self.model.query.filter_by(user_id=user_id).all()
+
     def update_role(self, user_id, community_id, role):
         association = self.model.query.filter_by(user_id=user_id, community_id=community_id).first()
         if association:

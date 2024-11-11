@@ -15,6 +15,12 @@ class CommunityService(BaseService):
     def is_user_community_member(self, user_id, community_id):
         return self.user_community_repository.is_user_member_of_community(user_id, community_id)
 
+    def get_user_communities(self, user):
+        return self.user_community_repository.get_user_communities(user.id)
+
+    # def is_user_community_member(self, user, community_id):
+        # return self.user_community_repository.is_user_member_of_community(user.id, community_id)
+
     def is_user_community_creator(self, user_id, community_id):
         association = self.user_community_repository.get_user_community(user_id, community_id)
         return association and association.role == UserRole.CREATOR
@@ -180,9 +186,9 @@ class CommunityService(BaseService):
             return False, 'Only admins or creator can remove members.'
 
         if self.is_user_community_creator(user_id, community_id):
-            return False, 'You cannot remove the creator of the community.'
+            return False, 'You cannot promote the creator of the community.'
 
-        if not self.is_user_community_admin(user_id, community_id):
+        if self.is_user_community_admin(user_id, community_id):
             return False, 'User is already an admin of this community.'
 
         try:
