@@ -1,6 +1,5 @@
-import os
-from flask_login import login_required, current_user
-from flask import app, jsonify, redirect, render_template, request, flash, url_for
+from flask_login import login_required
+from flask import jsonify, render_template, request
 import logging
 from app.modules.github import github_bp
 from app.modules.github.forms import DataSetFormGithub
