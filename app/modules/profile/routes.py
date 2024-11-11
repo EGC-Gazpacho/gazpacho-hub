@@ -1,4 +1,5 @@
 from app.modules.auth.services import AuthenticationService
+from app.modules.community.models import UserCommunity
 from app.modules.dataset.models import DataSet
 from flask import render_template, redirect, url_for, request
 from flask_login import login_required, current_user
@@ -45,11 +46,19 @@ def my_profile():
 
     print(user_datasets_pagination.items)
 
+    total_communities = db.session.query(UserCommunity).filter_by(user_id=current_user.id).count()
+    communities = db.session.query(UserCommunity) \
+        .order_by(UserCommunity.joined_at.desc()) \
+        .filter(UserCommunity.user_id == current_user.id) \
+        .limit(3).all()
+
     return render_template(
         'profile/summary.html',
         user_profile=current_user.profile,
         user=current_user,
         datasets=user_datasets_pagination.items,
         pagination=user_datasets_pagination,
-        total_datasets=total_datasets_count
+        total_datasets=total_datasets_count,
+        communities=communities,
+        total_communities=total_communities
     )

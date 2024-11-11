@@ -98,6 +98,13 @@ WTForms==3.1.2
 zope.event==5.0
 zope.interface==6.4.post2
 zstandard==0.22.0
+
 flask-mail
+<<<<<<< HEAD
 pyjwt
 
+=======
+
+
+pyYAML==6.0.2
+>>>>>>> e1870888cf46439b7029b888ca64be97c55e7ff3
