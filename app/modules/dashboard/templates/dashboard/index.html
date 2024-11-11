@@ -1,0 +1,141 @@
+{% extends "base_template.html" %}
+
+{% block title %}View dataset{% endblock %}
+
+{% block content %}
+
+<h1 class="h3 mb-3"><b>Dashboard</b></h1>
+
+<p>Para ver los diferentes Dashboard de UVLHub, pulse cualquier botón:</p>
+
+<div class="custom-buttons">
+    <button type="button" class="btn-dashboard" onclick="toggleDatasetCount()">Ver número de datasets</button>
+    <button type="button" class="btn-dashboard" onclick="toggleAuthorCount()">Ver número de autores</button>
+    <button type="button" class="btn-dashboard" onclick="toggleGraph()">Ver gráfica de datasets por autor</button>
+    <button type="button" class="btn-dashboard" id="dashboard-1">Otro dashboard</button>
+</div>
+
+<!-- Contenedor donde se mostrará el número de datasets o autores -->
+<div id="dataset-count" style="margin-top: 20px; font-weight: bold; display: none;"></div>
+
+<!-- Contenedor para la gráfica de datasets por autor -->
+<canvas id="datasetsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+
+<!-- Div oculto para almacenar los datos de autores y cantidad de datasets -->
+<div id="data-container"
+     data-author-names='{{ author_names | tojson | safe }}'
+     data-datasets-count='{{ datasets_count | tojson | safe }}'
+     style="display: none;">
+</div>
+
+{% endblock %}
+
+{% block styles %}
+<style>
+    .custom-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .btn-dashboard {
+        padding: 10px 20px;
+        border: 2px solid #0056b3; 
+        background-color: #f8f9fa; 
+        color: #0056b3; 
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .btn-dashboard:hover {
+        background-color: #0056b3;
+        color: #ffffff;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+    <!-- Incluye Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        function toggleDatasetCount() {
+            const datasetCountDiv = document.getElementById('dataset-count');
+            const datasetsChart = document.getElementById('datasetsChart');
+            datasetsChart.style.display = "none"; 
+            
+            if (datasetCountDiv.style.display === "none") {
+                datasetCountDiv.innerText = "Total Datasets: {{ ndatasets }}";
+                datasetCountDiv.style.display = "block";
+            } else {
+                datasetCountDiv.style.display = "none";
+            }
+        }
+
+        function toggleAuthorCount() {
+            const datasetCountDiv = document.getElementById('dataset-count');
+            const datasetsChart = document.getElementById('datasetsChart');
+            datasetsChart.style.display = "none"; 
+            
+            if (datasetCountDiv.style.display === "none") {
+                datasetCountDiv.innerText = "Total Authors: {{ nauthors }}";
+                datasetCountDiv.style.display = "block";
+            } else {
+                datasetCountDiv.style.display = "none";
+            }
+        }
+
+        function toggleGraph() {
+            const datasetCountDiv = document.getElementById('dataset-count');
+            const datasetsChart = document.getElementById('datasetsChart');
+            datasetCountDiv.style.display = "none"; 
+            
+            if (datasetsChart.style.display === "none") {
+                datasetsChart.style.display = "block";
+            } else {
+                datasetsChart.style.display = "none";
+            }
+        }
+
+        // Extraer los datos del elemento oculto
+        const dataContainer = document.getElementById('data-container');
+        const authorNames = JSON.parse(dataContainer.getAttribute('data-author-names'));
+        const datasetsCount = JSON.parse(dataContainer.getAttribute('data-datasets-count'));
+
+        // Configuración de la gráfica
+        const ctx = document.getElementById('datasetsChart').getContext('2d');
+        const datasetsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: authorNames,
+                datasets: [{
+                    label: 'Número de Datasets',
+                    data: datasetsCount,
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de Datasets'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Autores'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}
