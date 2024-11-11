@@ -31,7 +31,7 @@ def create_app(config_name='development'):
     migrate.init_app(app, db)
 
     # Flask-Mail configuration
-    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')  
+    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))  # Asegúrate de convertir a entero
     app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'  # Convierte el valor a booleano
     app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')  # Correo electrónico del remitente

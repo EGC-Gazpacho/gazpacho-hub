@@ -122,7 +122,7 @@ class AuthenticationService(BaseService):
         msg = Message(subject=subject, recipients=[to])
         msg.body = body  # No es necesario codificarlo a UTF-8, ya lo maneja flask_mail automáticamente
         msg.charset = 'utf-8'
-        print("hola3", msg.body, msg.subject) 
+        print("hola3", msg.body, msg.subject)
         try:
             mail.send(msg)  # Enviar el correo
             return True  # Correo enviado correctamente

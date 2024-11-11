@@ -65,7 +65,7 @@ def password_recovery():
         if user:
             # Llamar a `generate_recovery_token` usando la instancia del servicio
             token = authentication_service.generate_recovery_token(user)
-            print("hola2", user) 
+            print("hola2", user)
             try:
                 authentication_service.send_recovery_email(user.email, token)  # Enviar correo
                 flash("Se ha enviado un enlace de recuperación a tu correo electrónico.", 'success')
