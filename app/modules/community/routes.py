@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 
-from app.modules.community.forms import CommunityForm
+from app.modules.community.forms import CommunityEditForm, CommunityForm
 from app.modules.community import community_bp
 from app.modules.community.models import CommunityType
 from app.modules.community.services import CommunityService
@@ -64,7 +64,7 @@ def edit_community(community_id):
         flash("Only the community creator can edit this community.", "error")
         return redirect(url_for('community.get_community', community_id=community_id))
     community = community_service.get_or_404(community_id)
-    form = CommunityForm(obj=community)
+    form = CommunityEditForm(obj=community)
     if form.validate_on_submit():
         result = community_service.edit_community(
             user=current_user,

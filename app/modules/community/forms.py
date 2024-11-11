@@ -14,3 +14,9 @@ class CommunityForm(FlaskForm):
         validators=[DataRequired()],
     )
     submit = SubmitField('Save Community')
+
+
+class CommunityEditForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(max=100)])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    submit = SubmitField('Save Changes')
