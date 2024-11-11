@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, Optional
+from wtforms.validators import DataRequired
 
 class DataSetFormGithub(FlaskForm):
     title = StringField('Dataset Title', validators=[DataRequired()])
