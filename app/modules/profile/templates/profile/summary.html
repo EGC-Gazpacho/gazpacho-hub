@@ -5,29 +5,46 @@
 
 {% block content %}
 
-<h1 class="h3 mb-3">User profile</h1>
+<div class="row d-flex align-items-stretch">
 
-<div class="row">
-
-    <div class="col-12 col-md-8 col-lg-6"> 
-
-        <div class="card shadow-sm" > 
-            <div class="card-header card-dark"> 
+    <div class="col-12 col-md-8 col-lg-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header card-dark">
                 <h5 class="card-title mb-0" style="color: white; font-size: 15px;">Profile Information</h5>
             </div>
             <div class="card-body">
-                <p class="card-text h5"><i class="fa fa-user"></i> <strong>Name:</strong> {{user_profile.name}}</p>
-                <p class="card-text h5"><i class="fa fa-user-circle"></i> <strong>Surname:</strong> {{user_profile.surname}}</p>
-                <p class="card-text h5"><i class="fa fa-building"></i> <strong>Affiliation:</strong> {{user_profile.affiliation}}</p>
-                <p class="card-text h5"><i class="fa fa-id-card"></i> <strong>Orcid:</strong> {{user_profile.orcid}}</p>
-                <p class="card-text h5"><i class="fa fa-envelope"></i> <strong>Email:</strong> {{user.email}}</p>
+                <p class="card-text h5"><i class="fa fa-user"></i> <strong>Name:</strong> {{ user_profile.name }}</p>
+                <p class="card-text h5"><i class="fa fa-user-circle"></i> <strong>Surname:</strong> {{ user_profile.surname }}</p>
+                <p class="card-text h5"><i class="fa fa-building"></i> <strong>Affiliation:</strong> {{ user_profile.affiliation }}</p>
+                <p class="card-text h5"><i class="fa fa-id-card"></i> <strong>Orcid:</strong> {{ user_profile.orcid }}</p>
+                <p class="card-text h5"><i class="fa fa-envelope"></i> <strong>Email:</strong> {{ user.email }}</p>
                 <p class="card-text h5"><i class="fa fa-database"></i> <strong>Uploaded datasets:</strong> {{ total_datasets }} datasets</p>
             </div>
-            
         </div>
-
     </div>
 
+    <div class="col-12 col-md-4 col-lg-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header card-dark">
+                <h5 class="card-title mb-0" style="color: white; font-size: 15px;">User Communities</h5>
+            </div>
+            <div class="card-body">
+                {% if communities %}
+                    <p class="card-text h5"><i class="fa"></i> <strong>Number of communities joined:</strong> {{ total_communities }}</p>
+                    <p class="card-text h5"><i class="fa"></i> <strong>Recent communities:</strong></p>
+                    <ul class="list-group list-group-flush">
+                        {% for uc in communities %}
+                            <li class="list-group-item">
+                                <strong><a href="{{ url_for('community.get_community', community_id=uc.community.id) }}">{{ uc.community.name }}</a></strong>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="card-text">No communities joined.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 
 <h1 class="h3 mb-3">User datasets</h1>
