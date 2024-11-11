@@ -99,3 +99,5 @@ zope.event==5.0
 zope.interface==6.4.post2
 zstandard==0.22.0
 flask-mail
+pyjwt
+
