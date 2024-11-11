@@ -1,0 +1,79 @@
+2024-11-05 16:43:56,565 - app - ERROR - Exception on /github/upload [GET]
+Traceback (most recent call last):
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask_restful/__init__.py", line 298, in error_router
+    return original_handler(e)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/routes.py", line 69, in create_dataset_github
+    return render_template("upload_dataset_github.html", form=form)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1304, in render
+    self.environment.handle_exception()
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 1, in top-level template code
+    {% extends "base_template.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/templates/base_template.html", line 207, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 271, in block 'content'
+    {% block scripts %}
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 303, in block 'scripts'
+    <script src="{{ url_for('github.dropzone') }}"></script>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'github.dropzone'. Did you mean 'github.upload' instead?
+2024-11-05 16:43:56,568 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2024-11-05 16:58:18,501 - app - ERROR - Exception on /github/dropzone [POST]
+Traceback (most recent call last):
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask_restful/__init__.py", line 298, in error_router
+    return original_handler(e)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/routes.py", line 77, in dropzone
+    # Guarda o procesa el archivo aquí según sea necesario
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/werkzeug/datastructures/file_storage.py", line 125, in save
+    dst = open(dst, "wb")
+          ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/path/to/save/file7.uvl'
+2024-11-05 16:58:18,504 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
