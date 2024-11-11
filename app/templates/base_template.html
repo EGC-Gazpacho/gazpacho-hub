@@ -103,10 +103,16 @@ chico sundermann">
                         </a>
                     </li>
 
+                    <li class="sidebar-item {{ 'active' if request.endpoint == 'dashboard.index' else '' }}">
+                        <a class="sidebar-link" href="{{ url_for('dashboard.index') }}">
+                            <i class="align-middle" data-feather="file-text"></i> 
+                            <span class="align-middle"> Dashboard</span>
+
                     <li class="sidebar-item {{ 'active' if request.endpoint == 'github.create_dataset_github' else '' }}">
                         <a class="sidebar-link" href="{{ url_for('github.create_dataset_github') }}">
                             <i class="align-middle" data-feather="upload"></i> <span
                                 class="align-middle">Upload dataset to Github</span>
+
                         </a>
                     </li>
 
