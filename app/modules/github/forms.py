@@ -2,12 +2,13 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, PasswordField
 from wtforms.validators import DataRequired
 
+
 class DataSetFormGithub(FlaskForm):
     title = StringField('Dataset Title', validators=[DataRequired()])
     commit_message = StringField('Commit Message', validators=[DataRequired()])
     owner = StringField('Repository Owner', validators=[DataRequired()])
     repo_name = StringField('Repository Name', validators=[DataRequired()])
-    
+
     repo_type = SelectField('Repository Type', choices=[
         ('new', 'New Repository'),
         ('existing', 'Existing Repository')
@@ -21,5 +22,5 @@ class DataSetFormGithub(FlaskForm):
         ('CC BY', 'CC BY'),
         ('None', 'None')
     ])
-        
+
     submit = SubmitField('Upload Dataset to GitHub')

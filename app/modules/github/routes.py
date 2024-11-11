@@ -15,17 +15,17 @@ dataset_service = DataSetService()
 @github_bp.route("/github/upload", methods=["GET", "POST"])
 @login_required
 def create_dataset_github():
-    form = DataSetFormGithub()  
+    form = DataSetFormGithub()
     if request.method == "POST":
-        
+
         commit_message = request.form['commit_message']
         owner = request.form['owner']
         repo_name = request.form['repo_name']
         repo_type = request.form['repo_type']
         access_token = request.form['access_token']
-        license = request.form['license']      
+        license = request.form['license']
         try:
-            
+
             if 'file' not in request.files:
                 raise ValueError("No file part in the request")
 
@@ -37,14 +37,16 @@ def create_dataset_github():
                 raise ValueError("Only .uvl files are allowed")
 
             dataset = file.read()
-            response_message, status_code = upload_to_github(owner, repo_name, file.filename, dataset, access_token, commit_message, license, repo_type)
+            response_message, status_code = upload_to_github(
+                owner, repo_name, file.filename, dataset, access_token, commit_message, license, repo_type)
             return jsonify({"message": response_message}), status_code
-        
+
         except Exception as exc:
             logger.exception(f"Exception while creating dataset or uploading to GitHub: {exc}")
             return jsonify({"error": str(exc)}), 400
 
     return render_template("upload_dataset_github.html", form=form)
+
 
 @github_bp.route('/github/dropzone', methods=['POST'])
 def dropzone():
@@ -54,8 +56,5 @@ def dropzone():
     file = request.files['file']
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
-    
-    return jsonify({'message': 'File processed successfully without being saved or uploaded.'}), 200
-        
-    
 
+    return jsonify({'message': 'File processed successfully without being saved or uploaded.'}), 200
