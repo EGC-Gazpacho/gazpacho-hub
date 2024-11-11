@@ -20,11 +20,11 @@ class CommunityService(BaseService):
 
     def is_user_community_creator(self, user_id, community_id):
         association = self.user_community_repository.get_user_community(user_id, community_id)
-        return association and association.role == UserRole.CREATOR
+        return association is not None and association.role == UserRole.CREATOR
 
     def is_user_community_admin(self, user_id, community_id):
         association = self.user_community_repository.get_user_community(user_id, community_id)
-        return association and association.role == UserRole.ADMIN
+        return association is not None and association.role == UserRole.ADMIN
 
     def edit_community(self, user, community_id, form):
         if not self.is_user_community_creator(user.id, community_id):
