@@ -12,7 +12,6 @@ authentication_service = AuthenticationService()
 user_profile_service = UserProfileService()
 
 
-
 @auth_bp.route("/signup/", methods=["GET", "POST"])
 def show_signup_form():
     if current_user.is_authenticated:
