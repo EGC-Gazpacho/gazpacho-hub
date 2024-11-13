@@ -63,3 +63,26 @@ class ExploreRepository(BaseRepository):
             datasets = datasets.order_by(self.model.created_at.desc())
 
         return datasets.all()
+   
+    
+class ModelRepository(BaseRepository):
+    def __init__(self):
+        super().__init__(FeatureModel)
+
+    def filter(self, query="", sorting="newest", tags=[], **kwargs):
+        # Normalizar y limpiar la consulta
+        normalized_query = unidecode.unidecode(query).lower()
+        cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
+
+        # Definir filtros para búsqueda por palabras clave
+        filters = []
+        for word in cleaned_query.split():
+            filters.append(FMMetaData.title.ilike(f"%{word}%"))
+
+        models_query = (
+            self.model.query
+            .join(FeatureModel.fm_meta_data) 
+            .filter(or_(*filters))
+        )
+
+        return models_query.all()

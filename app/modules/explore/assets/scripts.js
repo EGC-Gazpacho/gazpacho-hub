@@ -241,3 +241,22 @@ document.addEventListener('DOMContentLoaded', () => {
         queryInput.dispatchEvent(new Event('input', {bubbles: true}));
     }
 });
+
+// app/modules/explore/assets/scripts.js
+
+document.getElementById('search-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const query = document.getElementById('search-query').value;
+    fetch(`/explore2/models?query=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = '';
+            data.forEach(model => {
+                const modelDiv = document.createElement('div');
+                modelDiv.classList.add('model-item');
+                modelDiv.innerHTML = `<h3>${model.fm_meta_data.title}</h3><p>${model.fm_meta_data.description}</p>`;
+                resultsDiv.appendChild(modelDiv);
+            });
+        });
+});
