@@ -185,3 +185,16 @@
     padding: 5px;
     border-radius: 3px;
 }
+
+.custom-download-button {
+    background-color: #f3f6fa;
+    color: grey;
+    border-radius: 30px;
+    padding: 8px 18px;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.custom-download-button:hover {
+    background-color: #dde8e8;
+}

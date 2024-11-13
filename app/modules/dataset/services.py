@@ -2,8 +2,10 @@ import logging
 import os
 import hashlib
 import shutil
+import tempfile
 from typing import Optional
 import uuid
+from zipfile import ZipFile
 
 from flask import request
 
@@ -61,6 +63,9 @@ class DataSetService(BaseService):
         for feature_model in dataset.feature_models:
             uvl_filename = feature_model.fm_meta_data.uvl_filename
             shutil.move(os.path.join(source_dir, uvl_filename), dest_dir)
+            
+    def is_synchronized(self, dataset_id: int) -> bool:
+        return self.repository.is_synchronized(dataset_id)
 
     def get_synchronized(self, current_user_id: int) -> DataSet:
         return self.repository.get_synchronized(current_user_id)
@@ -132,6 +137,37 @@ class DataSetService(BaseService):
             self.repository.session.rollback()
             raise exc
         return dataset
+    
+    def zip_all_datasets(self) -> str:
+        
+        # Creamos un directorio temporal para guardar los archivos
+        
+        temp_dir = tempfile.mkdtemp()
+        zip_path = os.path.join(temp_dir, "all_datasets.zip")
+        
+        
+        with ZipFile(zip_path, "w") as zipf:
+            for user_dir in os.listdir("uploads"):
+                user_path = os.path.join("uploads", user_dir)
+
+                if os.path.isdir(user_path) and user_dir.startswith("user_"):
+                    for dataset_dir in os.listdir(user_path):
+                        dataset_path = os.path.join(user_path, dataset_dir)
+
+                        if os.path.isdir(dataset_path) and dataset_dir.startswith("dataset_"):
+                            dataset_id = int(dataset_dir.split("_")[1])
+
+                            if self.is_synchronized(dataset_id):
+                                for subdir, dirs, files in os.walk(dataset_path):
+                                    for file in files:
+                                        full_path = os.path.join(subdir, file)
+
+                                        relative_path = os.path.relpath(full_path, dataset_path)
+                                        zipf.write(
+                                            full_path,
+                                            arcname=os.path.join(dataset_dir, relative_path),
+                                        )
+        return zip_path
 
     def update_dsmetadata(self, id, **kwargs):
         return self.dsmetadata_repository.update(id, **kwargs)
