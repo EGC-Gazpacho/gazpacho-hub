@@ -42,12 +42,6 @@ class TestDownloadindifferentformatsselenium():
     self.driver.find_element(By.LINK_TEXT, "Download in .xml").click()
     self.driver.find_element(By.LINK_TEXT, "Download in .json").click()
     self.driver.find_element(By.LINK_TEXT, "Download in .yaml").click()
-    self.driver.get("http://localhost:5000/")
-    self.driver.find_element(By.LINK_TEXT, "Dataset prueba").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .xml").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .json").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .yaml").click()
-    
   
    
   
