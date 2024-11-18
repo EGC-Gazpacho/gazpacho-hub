@@ -6,13 +6,17 @@
 
 <form method="POST" action="{{ url_for('community.create_community') }}">
     {{ form.hidden_tag() }}
-    <div>
+    <div class="mb-3">
         {{ form.name.label }}<br>
         {{ form.name(size=32) }}
     </div>
-    <div>
+    <div class="mb-3">
         {{ form.description.label }}<br>
         {{ form.description(rows=5) }}
+    </div>
+    <div class="mb-3">
+        {{ form.type.label }}<br>
+        {{ form.type(class="form-control") }}
     </div>
     <div>
         {{ form.submit() }}
