@@ -33,7 +33,8 @@ from app.modules.dataset.services import (
     DSMetaDataService,
     DSViewRecordService,
     DataSetService,
-    DOIMappingService
+    DOIMappingService,
+    DSRatingService
 )
 from app.modules.fakenodo.services import FakenodoService
 from app.modules.zenodo.services import ZenodoService
@@ -49,6 +50,7 @@ zenodo_service = ZenodoService()
 fakenodo_service = FakenodoService()
 doi_mapping_service = DOIMappingService()
 ds_view_record_service = DSViewRecordService()
+ds_rating_service = DSRatingService()
 
 
 @dataset_bp.route("/dataset/upload", methods=["GET", "POST"])
@@ -277,6 +279,22 @@ def download_dataset(dataset_id):
         )
 
     return resp
+
+
+@dataset_bp.route("/datasets/<int:dataset_id>/rate", methods=["POST"])
+@login_required
+def rate_dataset(dataset_id):
+    user_id = current_user.id
+    rate = request.json.get('rating')
+    rating = ds_rating_service.add_or_update_rating(dataset_id, user_id, rate)
+    return jsonify({'message': 'Rating added', 'rating': rating.value}), 200
+
+
+@dataset_bp.route('/datasets/<int:dataset_id>/average-rating', methods=['GET'])
+@login_required
+def get_dataset_average_rating(dataset_id):
+    avg_rating = ds_rating_service.get_dataset_average_rating(dataset_id)
+    return jsonify({'avg_rating': avg_rating}), 200
 
 
 # Descargar los datos en .json
