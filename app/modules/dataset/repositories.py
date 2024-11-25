@@ -131,9 +131,9 @@ class DSRatingRepository(BaseRepository):
     def get_user_rating(self, dataset_id: int, user_id: int) -> Optional[DSRating]:
         return self.model.query.filter_by(DataSet.id == dataset_id, DataSet.user_id == user_id).first()
 
-    def get_average_rating(self, dataset_id: int) -> float:
-        average = self.model.query.filter_by(DataSet.id == dataset_id).with_entities(func.avg(DSRating.value)).scalar()
-        return average if average else 0.0
+    def get_avg_rating(self, dataset_id: int) -> float:
+        avg = self.model.query.filter_by(DataSet.id == dataset_id).with_entities(func.avg(DSRating.value)).scalar()
+        return avg if avg else 0.0
 
     def count_ratings(self, dataset_id: int) -> int:
         return self.model.query.filter_by(DataSet.id == dataset_id).count()
