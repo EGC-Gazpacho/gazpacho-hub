@@ -138,6 +138,10 @@
                         submitRating({{ dataset.id }}, ratingValue);
                     });
                 });
+
+                // Cargar el promedio de calificación inicial
+                updateAverageRating({{ dataset.id }});
+                {% endfor %}
         
                 // Enviar la calificación al backend
                 function submitRating(datasetId, ratingValue) {
@@ -166,9 +170,7 @@
                     .catch(error => console.error('Error fetching average rating:', error));
                 }
         
-                // Cargar el promedio de calificación inicial
-                updateAverageRating({{ dataset.id }});
-                {% endfor %}
+                
             });
         </script>
 
