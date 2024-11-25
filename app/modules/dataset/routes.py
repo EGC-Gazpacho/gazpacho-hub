@@ -280,10 +280,8 @@ def download_dataset(dataset_id):
 def download_all_dataset():
     zip_path = dataset_service.zip_all_datasets()
 
-    # Obtener la fecha actual en el formato deseado (por ejemplo, YYYYMMDD)
     current_date = datetime.now().strftime("%Y_%m_%d")
 
-    # Crear el nombre del archivo con la fecha
     zip_filename = f"all_datasets_{current_date}.zip"
 
     return send_file(zip_path, as_attachment=True, download_name=zip_filename)
