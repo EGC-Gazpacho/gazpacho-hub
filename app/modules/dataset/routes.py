@@ -287,7 +287,7 @@ def rate_dataset(dataset_id):
     user_id = current_user.id
     rate = request.json.get('rating')
     rating = ds_rating_service.add_or_update_rating(dataset_id, user_id, rate)
-    return jsonify({'message': 'Rating added', 'rating': rating.value}), 200
+    return jsonify({'message': 'Rating added', 'rating': rating.to_dict()}), 200
 
 
 @dataset_bp.route('/datasets/<int:dataset_id>/average-rating', methods=['GET'])
