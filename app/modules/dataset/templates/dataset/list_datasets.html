@@ -125,31 +125,52 @@
             {% endif %}
         </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        {% for dataset in datasets %}
-            updateAvgRate({{ dataset.id }});
-        {% endfor %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                {% for dataset in datasets %}
+                const starRatingContainer{{ dataset.id }} = document.getElementById('star-rating-{{ dataset.id }}');
+                const averageRatingElement{{ dataset.id }} = document.getElementById('average-rating-{{ dataset.id }}');
         
-        // Función para actualizar el promedio de calificación en el frontend
-        function updateAvgRate(datasetId) {
-            fetch(`/datasets/${datasetId}/average-rating`)
-            .then(response => response.json())
-            .then(data => {
-                const avgRate = data.average_rating.toFixed(1);
-                document.getElementById('average-rating-' + datasetId).innerText = avgRate;
-        
-                // Resaltar estrellas según el promedio de calificación
-                const starRatingContainer = document.getElementById('star-rating-' + datasetId);
-                starRatingContainer.querySelectorAll('span').forEach(star => {
-                    const starRate = parseInt(star.getAttribute('data-value'));
-                    star.style.color = starRate <= Math.round(avgRate) ? '#FFD700' : '#ddd';
+                // Función para agregar evento a cada estrella
+                starRatingContainer{{ dataset.id }}.querySelectorAll('span').forEach(star => {
+                    star.addEventListener('click', function () {
+                        const ratingValue = this.getAttribute('data-value');
+                        submitRating({{ dataset.id }}, ratingValue);
+                    });
                 });
-            })
-            .catch(error => console.error('Error fetching average rating:', error));
-        }
-    });
-</script>
+        
+                // Enviar la calificación al backend
+                function submitRating(datasetId, ratingValue) {
+                    fetch(`/datasets/${datasetId}/rate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ rating: ratingValue })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Rating submitted:', data);
+                        updateAverageRating(datasetId);
+                    })
+                    .catch(error => console.error('Error submitting rating:', error));
+                }
+        
+                // Actualizar el promedio de calificación
+                function updateAverageRating(datasetId) {
+                    fetch(`/datasets/${datasetId}/average-rating`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('average-rating-' + datasetId).innerText = data.average_rating.toFixed(1);
+                    })
+                    .catch(error => console.error('Error fetching average rating:', error));
+                }
+        
+                // Cargar el promedio de calificación inicial
+                updateAverageRating({{ dataset.id }});
+                {% endfor %}
+            });
+        </script>
 
 
 {% endblock %}
