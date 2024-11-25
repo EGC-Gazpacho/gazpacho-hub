@@ -97,6 +97,7 @@ class DataSetService(BaseService):
         self.hubfilerepository = HubfileRepository()
         self.dsviewrecord_repostory = DSViewRecordRepository()
         self.hubfileviewrecord_repository = HubfileViewRecordRepository()
+        self.dsrating_repository = DSRatingRepository()
 
     def move_feature_models(self, dataset: DataSet):
         current_user = AuthenticationService().get_authenticated_user()
@@ -279,17 +280,21 @@ class DSRatingService(BaseService):
     def __init__(self):
         super().__init__(DSRatingRepository())
 
-    def add_or_update_rating(self, dataset_id: int, user_id: int, rating_value: int) -> DSRating:
-        rating = self.repository.get_user_rating(dataset_id, user_id)
+    def add_or_update_rating(self, dsmetadata_id: int, user_id: int, rating_value: int) -> DSRating:
+        rating = self.repository.get_user_rating(dsmetadata_id, user_id)
         if rating:
-            rating.value = rating_value
+            print(f"Actualizando rating a {rating_value}")
+            rating.rating = rating_value
         else:
-            rating = self.repository.create(commit=False, data_set_id=dataset_id, user_id=user_id, value=rating_value)
+            print("Valor de rating en el servicio:", rating_value)
+            rate = self.repository
+            rating = rate.create(commit=False, ds_meta_data_id=dsmetadata_id, user_id=user_id, rating=rating_value)
+            print("Valor de rating en el servicio:", rating.rating)        
         self.repository.session.commit()
         return rating
 
-    def get_dataset_average_rating(self, dataset_id: int) -> float:
-        return self.repository.get_average_rating(dataset_id)
+    def get_dataset_average_rating(self, dsmetadata_id: int) -> float:
+        return self.repository.get_average_rating(dsmetadata_id)
 
-    def get_total_ratings(self, dataset_id: int) -> int:
-        return self.repository.count_ratings(dataset_id)
+    def get_total_ratings(self, dsmetadata_id: int) -> int:
+        return self.repository.count_ratings(dsmetadata_id)
