@@ -237,8 +237,8 @@ function avgRateUpdate(datasetId) {
     fetch(`/datasets/${datasetId}/average-rating`)
         .then(response => response.json())
         .then(data => {
-            const ratingValue = data.average_rating.toFixed(1);
-            document.getElementById('average-rating-' + datasetId).innerText = ratingValue;
+            const rating = data.average_rating.toFixed(1);
+            document.getElementById('average-rating-' + datasetId).innerText = rating;
             // Resaltar el número correcto de estrellas en amarillo
             const ratingStar = document.getElementById('star-rating-' + datasetId);
             showRate(ratingStar, Math.round(data.average_rating));

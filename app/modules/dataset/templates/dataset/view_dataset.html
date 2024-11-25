@@ -565,16 +565,16 @@
             star.addEventListener('click', function () {
                 const rating = this.getAttribute('data-value'); // Obtiene el valor de la estrella seleccionada
                 defRate[datasetId] = rating; // Almacena la calificación seleccionada en la variable global
-                highlightStars(rateCont, rating); // Resaltar estrellas
+                showRate(rateCont, rating); // Resaltar estrellas
             });
         });
         // Actualizar el promedio de calificación inicial
         avgRateUpdate(datasetId);
         // Función para resaltar las estrellas según la calificación seleccionada
-        function highlightStars(container, rating) {
+        function showRate(container, rating) {
             container.querySelectorAll('span').forEach(star => {
-                const starValue = star.getAttribute('data-value');
-                star.style.color = starValue <= rating ? '#FFD700' : '#ddd'; // Cambia el color de la estrella
+                const starRate = star.getAttribute('data-value');
+                star.style.color = starRate <= rating ? '#FFD700' : '#ddd'; // Cambia el color de la estrella
             });
         }
     });
