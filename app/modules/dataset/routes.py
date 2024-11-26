@@ -281,13 +281,22 @@ def download_dataset(dataset_id):
     return resp
 
 
-@dataset_bp.route("/datasets/<int:dataset_id>/rate", methods=["POST"])
+@dataset_bp.route('/datasets/<int:dataset_id>/rate', methods=['POST'])
 @login_required
 def rate_dataset(dataset_id):
     user_id = current_user.id
     rate = request.json.get('rating')
-    rating = ds_rating_service.add_or_update_rating(dataset_id, user_id, rate)
-    return jsonify({'message': 'Rating added', 'rating': rating.to_dict()}), 200
+    
+    if not rate or not (1 <= rate <= 5):
+        return jsonify({'message': 'Invalid rating value'}), 400
+    
+    # Agrega o actualiza la calificación
+    ds_rating_service.add_or_update_rating(dataset_id, user_id, rate)
+    
+    # Calcula el promedio actualizado
+    avg_rating = ds_rating_service.get_dataset_average_rating(dataset_id)
+    
+    return jsonify({'message': 'Rating added/updated', 'average_rating': avg_rating}), 200
 
 
 @dataset_bp.route('/datasets/<int:dataset_id>/average-rating', methods=['GET'])

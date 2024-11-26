@@ -281,17 +281,25 @@ class DSRatingService(BaseService):
         super().__init__(DSRatingRepository())
 
     def add_or_update_rating(self, dsmetadata_id: int, user_id: int, rating_value: int) -> DSRating:
-        rating = self.repository.get_user_rating(dsmetadata_id, user_id)
-        if rating:
-            print(f"Actualizando rating a {rating_value}")
-            rating.rating = rating_value
+        # Verificar si ya existe una calificación para este usuario y dataset
+        existing_rating = self.repository.get_user_rating(dsmetadata_id, user_id)
+        
+        if existing_rating:
+            # Actualiza la calificación existente
+            existing_rating.rating = rating_value
+            existing_rating.rated_date = datetime.utcnow()
         else:
-            print("Valor de rating en el servicio:", rating_value)
-            rate = self.repository
-            rating = rate.create(commit=False, ds_meta_data_id=dsmetadata_id, user_id=user_id, rating=rating_value)
-            print("Valor de rating en el servicio:", rating.rating)        
+            # Crea una nueva calificación
+            existing_rating = self.repository.create(
+                commit=False,
+                ds_meta_data_id=dsmetadata_id,
+                user_id=user_id,
+                rating=rating_value,
+                rated_date=datetime.utcnow()
+            )
+        
         self.repository.session.commit()
-        return rating
+        return existing_rating
 
     def get_dataset_average_rating(self, dsmetadata_id: int) -> float:
         return self.repository.get_average_rating(dsmetadata_id)
