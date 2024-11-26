@@ -193,7 +193,7 @@
                     </button>
                     </div>
                     <div>
-                        Average Rating: <span id="average-rating-{{ dataset.id }}">0</span>/5
+                        Average Rating: <span id="average-rating-{{ dataset.id }}">{{ dataset.ds_meta_data.rating or 0 }}</span>/5
                     </div>
                 </div>
             </div>

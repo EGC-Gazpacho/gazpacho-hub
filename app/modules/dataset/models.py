@@ -116,6 +116,9 @@ class DataSet(db.Model):
         db.session.commit()
 
     def to_dict(self):
+        from app.modules.dataset.services import DSRatingService
+        avg_rating = DSRatingService().get_dataset_average_rating(self.ds_meta_data.id)
+    
         return {
             'title': self.ds_meta_data.title,
             'id': self.id,
@@ -126,6 +129,7 @@ class DataSet(db.Model):
             'publication_type': self.get_cleaned_publication_type(),
             'publication_doi': self.ds_meta_data.publication_doi,
             'rating': self.ds_meta_data.rating,
+            'rating': avg_rating,
             'dataset_doi': self.ds_meta_data.dataset_doi,
             'tags': self.ds_meta_data.tags.split(",") if self.ds_meta_data.tags else [],
             'url': self.get_uvlhub_doi(),

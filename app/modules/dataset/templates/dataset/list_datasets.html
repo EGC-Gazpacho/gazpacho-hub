@@ -41,7 +41,7 @@
                                             <span data-value="{{ i }}" style="font-size: 1.5rem;">★</span>
                                         {% endfor %}
                                     </div>
-                                    <span id="average-rating-{{ dataset.id }}" class="ms-2">-</span>/5
+                                    <span id="average-rating-{{ dataset.id }}">{{ dataset.ds_meta_data.rating or 0 }}</span>/5
                                 </td>
                                 <td>
                                     <a href="{{ dataset.get_uvlhub_doi() }}">
