@@ -134,7 +134,7 @@ function send_query() {
                                             <span class="text-secondary">Rating</span>
                                         </div>
                                         <div class="col-md-8 col-12 d-flex align-items-center">
-                                            <div id="star-rating-${dataset.id}" class="stars" style="color: gold;">
+                                            <div id="star-rating-${dataset.id}" class="stars" style="color: rgb(248, 186, 15);">
                                                 ${'<span data-value="1">★</span>'.repeat(5)} <!-- Estrellas para interacción -->
                                             </div>
                                                 <span id="average-rating-${dataset.id}" class="ms-2">-</span> <!-- Valor inicial vacío -->
