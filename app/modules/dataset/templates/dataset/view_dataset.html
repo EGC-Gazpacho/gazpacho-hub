@@ -528,9 +528,16 @@
     const defRate = {};
 
     function submitRating(datasetId) {
-        const rating = defRate[datasetId];
-        const rateButton = document.querySelector(`#star-rating-${datasetId} + button`);
-        if (rating > 0) {
+        // Obtener la calificación seleccionada
+        let rating = defRate[datasetId];
+        
+        // Convertir el valor de rating a un entero
+        rating = parseInt(rating, 10);  // parseInt con base 10
+    
+        // Verificar que la calificación esté entre 1 y 5
+        if (rating >= 1 && rating <= 5) {
+            const rateButton = document.querySelector(`#star-rating-${datasetId} + button`);
+    
             fetch(`/datasets/${datasetId}/rate`, {
                 method: 'POST',
                 headers: {
@@ -541,20 +548,23 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Rating submitted:', data);
-                
-                // Actualizar la media en el frontend
+    
+                // Actualizar el promedio en el frontend
                 const avgRatingElement = document.getElementById('average-rating-' + datasetId);
                 avgRatingElement.innerText = data.average_rating.toFixed(1);
+    
+                // Resaltar las estrellas según la calificación
                 highlightStars(datasetId, rating);
-                
+    
                 // Deshabilitar el botón para evitar múltiples envíos
                 rateButton.disabled = true;
             })
             .catch(error => console.error('Error submitting rating:', error));
         } else {
-            alert('Please select a rating before submitting.');
+            alert('Please select a valid rating (1-5) before submitting.');
         }
     }
+    
 
     
     // Definir avgRateUpdate en el ámbito global
