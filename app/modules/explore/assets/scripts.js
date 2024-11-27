@@ -129,17 +129,27 @@ function send_query() {
 
                                     </div>
 
-                                                                        <div class="row mb-2">
-                                        <div class="col-md-4 col-12">
-                                            <span class="text-secondary">Rating</span>
-                                        </div>
-                                        <div class="col-md-8 col-12 d-flex align-items-center">
-                                            <div id="star-rating-${dataset.id}" class="stars" style="color: rgb(248, 186, 15);">
-                                                ${'<span data-value="1">★</span>'.repeat(5)} <!-- Estrellas para interacción -->
+                                    <div class="row mb-2">
+                                        <div class="col-md-12 d-flex justify-content-between align-items-center" style="min-height: 60px;">
+                                            <!-- Rating Text -->
+                                            <span class="text-secondary" style="font-size: 1em;">Rating</span>
+                                            
+                                            <!-- Stars and Average Rating -->
+                                            <div class="d-flex align-items-center">
+                                                <div id="star-rating-${dataset.id}" class="stars" 
+                                                    style="color: rgb(248, 186, 15); font-size: 1.8em;">
+                                                    ${'<span data-value="1">★</span>'.repeat(5)} <!-- Interactive Stars -->
+                                                </div>
+                                                <span id="average-rating-${dataset.id}" 
+                                                    class="ms-2" 
+                                                    style="font-size: 1.2em; color: #000;"></span>
+                                                <!-- Average Rating -->
                                             </div>
-                                                <span id="average-rating-${dataset.id}" class="ms-2">-</span> <!-- Valor inicial vacío -->
                                         </div>
                                     </div>
+
+
+
 
                                 </div>
                             </div>
