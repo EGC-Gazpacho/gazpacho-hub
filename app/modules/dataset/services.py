@@ -25,6 +25,7 @@ from app.modules.hubfile.repositories import (
     HubfileViewRecordRepository
 )
 from core.services.BaseService import BaseService
+from datetime import datetime
 
 
 logger = logging.getLogger(__name__)
