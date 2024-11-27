@@ -181,22 +181,27 @@
                 
             </div>
 
-            <div style="display: flex; flex-direction: column;">
-                <div style="margin-top: 0px; flex-direction: column;">
-                    <div style="display: inline-block; cursor: pointer; color: #ddd;" id="star-rating-{{ dataset.id }}">
+            <div class="row mb-2">
+                <div class="col-md-12 d-flex align-items-center">
+                    <!-- Average Rating -->
+                    <div style="margin-left: 50px; margin-right: 20px;">
+                        Average Rating: <span id="average-rating-{{ dataset.id }}">{{ dataset.ds_meta_data.rating or 0 }}</span>/5
+                    </div>
+            
+                    <!-- Stars -->
+                    <div style="padding-left: 30px; display: inline-block; cursor: pointer; color: #ddd;" id="star-rating-{{ dataset.id }}">
                         {% for i in range(1, 6) %}
                             <span data-value="{{ i }}" style="font-size: 1.8em;">☆</span>
                         {% endfor %}
                     </div>
-                    <button onclick="submitRating('{{ dataset.id }}')" style="display: inline-block; margin-left: 10px; font-size: 0.9rem;">
+            
+                    <!-- Rate Button -->
+                    <button onclick="submitRating('{{ dataset.id }}')" style="display: inline-block; margin-left: 50px; font-size: 0.9rem;">
                         Rate
                     </button>
-                    </div>
-                    <div>
-                        Average Rating: <span id="average-rating-{{ dataset.id }}">{{ dataset.ds_meta_data.rating or 0 }}</span>/5
-                    </div>
                 </div>
             </div>
+            
 
             {% endif %}
 
