@@ -4,7 +4,7 @@ import logging
 from app.modules.github import github_bp
 from app.modules.github.forms import DataSetFormGithub
 from app.modules.dataset.services import DataSetService
-from app.modules.github.services import upload_to_github
+from app.modules.github.services import upload_dataset_to_github
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +24,10 @@ def create_dataset_github(dataset_id):
         repo_type = request.form['repo_type']
         access_token = request.form['access_token']
         license = request.form['license']
-        file_name = request.form['file_name']   
         try:
 
-            response_message, status_code = upload_to_github(
-                owner, repo_name, file_name, dataset, access_token, commit_message, license, repo_type)
+            response_message, status_code = upload_dataset_to_github(
+                owner, repo_name, dataset, access_token, commit_message, license, repo_type)
             return jsonify({"message": response_message}), status_code
 
         except Exception as exc:
