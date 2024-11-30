@@ -94,8 +94,12 @@
                     formData.append("repo_type", document.getElementById('repo_type').value);
                     formData.append("access_token", document.getElementById('access_token').value);
                     formData.append("license", document.getElementById('license').value);
+
+                    const datasetId = document.getElementById('upload_button_github').getAttribute('data-dataset-id');
+                    console.log('datasetId:', datasetId);   
+
         
-                    fetch('/github/upload/<int:dataset_id>', {
+                    fetch(`/github/upload/${datasetId}`, {
                         method: 'POST',
                         body: formData
                     })

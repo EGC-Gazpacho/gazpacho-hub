@@ -94,6 +94,7 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        <input type="hidden" id="dataset_id" value="{{ dataset.id }}">
                     </div>
                 </div>
             </div>
@@ -105,7 +106,8 @@
     <div class="col-12 mt-4">
         
         <div class="mt-4" style="padding-left: 2rem">
-            <button id="upload_button_github" class="btn btn-primary btn-lg" style="display: block; width: 100%;">Upload to GitHub</button>
+            <button id="upload_button_github" data-dataset-id="{{ dataset.id }}" 
+                class="btn btn-primary btn-lg" style="display: block; width: 100%;">Upload to GitHub</button>
 
             <div id="loading" style="display: none">
                 <img width="40px" src="{{ url_for('static', filename='gifs/loading.svg') }}"/>
