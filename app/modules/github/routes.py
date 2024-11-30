@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 dataset_service = DataSetService()
 
 
-@github_bp.route("/github/upload", methods=["GET", "POST"])
+@github_bp.route("/github/upload/<int:dataset_id>", methods=["GET", "POST"])
 @login_required
-def create_dataset_github():
+def create_dataset_github(dataset_id):
     form = DataSetFormGithub()
     if request.method == "POST":
 

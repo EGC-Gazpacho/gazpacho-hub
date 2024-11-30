@@ -1,4 +1,4 @@
-2024-11-05 16:32:02,445 - app - ERROR - Exception on /github/upload [GET]
+2024-11-05 16:32:03,079 - app - ERROR - Exception on /github/upload [GET]
 Traceback (most recent call last):
   File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
     response = self.full_dispatch_request()
@@ -43,8 +43,8 @@ Traceback (most recent call last):
   File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 311, in template
     {% endblock %}
 jinja2.exceptions.TemplateSyntaxError: Unexpected end of template. Jinja was looking for the following tags: 'endblock'. The innermost block that needs to be closed is 'block'.
-2024-11-05 16:32:02,448 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2024-11-05 16:32:02,612 - app - ERROR - Exception on /github/upload [GET]
+2024-11-05 16:32:03,081 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2024-11-05 16:32:03,274 - app - ERROR - Exception on /github/upload [GET]
 Traceback (most recent call last):
   File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
     response = self.full_dispatch_request()
@@ -89,4 +89,29 @@ Traceback (most recent call last):
   File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/github/templates/upload_dataset_github.html", line 311, in template
     {% endblock %}
 jinja2.exceptions.TemplateSyntaxError: Unexpected end of template. Jinja was looking for the following tags: 'endblock'. The innermost block that needs to be closed is 'block'.
-2024-11-05 16:32:02,614 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2024-11-05 16:32:03,275 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2024-11-05 16:33:10,145 - app - ERROR - Exception on /upload [POST]
+Traceback (most recent call last):
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask_restful/__init__.py", line 298, in error_router
+    return original_handler(e)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/app/modules/dropzone/routes.py", line 14, in upload
+    file.save(f"/path/to/save/{file.filename}")  # Save the file to a desired path
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/afael/Escritorio/EGC/GAZPACHO/gazpacho-hub/venv/lib/python3.12/site-packages/werkzeug/datastructures/file_storage.py", line 125, in save
+    dst = open(dst, "wb")
+          ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/path/to/save/file7.uvl'
+2024-11-05 16:33:10,145 - app - ERROR - Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
