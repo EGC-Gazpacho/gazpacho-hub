@@ -86,81 +86,69 @@
                 let check = check_info();  
                 if (check) {
         
-                    if (dropzoneInstanceGithub && dropzoneInstanceGithub.getAcceptedFiles().length > 0) {
-                        const formData = new FormData();
-                        formData.append("commit_message", document.getElementById('commit_message').value);  
-                        formData.append("owner", document.getElementById('owner').value);
-                        formData.append("repo_name", document.getElementById('repo_name').value);
-                        formData.append("repo_type", document.getElementById('repo_type').value);
-                        formData.append("access_token", document.getElementById('access_token').value);
-                        formData.append("license", document.getElementById('license').value);
+                    const formData = new FormData();
+                    formData.append("commit_message", document.getElementById('commit_message').value);  
+                    formData.append("owner", document.getElementById('owner').value);
+                    formData.append("repo_name", document.getElementById('repo_name').value);
+                    formData.append("file_name", document.getElementById('file_name').value);
+                    formData.append("repo_type", document.getElementById('repo_type').value);
+                    formData.append("access_token", document.getElementById('access_token').value);
+                    formData.append("license", document.getElementById('license').value);
         
-                        dropzoneInstanceGithub.getAcceptedFiles().forEach(function(file) {
-                            formData.append("file", file); 
-                        });
-        
-                        fetch('/github/upload', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => {
-                            const errorContainer = document.getElementById('upload_github_error');
-                            if (!response.ok) {
-                                if (response.status === 401) {
-                                    errorContainer.style.display = 'block';
-                                    document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + "), verify your access token.";
-                                    hide_loading();
-                                    throw new Error("Bad credentials. Verify your access token.");
-                                    
-                                } else if (response.status === 404 || response.status === 400) {
-                                    errorContainer.style.display = 'block';
-                                    document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + "), verify the repository owner and name.";
-                                    hide_loading();
-                                    throw new Error("Repository not found. Verify the repository owner and name.");
-                                }
-                                else if (response.status === 422) {
-                                    errorContainer.style.display = 'block';
-                                    document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + "), you have in your repository a file with the same name.";
-                                    hide_loading();
-                                    throw new Error("Repository not found. Verify the repository owner and name.");
-                                }
-                                
-                                else {
-                                    errorContainer.style.display = 'block';
-                                    document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + ")";
-                                    hide_loading();
-                                    throw new Error(`Error ${response.status} - ${response.statusText}`);
-                                }
+                    fetch('/github/upload/<int:dataset_id>', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        const errorContainer = document.getElementById('upload_github_error');
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                errorContainer.style.display = 'block';
+                                document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + "), verify your access token.";
+                                hide_loading();
+                                throw new Error("Bad credentials. Verify your access token.");
+                            } else if (response.status === 404 || response.status === 400) {
+                                errorContainer.style.display = 'block';
+                                document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + "), verify the repository owner and name.";
+                                hide_loading();
+                                throw new Error("Repository not found. Verify the repository owner and name.");
+                            } else if (response.status === 422) {
+                                errorContainer.style.display = 'block';
+                                document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + "), you have in your repository a file with the same name.";
+                                hide_loading();
+                                throw new Error("Repository not found. Verify the repository owner and name.");
+                            } else {
+                                errorContainer.style.display = 'block';
+                                document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + ")";
+                                hide_loading();
+                                throw new Error(`Error ${response.status} - ${response.statusText}`);
                             }
-                            return response.json();
-                        }).catch(error => {
-                            const errorContainer = document.getElementById('upload_github_error');
-                             errorContainer.style.display = 'block';
-                             document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-"+ response.status + ")";
-                             console.error('Error:', error);
-                            hide_loading();
-                        })
-                        
-                        
-                        
-                        .then(data => {
-                            if (data.message) {
-                                console.log('Success:', data.message);
-                            }
-                            //window.location.href = "/";
-                            hide_loading(); 
-                            const errorContainer = document.getElementById('upload_github_error');
-                            errorContainer.style.display = 'none';                        
-                        });
-                    } else {
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        const errorContainer = document.getElementById('upload_github_error');
+                        errorContainer.style.display = 'block';
+                        document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + ")";
+                        console.error('Error:', error);
+                        hide_loading();
+                    })
+                    .then(data => {
+                        if (data.message) {
+                            console.log('Success:', data.message);
+                        }
+                        //window.location.href = "/";
                         hide_loading(); 
-                    }
+                        const errorContainer = document.getElementById('upload_github_error');
+                        errorContainer.style.display = 'none';                        
+                    });
+        
                 } else {
                     hide_loading();  
                 }
             });
         };
-                   
+           
               
                 
        
