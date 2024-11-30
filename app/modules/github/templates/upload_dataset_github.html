@@ -4,7 +4,6 @@
 
 {% block content %}
 <h1 class="h2 mb-3"><b>Upload</b> dataset to Github</h1>
-<h1 class="h2 mb-3"> {{ dataset }} </h1>
 
 
 <head>
@@ -58,9 +57,9 @@
                     </div>
                     <div class="col-12">
                         <div class="mb-3">
-                            {{ form.file_name.label(class="form-label") }} *
-                            {{ form.file_name(rows=4, class="form-control") }}
-                            {% for error in form.file_name.errors %}
+                            {{ form.branch.label(class="form-label") }} *
+                            {{ form.branch(rows=4, class="form-control") }}
+                            {% for error in form.branch.errors %}
                                 <span style="color: red;">{{ error }}</span>
                             {% endfor %}
                         </div>

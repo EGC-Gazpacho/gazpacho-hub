@@ -141,7 +141,7 @@
                         if (data.message) {
                             console.log('Success:', data.message);
                         }
-                        //window.location.href = "/";
+                        window.location.href = 'https://github.com/login';  
                         hide_loading(); 
                         const errorContainer = document.getElementById('upload_github_error');
                         errorContainer.style.display = 'none';                        
