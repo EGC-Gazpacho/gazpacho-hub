@@ -15,6 +15,7 @@ dataset_service = DataSetService()
 @login_required
 def create_dataset_github(dataset_id):
     form = DataSetFormGithub()
+    dataset = dataset_service.get_or_404(dataset_id)
     if request.method == "POST":
 
         commit_message = request.form['commit_message']
@@ -23,28 +24,18 @@ def create_dataset_github(dataset_id):
         repo_type = request.form['repo_type']
         access_token = request.form['access_token']
         license = request.form['license']
+        file_name = request.form['file_name']   
         try:
 
-            if 'file' not in request.files:
-                raise ValueError("No file part in the request")
-
-            file = request.files['file']
-            if file.filename == '':
-                raise ValueError("No selected file")
-
-            if not file.filename.endswith('.uvl'):
-                raise ValueError("Only .uvl files are allowed")
-
-            dataset = file.read()
             response_message, status_code = upload_to_github(
-                owner, repo_name, file.filename, dataset, access_token, commit_message, license, repo_type)
+                owner, repo_name, file_name, dataset, access_token, commit_message, license, repo_type)
             return jsonify({"message": response_message}), status_code
 
         except Exception as exc:
             logger.exception(f"Exception while creating dataset or uploading to GitHub: {exc}")
             return jsonify({"error": str(exc)}), 400
 
-    return render_template("upload_dataset_github.html", form=form)
+    return render_template("upload_dataset_github.html", form=form, dataset=dataset)
 
 
 @github_bp.route('/github/dropzone', methods=['POST'])

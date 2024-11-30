@@ -22,5 +22,6 @@ class DataSetFormGithub(FlaskForm):
         ('CC BY', 'CC BY'),
         ('None', 'None')
     ])
+    file_name = StringField('File Name', validators=[DataRequired()])
 
     submit = SubmitField('Upload Dataset to GitHub')
