@@ -90,6 +90,7 @@
                     formData.append("commit_message", document.getElementById('commit_message').value);  
                     formData.append("owner", document.getElementById('owner').value);
                     formData.append("repo_name", document.getElementById('repo_name').value);
+                    formData.append("branch", document.getElementById('branch').value);
                     formData.append("repo_type", document.getElementById('repo_type').value);
                     formData.append("access_token", document.getElementById('access_token').value);
                     formData.append("license", document.getElementById('license').value);
@@ -105,37 +106,25 @@
                     .then(response => {
                         const errorContainer = document.getElementById('upload_github_error');
                         if (!response.ok) {
-                            if (response.status === 401) {
+                            hide_loading();
+                            response.json().then(error => {
+                                // Mostrar el mensaje del servidor o un mensaje genérico
+                                console.log('Error:', error);
+                                const errorMessage = error.error || `Error: ${response.statusText} (ERROR-${response.status})`;
                                 errorContainer.style.display = 'block';
-                                document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + "), verify your access token.";
-                                hide_loading();
-                                throw new Error("Bad credentials. Verify your access token.");
-                            } else if (response.status === 404 || response.status === 400) {
+                                document.getElementById('error_message').textContent = `Error to upload the file: ${errorMessage}`;
+                                console.error(`Error ${response.status}: ${errorMessage}`);
+                            }).catch(() => {
+                                // Manejo de errores si el JSON no puede ser procesado
+                                const fallbackMessage = `Unexpected error: ${response.statusText} (ERROR-${response.status})`;
                                 errorContainer.style.display = 'block';
-                                document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + "), verify the repository owner and name.";
-                                hide_loading();
-                                throw new Error("Repository not found. Verify the repository owner and name.");
-                            } else if (response.status === 422) {
-                                errorContainer.style.display = 'block';
-                                document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + "), you have in your repository a file with the same name.";
-                                hide_loading();
-                                throw new Error("Repository not found. Verify the repository owner and name.");
-                            } else {
-                                errorContainer.style.display = 'block';
-                                document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + ")";
-                                hide_loading();
-                                throw new Error(`Error ${response.status} - ${response.statusText}`);
-                            }
+                                document.getElementById('error_message').textContent = fallbackMessage;
+                                console.error(fallbackMessage);
+                            });
+                            throw new Error(`Request failed with status ${response.status}`);
                         }
                         return response.json();
-                    })
-                    .catch(error => {
-                        const errorContainer = document.getElementById('upload_github_error');
-                        errorContainer.style.display = 'block';
-                        document.getElementById('error_message').textContent = "Error to upload the file: " + response.statusText + " (ERROR-" + response.status + ")";
-                        console.error('Error:', error);
-                        hide_loading();
-                    })
+                    })                    
                     .then(data => {
                         if (data.message) {
                             console.log('Success:', data.message);
