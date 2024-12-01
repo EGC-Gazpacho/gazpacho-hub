@@ -2,7 +2,9 @@ from core.repositories.BaseRepository import BaseRepository
 from app.modules.dataset.models import (
     Author,
     DSMetaData,
-    DataSet
+    DataSet,
+    DSViewRecord,
+    DSDownloadRecord
 )
 from sqlalchemy import func
 
@@ -24,3 +26,15 @@ class DashboardRepository(BaseRepository):
             .all()
         )
         return result
+    def get_visits_per_dataset(self):
+        result = (
+            DataSet.query
+            .join(DSMetaData, DataSet.ds_meta_data_id == DSMetaData.id)  
+            .outerjoin(DSViewRecord, DataSet.id == DSViewRecord.dataset_id)  
+            .with_entities(DSMetaData.title, func.count(DSViewRecord.id).label('view_count'))  
+            .group_by(DSMetaData.id)  
+            .order_by(func.count(DSViewRecord.id).desc())  
+            .all()  
+        )
+        return result 
+    

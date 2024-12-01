@@ -9,10 +9,8 @@
 <p>Para ver los diferentes Dashboard de UVLHub, pulse cualquier botón:</p>
 
 <div class="custom-buttons">
-    <button type="button" class="btn-dashboard" onclick="toggleDatasetCount()">Ver número de datasets</button>
-    <button type="button" class="btn-dashboard" onclick="toggleAuthorCount()">Ver número de autores</button>
     <button type="button" class="btn-dashboard" onclick="toggleGraph()">Ver gráfica de datasets por autor</button>
-    <button type="button" class="btn-dashboard" id="dashboard-1">Otro dashboard</button>
+    <button type="button" class="btn-dashboard" onclick="toggleVisitsGraph()"> Ver gráfica de visitas por dataset</button>
 </div>
 
 <!-- Contenedor donde se mostrará el número de datasets o autores -->
@@ -21,10 +19,15 @@
 <!-- Contenedor para la gráfica de datasets por autor -->
 <canvas id="datasetsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 
+<!-- Contenedor para la gráfica de visitas por dataset -->
+<canvas id="visitsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+
 <!-- Div oculto para almacenar los datos de autores y cantidad de datasets -->
 <div id="data-container"
      data-author-names='{{ author_names | tojson | safe }}'
      data-datasets-count='{{ datasets_count | tojson | safe }}'
+     data-datasets-names='{{ datasets_names | tojson | safe }}'
+     data-datasets-views='{{ datasets_views | tojson | safe }}'
      style="display: none;">
 </div>
 
@@ -61,41 +64,32 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        function toggleDatasetCount() {
-            const datasetCountDiv = document.getElementById('dataset-count');
-            const datasetsChart = document.getElementById('datasetsChart');
-            datasetsChart.style.display = "none"; 
-            
-            if (datasetCountDiv.style.display === "none") {
-                datasetCountDiv.innerText = "Total Datasets: {{ ndatasets }}";
-                datasetCountDiv.style.display = "block";
-            } else {
-                datasetCountDiv.style.display = "none";
-            }
-        }
-
-        function toggleAuthorCount() {
-            const datasetCountDiv = document.getElementById('dataset-count');
-            const datasetsChart = document.getElementById('datasetsChart');
-            datasetsChart.style.display = "none"; 
-            
-            if (datasetCountDiv.style.display === "none") {
-                datasetCountDiv.innerText = "Total Authors: {{ nauthors }}";
-                datasetCountDiv.style.display = "block";
-            } else {
-                datasetCountDiv.style.display = "none";
-            }
-        }
 
         function toggleGraph() {
             const datasetCountDiv = document.getElementById('dataset-count');
             const datasetsChart = document.getElementById('datasetsChart');
+            const visitsChart = document.getElementById('visitsChart');
             datasetCountDiv.style.display = "none"; 
             
             if (datasetsChart.style.display === "none") {
                 datasetsChart.style.display = "block";
+                visitsChart.style.display = "none";
             } else {
                 datasetsChart.style.display = "none";
+            }
+        }
+
+        function toggleVisitsGraph() {
+            const datasetCountDiv = document.getElementById('dataset-count');
+            const datasetsChart = document.getElementById('datasetsChart');
+            const visitsChart = document.getElementById('visitsChart');
+            datasetCountDiv.style.display = "none"; 
+            
+            if (visitsChart.style.display === "none") {
+                visitsChart.style.display = "block";
+                datasetsChart.style.display = "none";
+            } else {
+                visitsChart.style.display = "none";
             }
         }
 
@@ -103,10 +97,12 @@
         const dataContainer = document.getElementById('data-container');
         const authorNames = JSON.parse(dataContainer.getAttribute('data-author-names'));
         const datasetsCount = JSON.parse(dataContainer.getAttribute('data-datasets-count'));
+        const datasetsNames = JSON.parse(dataContainer.getAttribute('data-datasets-names'));
+        const datasetsViews = JSON.parse(dataContainer.getAttribute('data-datasets-views'));
 
-        // Configuración de la gráfica
-        const ctx = document.getElementById('datasetsChart').getContext('2d');
-        const datasetsChart = new Chart(ctx, {
+        // Configuración de la gráfica de datasets por autor
+        const ctx1 = document.getElementById('datasetsChart').getContext('2d');
+        const datasetsChart = new Chart(ctx1, {
             type: 'bar',
             data: {
                 labels: authorNames,
@@ -132,6 +128,39 @@
                         title: {
                             display: true,
                             text: 'Autores'
+                        }
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('visitsChart').getContext('2d');
+        const visitsChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: datasetsNames,
+                datasets: [{
+                    label: 'Número de Visitas por Dataset',
+                    data: datasetsViews,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de Visitas'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Datasets'
                         }
                     }
                 }
