@@ -13,7 +13,7 @@ class DataSetFormGithub(FlaskForm):
     repo_type = SelectField('Repository Type', choices=[
         ('new', 'New Repository'),
         ('existing', 'Existing Repository')
-    ])
+    ], default='existing')
 
     access_token = PasswordField('Personal Access Token', validators=[DataRequired()])
     license = SelectField('Dataset License', choices=[
