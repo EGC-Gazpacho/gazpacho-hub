@@ -4,7 +4,10 @@ from core.services.BaseService import BaseService
 
 
 class GitHubService(BaseService):   
-
+    
+    def __init__(self, repository):
+        super().__init__(repository)
+        
     @staticmethod
     def upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type):
         """
