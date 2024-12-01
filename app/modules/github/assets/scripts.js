@@ -90,7 +90,6 @@
                     formData.append("commit_message", document.getElementById('commit_message').value);  
                     formData.append("owner", document.getElementById('owner').value);
                     formData.append("repo_name", document.getElementById('repo_name').value);
-                    formData.append("file_name", document.getElementById('file_name').value);
                     formData.append("repo_type", document.getElementById('repo_type').value);
                     formData.append("access_token", document.getElementById('access_token').value);
                     formData.append("license", document.getElementById('license').value);
