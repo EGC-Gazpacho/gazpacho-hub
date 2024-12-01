@@ -2,12 +2,7 @@ import base64
 import requests
 
 
-def upload_dataset_to_github(owner, repo_name, dataset, token, commit_message, license, repo_type):
-    """
-    Subir un dataset como una carpeta a un repositorio de GitHub usando la API.
-    Crea una carpeta con el nombre del dataset y dentro de ella sube todos los archivos asociados a ese dataset.
-    Si el repositorio no existe, lo crea primero.
-    """
+def upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type):
 
     if repo_type == 'new':
         repo_created = create_repo(owner, repo_name, token)
@@ -16,7 +11,7 @@ def upload_dataset_to_github(owner, repo_name, dataset, token, commit_message, l
 
     github_api = f"https://api.github.com/repos/{owner}/{repo_name}/contents/"
 
-    dataset_name = dataset.name()  # Acceso correcto al atributo
+    dataset_name = dataset.name()  
     files_content = []
 
     for fm in dataset.feature_models:
@@ -42,19 +37,34 @@ def upload_dataset_to_github(owner, repo_name, dataset, token, commit_message, l
         data = {
             "message": commit_message,
             "content": file_data['content'],  
-            "branch": "main",
+            "branch": branch,
             "licene": license
         }
 
         github_api_with_file = f"{github_api}{file_data['path']}"
         response = requests.put(github_api_with_file, json=data, headers=headers)
 
-        if response.status_code == 201:
-            print(f"Archivo {file_data['path']} subido correctamente.")
-        else:
-            print(f"Error al subir el archivo {file_data['path']}: {response.json().get('message')}")
+    return response.json().get('message'), response.status_code
 
-    return "Files uploaded successfully", 200
+
+def check_branch_exists(owner, repo_name, branch, access_token):
+    try:
+        url = f"https://api.github.com/repos/{owner}/{repo_name}/branches/{branch}"
+        
+        headers = {
+            "Authorization": f"token {access_token}"
+        }
+        
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            return True  
+        elif response.status_code == 404:
+            return False  
+        else:
+            response.raise_for_status()
+    except requests.exceptions.RequestException as err:
+        return {"error": f"An error occurred: {str(err)}"}, 500
 
 
 def create_repo(owner, repo_name, token):
@@ -80,3 +90,5 @@ def create_repo(owner, repo_name, token):
     else:
         print(f"Error al crear el repositorio: {response.json().get('message')}")
         return False
+
+

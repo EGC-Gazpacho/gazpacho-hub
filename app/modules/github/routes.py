@@ -4,7 +4,7 @@ import logging
 from app.modules.github import github_bp
 from app.modules.github.forms import DataSetFormGithub
 from app.modules.dataset.services import DataSetService
-from app.modules.github.services import upload_dataset_to_github
+from app.modules.github.services import check_branch_exists, upload_dataset_to_github
 
 logger = logging.getLogger(__name__)
 
@@ -21,19 +21,50 @@ def create_dataset_github(dataset_id):
         commit_message = request.form['commit_message']
         owner = request.form['owner']
         repo_name = request.form['repo_name']
+        branch = request.form['branch']
         repo_type = request.form['repo_type']
         access_token = request.form['access_token']
         license = request.form['license']
+        
+        if check_branch_exists(owner, repo_name, branch, access_token):
+            return jsonify({
+                "error": "Branch not found. Verify the branch name.",
+                "code": 404
+            }), 404
+        
         try:
-
             response_message, status_code = upload_dataset_to_github(
-                owner, repo_name, dataset, access_token, commit_message, license, repo_type)
+                owner, repo_name, branch, dataset, access_token, commit_message, license, repo_type
+            )
             return jsonify({"message": response_message}), status_code
 
-        except Exception as exc:
-            logger.exception(f"Exception while creating dataset or uploading to GitHub: {exc}")
-            return jsonify({"error": str(exc)}), 400
+        except Exception as e:
+            error_message = str(e)
 
+            if "401" in error_message or "Unauthorized" in error_message:
+                return jsonify({
+                    "error": "Bad credentials. Verify your access token.",
+                    "code": 401
+                }), 401
+
+            elif "404" in error_message or "Repository not found" in error_message:
+                return jsonify({
+                    "error": "Repository not found. Verify the repository owner and name.",
+                    "code": 404
+                }), 404
+
+            elif "422" in error_message or "Unprocessable Entity" in error_message:
+                return jsonify({
+                    "error": "A dataset with the same name already exists in the repository.",
+                    "code": 422
+                }), 422
+
+            else:
+                return jsonify({
+                    "error": f"An unexpected error occurred: {error_message}",
+                    "code": 500
+                }), 500
+                           
     return render_template("upload_dataset_github.html", form=form, dataset=dataset)
 
 
