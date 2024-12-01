@@ -5,7 +5,8 @@ import requests
 def upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type):
 
     if repo_type == 'new':
-        repo_created = create_repo(owner, repo_name, token)
+        print(f"Creando repositorio: {repo_name}")
+        repo_created = create_repo(repo_name, token)
         if not repo_created:
             return f"Error: No se pudo crear el repositorio {repo_name}.", 400
 
@@ -104,7 +105,7 @@ def check_branch_exists(owner, repo_name, branch, access_token):
         raise 
 
 
-def create_repo(owner, repo_name, token):
+def create_repo(repo_name, token):
 
     github_api = "https://api.github.com/user/repos"
     headers = {

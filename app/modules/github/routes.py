@@ -27,31 +27,32 @@ def create_dataset_github(dataset_id):
         repo_type = request.form['repo_type']
         access_token = request.form['access_token']
         license = request.form['license']
-             
-        try:
-            repo_exists = check_repository_exists(owner, repo_name, access_token)
-            if not repo_exists:
-                return jsonify({
-                    "error": "Repository not found. Verify the repository owner and name.",
-                    "code": 404
-                }), 404
-                
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": f"GitHub API error: {str(e)}", "code": 401}), 401
-        except requests.exceptions.RequestException as e:
-            return jsonify({"error": f"Connection error: {str(e)}", "code": 500}), 500
+            
+        if (repo_type != 'new'):
+            try:
+                repo_exists = check_repository_exists(owner, repo_name, access_token)
+                if not repo_exists:
+                    return jsonify({
+                        "error": "Repository not found. Verify the repository owner and name.",
+                        "code": 404
+                    }), 404
+                    
+            except requests.exceptions.HTTPError as e:
+                return jsonify({"error": f"GitHub API error: {str(e)}", "code": 401}), 401
+            except requests.exceptions.RequestException as e:
+                return jsonify({"error": f"Connection error: {str(e)}", "code": 500}), 500
 
-        try:
-            branch_exists = check_branch_exists(owner, repo_name, branch, access_token)
-            if not branch_exists:
-                return jsonify({
-                    "error": f"Branch {branch} not found. Verify the branch name.",
-                    "code": 404
-                }), 404
-        except requests.exceptions.HTTPError as e:
-            return jsonify({"error": f"GitHub API error: {str(e)}", "code": 401}), 401
-        except requests.exceptions.RequestException as e:
-            return jsonify({"error": f"Connection error: {str(e)}", "code": 500}), 500
+            try:
+                branch_exists = check_branch_exists(owner, repo_name, branch, access_token)
+                if not branch_exists:
+                    return jsonify({
+                        "error": f"Branch {branch} not found. Verify the branch name.",
+                        "code": 404
+                    }), 404
+            except requests.exceptions.HTTPError as e:
+                return jsonify({"error": f"GitHub API error: {str(e)}", "code": 401}), 401
+            except requests.exceptions.RequestException as e:
+                return jsonify({"error": f"Connection error: {str(e)}", "code": 500}), 500
 
         try:
             response_message, status_code = upload_dataset_to_github(
@@ -89,14 +90,3 @@ def create_dataset_github(dataset_id):
 
     return render_template("upload_dataset_github.html", form=form, dataset=dataset)
 
-
-@github_bp.route('/github/dropzone', methods=['POST'])
-def dropzone():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-
-    return jsonify({'message': 'File processed successfully without being saved or uploaded.'}), 200
