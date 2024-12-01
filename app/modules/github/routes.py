@@ -1,6 +1,8 @@
 from flask_login import login_required
 from flask import jsonify, render_template, request
 import logging
+
+import requests
 from app.modules.github import github_bp
 from app.modules.github.forms import DataSetFormGithub
 from app.modules.dataset.services import DataSetService
@@ -16,8 +18,8 @@ dataset_service = DataSetService()
 def create_dataset_github(dataset_id):
     form = DataSetFormGithub()
     dataset = dataset_service.get_or_404(dataset_id)
-    if request.method == "POST":
 
+    if request.method == "POST":
         commit_message = request.form['commit_message']
         owner = request.form['owner']
         repo_name = request.form['repo_name']
@@ -25,21 +27,29 @@ def create_dataset_github(dataset_id):
         repo_type = request.form['repo_type']
         access_token = request.form['access_token']
         license = request.form['license']
-        
-        if check_branch_exists(owner, repo_name, branch, access_token):
-            return jsonify({
-                "error": "Branch not found. Verify the branch name.",
-                "code": 404
-            }), 404
-        
+        print(branch, "branch")
+
+        try:
+            exist = check_branch_exists(owner, repo_name, branch, access_token)
+            if not exist:
+                return jsonify({
+                    "error": f"Branch {branch} not found. Verify the branch name.",
+                    "code": 404
+                }), 404
+        except requests.exceptions.HTTPError as e:
+            return jsonify({"error": f"GitHub API error: {str(e)}", "code": 401}), 401
+        except requests.exceptions.RequestException as e:
+            return jsonify({"error": f"Connection error: {str(e)}", "code": 500}), 500
+
         try:
             response_message, status_code = upload_dataset_to_github(
                 owner, repo_name, branch, dataset, access_token, commit_message, license, repo_type
             )
             return jsonify({"message": response_message}), status_code
 
-        except Exception as e:
+        except requests.exceptions.HTTPError as e:
             error_message = str(e)
+            print(f"HTTPError: {error_message}")
 
             if "401" in error_message or "Unauthorized" in error_message:
                 return jsonify({
@@ -64,7 +74,13 @@ def create_dataset_github(dataset_id):
                     "error": f"An unexpected error occurred: {error_message}",
                     "code": 500
                 }), 500
-                           
+
+        except requests.exceptions.RequestException as e:
+            return jsonify({
+                "error": f"Failed to connect to GitHub API: {str(e)}",
+                "code": 500
+            }), 500
+
     return render_template("upload_dataset_github.html", form=form, dataset=dataset)
 
 
