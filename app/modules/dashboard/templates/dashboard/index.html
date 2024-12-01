@@ -11,6 +11,7 @@
 <div class="custom-buttons">
     <button type="button" class="btn-dashboard" onclick="toggleGraph()">Ver gráfica de datasets por autor</button>
     <button type="button" class="btn-dashboard" onclick="toggleVisitsGraph()"> Ver gráfica de visitas por dataset</button>
+    <button type="button" class="btn-dashboard" onclick="toggleGraphDownloadGraph('downloadsChart')">Ver gráfica de descargas por mes</button>
 </div>
 
 <!-- Contenedor donde se mostrará el número de datasets o autores -->
@@ -21,15 +22,19 @@
 
 <!-- Contenedor para la gráfica de visitas por dataset -->
 <canvas id="visitsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<!-- Contenedor para la gráfica de descargas por mes -->
+<canvas id="downloadsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 
-<!-- Div oculto para almacenar los datos de autores y cantidad de datasets -->
 <div id="data-container"
      data-author-names='{{ author_names | tojson | safe }}'
      data-datasets-count='{{ datasets_count | tojson | safe }}'
      data-datasets-names='{{ datasets_names | tojson | safe }}'
      data-datasets-views='{{ datasets_views | tojson | safe }}'
+     data-months='{{ months | tojson | safe }}'
+     data-downloads='{{ downloads | tojson | safe }}'
      style="display: none;">
 </div>
+
 
 {% endblock %}
 
@@ -90,6 +95,23 @@
                 datasetsChart.style.display = "none";
             } else {
                 visitsChart.style.display = "none";
+            }
+        }
+        function toggleGraphDownloadGraph(chartId) {
+            const selectedChart = document.getElementById(chartId);
+            
+            // Si la gráfica está visible, la ocultamos
+            if (selectedChart.style.display === "block") {
+                selectedChart.style.display = "none";
+            } else {
+                // Ocultar todas las gráficas
+                const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart'];
+                allCharts.forEach(function(id) {
+                    document.getElementById(id).style.display = "none";
+                });
+                
+                // Mostrar la gráfica seleccionada
+                selectedChart.style.display = "block";
             }
         }
 
@@ -161,6 +183,47 @@
                         title: {
                             display: true,
                             text: 'Datasets'
+                        }
+                    }
+                }
+            }
+        });
+        // Extraer los datos del elemento oculto
+        const months = JSON.parse(dataContainer.getAttribute('data-months'));
+        const downloads = JSON.parse(dataContainer.getAttribute('data-downloads'));
+
+        // Configuración de la gráfica de descargas por mes (puntos conectados por línea)
+        const ctx3 = document.getElementById('downloadsChart').getContext('2d');
+        const downloadsChart = new Chart(ctx3, {
+            type: 'line', // Usamos una gráfica de líneas para puntos conectados
+            data: {
+                labels: months, // Etiquetas con los meses del año
+                datasets: [{
+                    label: 'Descargas por Mes',
+                    data: downloads, // Datos de descargas
+                    borderColor: 'rgba(75, 192, 192, 1)', // Color de la línea
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color de fondo
+                    fill: false, // No llenamos el área bajo la línea
+                    borderWidth: 2, // Ancho de la línea
+                    pointStyle: 'circle', // Estilo de los puntos
+                    pointRadius: 5, // Radio de los puntos
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)' // Color de los puntos
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de Descargas'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Meses del Año'
                         }
                     }
                 }

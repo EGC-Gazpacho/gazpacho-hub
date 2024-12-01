@@ -20,3 +20,8 @@ class DashboardService(BaseService):
         dataset_names = [item[0] for item in result]  
         dataset_visits = [item[1] for item in result]  
         return dataset_names, dataset_visits
+    def get_downloads_per_month(self):
+        print( "llega servicio")
+        listas = DashboardRepository.get_last_5_months_downloads(self)
+        print(listas)
+        return listas 

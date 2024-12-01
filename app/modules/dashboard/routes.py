@@ -22,6 +22,8 @@ def index():
 
     author_names, dataset_counts = dashboardService.get_all_author_names_and_dataset_counts()
     datasets_names, datasets_views = dashboardService.get_visits_per_dataset_lists()
+    month , downloads = dashboardService.get_downloads_per_month()
+
     print(datasets_names)
     print(datasets_views)
 
@@ -32,5 +34,7 @@ def index():
                            datasets_count=dataset_counts, 
                            form=form, 
                            datasets_names=datasets_names, 
-                           datasets_views=datasets_views
+                           datasets_views=datasets_views,
+                           months=month,
+                           downloads=downloads
                            )
