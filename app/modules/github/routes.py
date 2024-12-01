@@ -6,7 +6,7 @@ import requests
 from app.modules.github import github_bp
 from app.modules.github.forms import DataSetFormGithub
 from app.modules.dataset.services import DataSetService
-from app.modules.github.services import check_branch_exists, upload_dataset_to_github, check_repository_exists
+from app.modules.github.services import GitHubService  # Asegúrate de importar el servicio
 
 logger = logging.getLogger(__name__)
 
@@ -27,23 +27,25 @@ def create_dataset_github(dataset_id):
         repo_type = request.form['repo_type']
         access_token = request.form['access_token']
         license = request.form['license']
-            
-        if (repo_type != 'new'):
+
+        if repo_type != 'new':
             try:
-                repo_exists = check_repository_exists(owner, repo_name, access_token)
+                # Usar GitHubService para verificar si el repositorio existe
+                repo_exists = GitHubService.check_repository_exists(owner, repo_name, access_token)
                 if not repo_exists:
                     return jsonify({
                         "error": "Repository not found. Verify the repository owner and name.",
                         "code": 404
                     }), 404
-                    
+
             except requests.exceptions.HTTPError as e:
                 return jsonify({"error": f"GitHub API error: {str(e)}", "code": 401}), 401
             except requests.exceptions.RequestException as e:
                 return jsonify({"error": f"Connection error: {str(e)}", "code": 500}), 500
 
             try:
-                branch_exists = check_branch_exists(owner, repo_name, branch, access_token)
+                # Usar GitHubService para verificar si la rama existe
+                branch_exists = GitHubService.check_branch_exists(owner, repo_name, branch, access_token)
                 if not branch_exists:
                     return jsonify({
                         "error": f"Branch {branch} not found. Verify the branch name.",
@@ -55,7 +57,8 @@ def create_dataset_github(dataset_id):
                 return jsonify({"error": f"Connection error: {str(e)}", "code": 500}), 500
 
         try:
-            response_message, status_code = upload_dataset_to_github(
+            # Usar GitHubService para cargar el dataset al repositorio de GitHub
+            response_message, status_code = GitHubService.upload_dataset_to_github(
                 owner, repo_name, branch, dataset, access_token, commit_message, license, repo_type
             )
             return jsonify({"message": response_message}), status_code
@@ -89,4 +92,3 @@ def create_dataset_github(dataset_id):
             }), 500
 
     return render_template("upload_dataset_github.html", form=form, dataset=dataset)
-
