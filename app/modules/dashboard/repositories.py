@@ -8,6 +8,7 @@ from app.modules.dataset.models import (
 )
 from sqlalchemy import func
 from datetime import datetime, timedelta
+from flask_login import current_user
 
 
 class DashboardRepository(BaseRepository):
@@ -20,10 +21,10 @@ class DashboardRepository(BaseRepository):
     def get_author_names_and_dataset_counts(self):
         result = (
             Author.query
-            .outerjoin(DSMetaData, Author.ds_meta_data_id == DSMetaData.id)  # Realiza una left join
+            .outerjoin(DSMetaData, Author.ds_meta_data_id == DSMetaData.id)  
             .with_entities(Author.name, func.count(DSMetaData.id).label('dataset_count'))
             .group_by(Author.name)
-            .order_by(func.count(DSMetaData.id).desc())
+            .order_by(func.count(DSMetaData.id).desc())  
             .all()
         )
         return result
@@ -35,15 +36,16 @@ class DashboardRepository(BaseRepository):
             .with_entities(DSMetaData.title, func.count(DSViewRecord.id).label('view_count'))  
             .group_by(DSMetaData.id)  
             .order_by(func.count(DSViewRecord.id).desc())  
+            .limit(10)  
             .all()  
         )
-        return result 
+        return result
     
-    def get_last_5_months_downloads(self):
+    def get_last_12_months_downloads(self):
         today = datetime.today()
         months = []
         download_counts = []
-        for i in range(5):
+        for i in range(12):
             first_day_of_month = today.replace(day=1) - timedelta(days=i * 30)
             first_day_of_month_str = first_day_of_month.strftime('%Y-%m-01')  
             result = (
@@ -60,5 +62,18 @@ class DashboardRepository(BaseRepository):
         download_counts.reverse()
 
         return months, download_counts
-
+    
+    def get_visits_per_dataset_user_logued(self):
+        result = (
+            DataSet.query
+            .join(DSMetaData, DataSet.ds_meta_data_id == DSMetaData.id)  
+            .outerjoin(DSViewRecord, DataSet.id == DSViewRecord.dataset_id)  
+            .filter(DataSet.user_id == current_user.id) 
+            .with_entities(DSMetaData.title, func.count(DSViewRecord.id).label('view_count'))  
+            .group_by(DSMetaData.id)  
+            .order_by(func.count(DSViewRecord.id).desc())
+            .limit(10)  
+            .all()  
+        )
+        return result
             

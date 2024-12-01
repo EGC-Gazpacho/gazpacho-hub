@@ -6,18 +6,34 @@
 
 <h1 class="h3 mb-3"><b>Dashboard</b></h1>
 
-<p>Para ver los diferentes Dashboard de UVLHub, pulse cualquier botón:</p>
+<p>To view the different UVLHub Dashboards, press any button:</p>
 
-<div class="custom-buttons">
-    <button type="button" class="btn-dashboard" onclick="toggleGraph()">Ver gráfica de datasets por autor</button>
-    <button type="button" class="btn-dashboard" onclick="toggleVisitsGraph()"> Ver gráfica de visitas por dataset</button>
-    <button type="button" class="btn-dashboard" onclick="toggleGraphDownloadGraph('downloadsChart')">Ver gráfica de descargas por mes</button>
-</div>
+<div class="dropdown">
+    <button class="btn-dashboard dropdown-toggle" type="button" id="dropdownGeneral" data-bs-toggle="dropdown" aria-expanded="false">
+        General Dashboard
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownGeneral">
+        <li><button class="dropdown-item" onclick="toggleGraph()">Graph Datasets per author(Top 10)</button></li>
+        <li><button class="dropdown-item" onclick="toggleVisitsGraph()">Graph Visits per dataset(Top 10)</button></li>
+        <li><button class="dropdown-item" onclick="toggleGraphDownloadGraph('downloadsChart')">Graph Datasets Downloads per month</button></li>
+    </ul>
+ </div>
+ 
+ <div class="dropdown">
+    <button class="btn-dashboard dropdown-toggle" type="button" id="dropdownUsuario" data-bs-toggle="dropdown" aria-expanded="false">
+        User Dashboard
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownUsuario">
+        <li><button class="dropdown-item" onclick="toggleUserGraph()">Graph Visits per dataset of user</button></li>
+    </ul>
+ </div>
 
 <div id="dataset-count" style="margin-top: 20px; font-weight: bold; display: none;"></div>
 <canvas id="datasetsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="visitsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="downloadsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<canvas id="userVisitsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+
 <div id="data-container"
      data-author-names='{{ author_names | tojson | safe }}'
      data-datasets-count='{{ datasets_count | tojson | safe }}'
@@ -25,8 +41,11 @@
      data-datasets-views='{{ datasets_views | tojson | safe }}'
      data-months='{{ months | tojson | safe }}'
      data-downloads='{{ downloads | tojson | safe }}'
+     data-datasets-names-user='{{ datasets_names_user | tojson | safe }}'
+     data-datasets-views-user='{{ datasets_views_user | tojson | safe }}'
      style="display: none;">
 </div>
+
 
 
 {% endblock %}
@@ -34,9 +53,8 @@
 {% block styles %}
 <style>
     .custom-buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 10px;
+        display: flex; /* Esto coloca los botones en fila */
+        gap: 10px; /* Espacio entre los botones */
     }
 
     .btn-dashboard {
@@ -48,6 +66,7 @@
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s, color 0.3s;
+        display: inline-block; /* Esto asegura que el botón se mantenga en línea */
     }
 
     .btn-dashboard:hover {
@@ -62,57 +81,62 @@
 
     <script>
 
-        function toggleGraph() {
-            const datasetCountDiv = document.getElementById('dataset-count');
-            const datasetsChart = document.getElementById('datasetsChart');
-            const visitsChart = document.getElementById('visitsChart');
-            datasetCountDiv.style.display = "none"; 
-            
-            if (datasetsChart.style.display === "none") {
-                datasetsChart.style.display = "block";
-                visitsChart.style.display = "none";
-            } else {
-                datasetsChart.style.display = "none";
-            }
-        }
+    function toggleGraph() {
+        
+        const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart', 'userVisitsChart'];
+        allCharts.forEach(function(chartId) {
+            document.getElementById(chartId).style.display = "none";
+        });
+        
+        
+        const datasetsChart = document.getElementById('datasetsChart');
+        datasetsChart.style.display = datasetsChart.style.display === "none" ? "block" : "none";
+    }
 
-        function toggleVisitsGraph() {
-            const datasetCountDiv = document.getElementById('dataset-count');
-            const datasetsChart = document.getElementById('datasetsChart');
-            const visitsChart = document.getElementById('visitsChart');
-            datasetCountDiv.style.display = "none"; 
-            
-            if (visitsChart.style.display === "none") {
-                visitsChart.style.display = "block";
-                datasetsChart.style.display = "none";
-            } else {
-                visitsChart.style.display = "none";
-            }
-        }
-        function toggleGraphDownloadGraph(chartId) {
-            const selectedChart = document.getElementById(chartId);
-            
-            
-            if (selectedChart.style.display === "block") {
-                selectedChart.style.display = "none";
-            } else {
-                
-                const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart'];
-                allCharts.forEach(function(id) {
-                    document.getElementById(id).style.display = "none";
-                });
-                
-               
-                selectedChart.style.display = "block";
-            }
-        }
+    function toggleVisitsGraph() {
+        
+        const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart', 'userVisitsChart'];
+        allCharts.forEach(function(chartId) {
+            document.getElementById(chartId).style.display = "none";
+        });
+        
+        
+        const visitsChart = document.getElementById('visitsChart');
+        visitsChart.style.display = visitsChart.style.display === "none" ? "block" : "none";
+    }
 
-       
+    function toggleGraphDownloadGraph(chartId) {
+        
+        const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart', 'userVisitsChart'];
+        allCharts.forEach(function(id) {
+            document.getElementById(id).style.display = "none";
+        });
+        
+        
+        const selectedChart = document.getElementById(chartId);
+        selectedChart.style.display = selectedChart.style.display === "none" ? "block" : "none";
+    }
+
+    function toggleUserGraph() {
+        
+        const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart', 'userVisitsChart'];
+        allCharts.forEach(function(chartId) {
+            document.getElementById(chartId).style.display = "none";
+        });
+
+        
+        const userVisitsChart = document.getElementById('userVisitsChart');
+        userVisitsChart.style.display = userVisitsChart.style.display === "none" ? "block" : "none";
+    }
+
+
         const dataContainer = document.getElementById('data-container');
         const authorNames = JSON.parse(dataContainer.getAttribute('data-author-names'));
         const datasetsCount = JSON.parse(dataContainer.getAttribute('data-datasets-count'));
         const datasetsNames = JSON.parse(dataContainer.getAttribute('data-datasets-names'));
         const datasetsViews = JSON.parse(dataContainer.getAttribute('data-datasets-views'));
+        const datasetsNamesUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-names-user'));
+        const datasetsViewsUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-views-user'));
 
         
         const ctx1 = document.getElementById('datasetsChart').getContext('2d');
@@ -121,7 +145,7 @@
             data: {
                 labels: authorNames,
                 datasets: [{
-                    label: 'Número de Datasets',
+                    label: 'Number of datasets',
                     data: datasetsCount,
                     backgroundColor: 'rgba(0, 123, 255, 0.5)',
                     borderColor: 'rgba(0, 123, 255, 1)',
@@ -135,13 +159,13 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Número de Datasets'
+                            text: 'Number of Datasets'
                         }
                     },
                     x: {
                         title: {
                             display: true,
-                            text: 'Autores'
+                            text: 'Authors'
                         }
                     }
                 }
@@ -154,7 +178,7 @@
             data: {
                 labels: datasetsNames,
                 datasets: [{
-                    label: 'Número de Visitas por Dataset',
+                    label: 'Number of visits per Dataset',
                     data: datasetsViews,
                     backgroundColor: 'rgba(255, 99, 132, 0.5)',
                     borderColor: 'rgba(255, 99, 132, 1)',
@@ -168,7 +192,7 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Número de Visitas'
+                            text: 'Number of Visits'
                         }
                     },
                     x: {
@@ -189,7 +213,7 @@
             data: {
                 labels: months, 
                 datasets: [{
-                    label: 'Descargas por Mes',
+                    label: 'Downloads per Month',
                     data: downloads, 
                     borderColor: 'rgba(75, 192, 192, 1)', 
                     backgroundColor: 'rgba(75, 192, 192, 0.2)', 
@@ -207,17 +231,49 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Número de Descargas'
+                            text: ' Number of Downloads'
                         }
                     },
                     x: {
                         title: {
                             display: true,
-                            text: 'Meses del Año'
+                            text: 'Months of the Year'
                         }
                     }
                 }
             }
         });
+        const ctx4 = document.getElementById('userVisitsChart').getContext('2d');
+            const userVisitsChart = new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: datasetsNamesUser,
+                    datasets: [{
+                        label: 'Number of visits per Dataset(User)',
+                        data: datasetsViewsUser,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Visits'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Datasets of the user'
+                            }
+                        }
+                    }
+                }
+            });
     </script>
 {% endblock %}
