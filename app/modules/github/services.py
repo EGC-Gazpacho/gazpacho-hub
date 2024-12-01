@@ -50,6 +50,23 @@ def upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_me
     return response.json().get('message'), response.status_code
 
 
+def check_repository_exists(owner, repo_name, access_token):
+    url = f"https://api.github.com/repos/{owner}/{repo_name}"
+    headers = {
+        "Authorization": f"token {access_token}"
+    }
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return True  
+        elif response.status_code == 404:
+            return False 
+        else:
+            response.raise_for_status()  
+    except requests.exceptions.RequestException as e:
+        raise e
+
+
 def check_branch_exists(owner, repo_name, branch, access_token):
 
     url = f"https://api.github.com/repos/{owner}/{repo_name}/branches/{branch}"

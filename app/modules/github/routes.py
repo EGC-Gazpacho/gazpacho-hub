@@ -6,7 +6,7 @@ import requests
 from app.modules.github import github_bp
 from app.modules.github.forms import DataSetFormGithub
 from app.modules.dataset.services import DataSetService
-from app.modules.github.services import check_branch_exists, upload_dataset_to_github
+from app.modules.github.services import check_branch_exists, upload_dataset_to_github, check_repository_exists
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +27,23 @@ def create_dataset_github(dataset_id):
         repo_type = request.form['repo_type']
         access_token = request.form['access_token']
         license = request.form['license']
-        print(branch, "branch")
+             
+        try:
+            repo_exists = check_repository_exists(owner, repo_name, access_token)
+            if not repo_exists:
+                return jsonify({
+                    "error": "Repository not found. Verify the repository owner and name.",
+                    "code": 404
+                }), 404
+                
+        except requests.exceptions.HTTPError as e:
+            return jsonify({"error": f"GitHub API error: {str(e)}", "code": 401}), 401
+        except requests.exceptions.RequestException as e:
+            return jsonify({"error": f"Connection error: {str(e)}", "code": 500}), 500
 
         try:
-            exist = check_branch_exists(owner, repo_name, branch, access_token)
-            if not exist:
+            branch_exists = check_branch_exists(owner, repo_name, branch, access_token)
+            if not branch_exists:
                 return jsonify({
                     "error": f"Branch {branch} not found. Verify the branch name.",
                     "code": 404
@@ -56,12 +68,6 @@ def create_dataset_github(dataset_id):
                     "error": "Bad credentials. Verify your access token.",
                     "code": 401
                 }), 401
-
-            elif "404" in error_message or "Repository not found" in error_message:
-                return jsonify({
-                    "error": "Repository not found. Verify the repository owner and name.",
-                    "code": 404
-                }), 404
 
             elif "422" in error_message or "Unprocessable Entity" in error_message:
                 return jsonify({
