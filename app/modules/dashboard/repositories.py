@@ -40,6 +40,18 @@ class DashboardRepository(BaseRepository):
             .all()  
         )
         return result
+    def get_downloads_per_dataset(self):
+        result = (
+            DataSet.query
+            .join(DSMetaData, DataSet.ds_meta_data_id == DSMetaData.id)  
+            .outerjoin(DSDownloadRecord, DataSet.id == DSDownloadRecord.dataset_id)  
+            .with_entities(DSMetaData.title, func.count(DSDownloadRecord.id).label('view_count'))  
+            .group_by(DSMetaData.id)  
+            .order_by(func.count(DSDownloadRecord.id).desc())  
+            .limit(10)  
+            .all()  
+        )
+        return result
     
     def get_last_12_months_downloads(self):
         today = datetime.today()
