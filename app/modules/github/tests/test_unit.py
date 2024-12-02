@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import requests
 from app.modules.github.services import GitHubService
@@ -254,3 +254,119 @@ def test_create_repo_timeout_error(mock_post, github_service):
     
     with pytest.raises(requests.exceptions.Timeout):
         github_service.create_repo(repo_name, token)
+        
+        
+#Test to update the dataset to a repo that does exist in GitHub with success
+@patch('requests.put')
+def test_upload_dataset_to_github_success(mock_put, github_service):
+    mock_put.return_value.status_code = 200
+    mock_put.return_value.json.return_value = {'message': 'File uploaded successfully', 'url': 'https://github.com/test_owner/test_repo/test_dataset'}
+    
+    owner = "test_owner"
+    repo_name = "test_repo"
+    branch = "main"
+    token = "valid_token"
+    commit_message = "Adding dataset"
+    license = "MIT"
+    repo_type = 'existing'
+    
+    dataset = MagicMock()
+    dataset.name.return_value = "test_dataset"
+    dataset.feature_models = [MagicMock(files=[MagicMock(get_path=lambda: 'test_file.txt', name='test_file.txt')])]
+    
+    result = github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
+
+    assert result == ('File uploaded successfully', 200)
+    mock_put.assert_called()  
+
+#Test to update the dataset to a repo that does exist in GitHub with not success
+import pytest
+from unittest.mock import patch, MagicMock
+import requests
+
+# Test para subir el dataset con fallo en la carga del archivo
+@patch('requests.put')
+def test_upload_dataset_to_github_file_upload_failure(mock_put, github_service):
+   
+    mock_put.return_value.status_code = 400  
+    mock_put.return_value.text = "Bad Request"  
+    mock_put.return_value.ok = False  
+    
+    owner = "test_owner"
+    repo_name = "test_repo"
+    branch = "main"
+    token = "valid_token"
+    commit_message = "Adding dataset"
+    license = "MIT"
+    repo_type = 'existing'  
+     
+    
+    dataset = MagicMock()
+    dataset.name.return_value = "test_dataset"
+    dataset.feature_models = [MagicMock(files=[MagicMock(get_path=lambda: 'test_file.txt', name='test_file.txt')])]
+    
+    file_mock = dataset.feature_models[0].files[0]
+    file_mock.name = 'test_file.txt'  
+    
+    with pytest.raises(requests.exceptions.HTTPError):
+        github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
+    
+    mock_put.assert_called()  
+
+
+#Test to update the dataset to a repo that does not exist in GitHub with success
+@patch('requests.put')
+@patch('app.modules.github.services.GitHubService.create_repo')  
+def test_upload_dataset_to_github_new_repo(mock_create_repo, mock_put, github_service):
+    mock_create_repo.return_value = True  
+    
+    mock_put.return_value.status_code = 200
+    mock_put.return_value.json.return_value = {'message': 'File uploaded successfully', 'url': 'https://github.com/test_owner/test_repo/test_dataset'}
+    
+    owner = "test_owner"
+    repo_name = "test_repo"
+    branch = "main"
+    token = "valid_token"
+    commit_message = "Adding dataset"
+    license = "MIT"
+    repo_type = 'new'  
+    
+    dataset = MagicMock()
+    dataset.name.return_value = "test_dataset"
+    dataset.feature_models = [MagicMock(files=[MagicMock(get_path=lambda: 'test_file.txt', name='test_file.txt')])]
+    
+    result = github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
+    
+    assert result == ('File uploaded successfully', 200)
+    
+    mock_create_repo.assert_called_with(repo_name, token)
+    
+    mock_put.assert_called()
+    
+# Test to update the dataset to repo that does not exist in GitHub with not success
+@patch('requests.put')
+@patch('app.modules.github.services.GitHubService.create_repo')  
+def test_upload_dataset_to_github_new_repo_creation_failure(mock_create_repo, mock_put, github_service):
+    mock_create_repo.return_value = False
+    
+    owner = "test_owner"
+    repo_name = "test_repo"
+    branch = "main"
+    token = "valid_token"
+    commit_message = "Adding dataset"
+    license = "MIT"
+    repo_type = 'new'  
+    
+    dataset = MagicMock()
+    dataset.name.return_value = "test_dataset"
+    dataset.feature_models = [MagicMock(files=[MagicMock(get_path=lambda: 'test_file.txt', name='test_file.txt')])]
+    
+    result = github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
+
+    assert result == ('Error: Could not create repository test_repo.', 400)
+    
+    mock_create_repo.assert_called_with(repo_name, token)
+    
+    mock_put.assert_not_called()
+
+
