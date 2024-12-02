@@ -23,6 +23,9 @@ class DashboardService(BaseService):
     def get_downloads_per_month(self):
         listas = DashboardRepository.get_last_12_months_downloads(self)
         return listas 
+    def get_views_per_month(self):
+        listas = DashboardRepository.get_last_12_months_views(self)
+        return listas 
 
     def get_views_per_dataset_user_logued(self):
         result = DashboardRepository.get_views_per_dataset_user_logued(self)

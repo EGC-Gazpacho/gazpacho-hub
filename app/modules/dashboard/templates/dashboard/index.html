@@ -16,6 +16,7 @@
         <li><button class="dropdown-item" onclick="toggleDatasetsPerAuthorGraph()">Graph Datasets per author(Top 10)</button></li>
         <li><button class="dropdown-item" onclick="toggleviewsPerDatasetGraph()">Graph views per dataset(Top 10)</button></li>
         <li><button class="dropdown-item" onclick="toggleDownloadsPerMonthGraph()">Graph Datasets Downloads per month</button></li>
+        <li><button class="dropdown-item" onclick="toggleViewsPerMonthGraph()">Graph Datasets Views per month</button></li>
     </ul>
  </div>
  
@@ -30,7 +31,8 @@
 
 <canvas id="datasetsPerAuthorChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="viewsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
-<canvas id="downloadsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<canvas id="downloadsPerDatasetChartMonth" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<canvas id="viewsPerDatasetChartMonth" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="userviewsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 
 <div id="data-container"
@@ -41,7 +43,10 @@
      data-datasets-views='{{ datasets_views | tojson | safe }}'
 
      data-months-downloads='{{ months | tojson | safe }}'
-     data-downloads='{{ downloads | tojson | safe }}'    
+     data-downloads='{{ downloads | tojson | safe }}'
+     
+     data-months-views='{{ months_views | tojson | safe }}'
+     data-views='{{ views_per_month | tojson | safe }}'
 
      data-datasets-names-views-user='{{ datasets_names_user | tojson | safe }}'
      data-datasets-views-user='{{ datasets_views_user | tojson | safe }}'
@@ -85,7 +90,7 @@
 
     function toggleDatasetsPerAuthorGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChart', 'userviewsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -97,7 +102,7 @@
 
     function toggleviewsPerDatasetGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChart', 'userviewsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -109,19 +114,30 @@
 
     function toggleDownloadsPerMonthGraph(chartId) {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChart', 'userviewsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth'];
         allCharts.forEach(function(id) {
             document.getElementById(id).style.display = "none";
         });
         
         
-        const selectedChart = document.getElementById('downloadsPerDatasetChart');
+        const selectedChart = document.getElementById('downloadsPerDatasetChartMonth');
+        selectedChart.style.display = selectedChart.style.display === "none" ? "block" : "none";
+    }
+    function toggleViewsPerMonthGraph(chartId) {
+        
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth'];
+        allCharts.forEach(function(id) {
+            document.getElementById(id).style.display = "none";
+        });
+        
+        
+        const selectedChart = document.getElementById('viewsPerDatasetChartMonth');
         selectedChart.style.display = selectedChart.style.display === "none" ? "block" : "none";
     }
 
     function toggleUserGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChart', 'userviewsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -143,6 +159,9 @@
 
         const monthsDownloads = JSON.parse(dataContainer.getAttribute('data-months-downloads'));
         const downloads = JSON.parse(dataContainer.getAttribute('data-downloads'));
+
+        const monthsViews = JSON.parse(dataContainer.getAttribute('data-months-views'));
+        const views = JSON.parse(dataContainer.getAttribute('data-views'));
 
         const datasetsNamesUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-names-views-user'));
         const datasetsViewsUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-views-user'));
@@ -217,8 +236,8 @@
         });
         
 
-        const ctx3 = document.getElementById('downloadsPerDatasetChart').getContext('2d');
-        const downloadsPerDatasetChart = new Chart(ctx3, {
+        const ctx3 = document.getElementById('downloadsPerDatasetChartMonth').getContext('2d');
+        const downloadsPerDatasetChartMonth = new Chart(ctx3, {
             type: 'line', 
             data: {
                 labels: monthsDownloads, 
@@ -242,6 +261,42 @@
                         title: {
                             display: true,
                             text: ' Number of Downloads'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Months of the Year'
+                        }
+                    }
+                }
+            }
+        });
+        const ctx6 = document.getElementById('viewsPerDatasetChartMonth').getContext('2d');
+        const viewsPerDatasetChartMonth = new Chart(ctx6, {
+            type: 'line', 
+            data: {
+                labels: monthsViews, 
+                datasets: [{
+                    label: 'Views per Month',
+                    data: views, 
+                    borderColor: 'rgba(75, 192, 192, 1)', 
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)', 
+                    fill: false, 
+                    borderWidth: 2, 
+                    pointStyle: 'circle', 
+                    pointRadius: 5, 
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)' 
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: ' Number of Views'
                         }
                     },
                     x: {
