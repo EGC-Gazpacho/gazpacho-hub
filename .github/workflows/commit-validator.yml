@@ -1,0 +1,33 @@
+name: Validate Commit Messages
+
+on:
+  push:
+    branches:
+      - '**'  
+
+jobs:
+  validate-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Validate Commit Messages
+        run: |
+          # Recorre los commits del push actual
+          git log --oneline FETCH_HEAD | while read -r commit; do
+            # Extrae el mensaje ignorando el hash
+            message=$(echo "$commit" | sed 's/^[a-f0-9]* //')
+            
+            # Excluir commit de fusión
+            if [[ "$message" =~ ^Merge ]]; then
+              continue  # Saltar la validación si es un commit de fusión
+            fi
+
+            # Validar el mensaje
+            if [[ ! "$message" =~ ^(feat:|fix:|doc:)[[:space:]]+[A-Z] ]]; then
+              echo "❌ Invalid commit message: $message"
+              echo "Expected format: feat/fix/doc: \"Message\", where Message starts with an uppercase letter."
+              exit 1
+            fi
+          done
