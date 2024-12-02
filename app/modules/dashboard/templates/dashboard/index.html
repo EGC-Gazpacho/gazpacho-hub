@@ -32,7 +32,7 @@
 
 <canvas id="datasetsPerAuthorChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="viewsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
-<canvas id="downloadsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;">
+<canvas id="downloadsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas> 
 <canvas id="downloadsPerDatasetChartMonth" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="viewsPerDatasetChartMonth" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="userviewsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
@@ -186,6 +186,9 @@
         const datasetsNamesUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-names-views-user'));
         const datasetsViewsUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-views-user'));
 
+
+
+        
         const ctx1 = document.getElementById('datasetsPerAuthorChart').getContext('2d');
         const datasetsPerAuthorChart = new Chart(ctx1, {
             type: 'bar',
