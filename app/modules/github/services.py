@@ -144,3 +144,25 @@ class GitHubService(BaseService):
         else:
             print(f"Error creating repository: {response.json().get('message')}")
             return False
+
+
+    @staticmethod
+    def delete_repo(token, repo_owner, repo_name):
+        url = f"https://api.github.com/repos/{repo_owner}/{repo_name}"
+
+        headers = {
+            'Authorization': f'token {token}',
+            'Accept': 'application/vnd.github.v3+json'
+        }
+
+        response = requests.delete(url, headers=headers)
+
+        if response.status_code == 204:
+            print(f"The repository '{repo_name}' was deleted successfully.")
+            return ('Repository deleted successfully', 204)  # Aquí se devuelve la tupla
+        else:
+            print(f"Error deleting the repository: {response.json().get('message')}")
+            return False
+
+
+    
