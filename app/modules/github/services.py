@@ -11,13 +11,13 @@ class GitHubService(BaseService):
     @staticmethod
     def upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type):
         """
-        Subir los archivos de un dataset a un repositorio de GitHub.
+        Upload dataset files to a GitHub repository.
         """
         if repo_type == 'new':
-            print(f"Creando repositorio: {repo_name}")
+            print(f"Creating repository: {repo_name}")
             repo_created = GitHubService.create_repo(repo_name, token)
             if not repo_created:
-                return f"Error: No se pudo crear el repositorio {repo_name}.", 400
+                return f"Error: Could not create repository {repo_name}.", 400
 
         github_api = f"https://api.github.com/repos/{owner}/{repo_name}/contents/"
 
@@ -26,7 +26,7 @@ class GitHubService(BaseService):
 
         for fm in dataset.feature_models:
             for file in fm.files:
-                print(f"Subiendo archivo: {file.__dict__}")
+                print(f"Uploading file: {file.__dict__}")
                 file_path = file.get_path()
 
                 with open(file_path, "rb") as f:
@@ -48,7 +48,7 @@ class GitHubService(BaseService):
                 "message": commit_message,
                 "content": file_data['content'],
                 "branch": branch,
-                "license": license  # Corregido el nombre del campo
+                "license": license
             }
 
             github_api_with_file = f"{github_api}{file_data['path']}"
@@ -62,7 +62,7 @@ class GitHubService(BaseService):
     @staticmethod
     def check_repository_exists(owner, repo_name, access_token):
         """
-        Verificar si un repositorio existe en GitHub.
+        Check if a repository exists on GitHub.
         """
         url = f"https://api.github.com/repos/{owner}/{repo_name}"
         headers = {
@@ -82,7 +82,7 @@ class GitHubService(BaseService):
     @staticmethod
     def check_branch_exists(owner, repo_name, branch, access_token):
         """
-        Verificar si una rama existe en un repositorio de GitHub.
+        Check if a branch exists in a GitHub repository.
         """
         url = f"https://api.github.com/repos/{owner}/{repo_name}/branches/{branch}"
         headers = {
@@ -98,32 +98,32 @@ class GitHubService(BaseService):
             elif response.status_code == 404:
                 return False  
             elif response.status_code == 401:
-                raise requests.exceptions.HTTPError("Unauthorized - Token de acceso inválido o expirado.")
+                raise requests.exceptions.HTTPError("Unauthorized - Invalid or expired access token.")
             else:
                 response.raise_for_status()  
 
         except requests.exceptions.HTTPError as http_err:
-            print(f"Error HTTP al verificar la rama: {http_err}")
+            print(f"HTTP Error when checking branch: {http_err}")
             raise 
 
         except requests.exceptions.ConnectionError:
-            print("Error de conexión al intentar acceder a la API de GitHub.")
-            raise requests.exceptions.RequestException("ConnectionError: No se pudo conectar con GitHub.")
+            print("Connection error while trying to access GitHub API.")
+            raise requests.exceptions.RequestException("ConnectionError: Could not connect to GitHub.")
 
         except requests.exceptions.Timeout:
-            print("La solicitud a GitHub excedió el tiempo de espera.")
+            print("Request to GitHub timed out.")
             raise requests.exceptions.RequestException(
-                "TimeoutError: La solicitud a GitHub excedió el tiempo de espera."
+                "TimeoutError: The request to GitHub exceeded the timeout."
             )
 
         except requests.exceptions.RequestException as req_err:
-            print(f"Error inesperado al verificar la rama: {req_err}")
+            print(f"Unexpected error when checking branch: {req_err}")
             raise 
 
     @staticmethod
     def create_repo(repo_name, token):
         """
-        Crear un repositorio en GitHub.
+        Create a repository on GitHub.
         """
         github_api = "https://api.github.com/user/repos"
         headers = {
@@ -134,13 +134,13 @@ class GitHubService(BaseService):
         data = {
             "name": repo_name,
             "private": False,
-            "description": "Repositorio creado a través de la API"
+            "description": "Repository created through the API"
         }
 
         response = requests.post(github_api, json=data, headers=headers)
         if response.status_code == 201:
-            print(f"Repositorio '{repo_name}' creado correctamente.")
+            print(f"Repository '{repo_name}' created successfully.")
             return True
         else:
-            print(f"Error al crear el repositorio: {response.json().get('message')}")
+            print(f"Error creating repository: {response.json().get('message')}")
             return False
