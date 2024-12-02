@@ -15,17 +15,18 @@ class DashboardService(BaseService):
         dataset_counts = [data.dataset_count for data in author_data]
         return author_names, dataset_counts
     
-    def get_visits_per_dataset_lists(self):
-        result = DashboardRepository.get_visits_per_dataset(self)
+    def get_views_per_dataset_lists(self):
+        result = DashboardRepository.get_views_per_dataset(self)
         dataset_names = [item[0] for item in result]  
-        dataset_visits = [item[1] for item in result]  
-        return dataset_names, dataset_visits
+        dataset_views = [item[1] for item in result]  
+        return dataset_names, dataset_views
     def get_downloads_per_month(self):
         listas = DashboardRepository.get_last_12_months_downloads(self)
         return listas 
-    def get_visits_per_dataset_user_logued(self):
-        result = DashboardRepository.get_visits_per_dataset_user_logued(self)
-        dataset_names_user = [item[0] for item in result]  
-        dataset_visits_user = [item[1] for item in result] 
 
-        return dataset_names_user, dataset_visits_user
+    def get_views_per_dataset_user_logued(self):
+        result = DashboardRepository.get_views_per_dataset_user_logued(self)
+        dataset_names_user = [item[0] for item in result]  
+        dataset_views_user = [item[1] for item in result] 
+
+        return dataset_names_user, dataset_views_user

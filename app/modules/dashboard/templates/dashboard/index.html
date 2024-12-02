@@ -13,9 +13,9 @@
         General Dashboard
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownGeneral">
-        <li><button class="dropdown-item" onclick="toggleGraph()">Graph Datasets per author(Top 10)</button></li>
-        <li><button class="dropdown-item" onclick="toggleVisitsGraph()">Graph Visits per dataset(Top 10)</button></li>
-        <li><button class="dropdown-item" onclick="toggleGraphDownloadGraph('downloadsChart')">Graph Datasets Downloads per month</button></li>
+        <li><button class="dropdown-item" onclick="toggleDatasetsPerAuthorGraph()">Graph Datasets per author(Top 10)</button></li>
+        <li><button class="dropdown-item" onclick="toggleviewsPerDatasetGraph()">Graph views per dataset(Top 10)</button></li>
+        <li><button class="dropdown-item" onclick="toggleDownloadsPerMonthGraph()">Graph Datasets Downloads per month</button></li>
     </ul>
  </div>
  
@@ -24,24 +24,26 @@
         User Dashboard
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownUsuario">
-        <li><button class="dropdown-item" onclick="toggleUserGraph()">Graph Visits per dataset of user</button></li>
+        <li><button class="dropdown-item" onclick="toggleUserGraph()">Graph views per dataset of user</button></li>
     </ul>
  </div>
 
-<div id="dataset-count" style="margin-top: 20px; font-weight: bold; display: none;"></div>
-<canvas id="datasetsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
-<canvas id="visitsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
-<canvas id="downloadsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
-<canvas id="userVisitsChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<canvas id="datasetsPerAuthorChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<canvas id="viewsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<canvas id="downloadsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<canvas id="userviewsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 
 <div id="data-container"
      data-author-names='{{ author_names | tojson | safe }}'
      data-datasets-count='{{ datasets_count | tojson | safe }}'
-     data-datasets-names='{{ datasets_names | tojson | safe }}'
+
+     data-datasets-names-views='{{ datasets_names | tojson | safe }}'
      data-datasets-views='{{ datasets_views | tojson | safe }}'
-     data-months='{{ months | tojson | safe }}'
-     data-downloads='{{ downloads | tojson | safe }}'
-     data-datasets-names-user='{{ datasets_names_user | tojson | safe }}'
+
+     data-months-downloads='{{ months | tojson | safe }}'
+     data-downloads='{{ downloads | tojson | safe }}'    
+
+     data-datasets-names-views-user='{{ datasets_names_user | tojson | safe }}'
      data-datasets-views-user='{{ datasets_views_user | tojson | safe }}'
      style="display: none;">
 </div>
@@ -81,66 +83,75 @@
 
     <script>
 
-    function toggleGraph() {
+    function toggleDatasetsPerAuthorGraph() {
         
-        const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart', 'userVisitsChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChart', 'userviewsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
         
         
-        const datasetsChart = document.getElementById('datasetsChart');
-        datasetsChart.style.display = datasetsChart.style.display === "none" ? "block" : "none";
+        const datasetsPerAuthorChart = document.getElementById('datasetsPerAuthorChart');
+        datasetsPerAuthorChart.style.display = datasetsPerAuthorChart.style.display === "none" ? "block" : "none";
     }
 
-    function toggleVisitsGraph() {
+    function toggleviewsPerDatasetGraph() {
         
-        const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart', 'userVisitsChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChart', 'userviewsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
         
         
-        const visitsChart = document.getElementById('visitsChart');
-        visitsChart.style.display = visitsChart.style.display === "none" ? "block" : "none";
+        const viewsPerDatasetChart = document.getElementById('viewsPerDatasetChart');
+        viewsPerDatasetChart.style.display = viewsPerDatasetChart.style.display === "none" ? "block" : "none";
     }
 
-    function toggleGraphDownloadGraph(chartId) {
+    function toggleDownloadsPerMonthGraph(chartId) {
         
-        const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart', 'userVisitsChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChart', 'userviewsPerDatasetChart'];
         allCharts.forEach(function(id) {
             document.getElementById(id).style.display = "none";
         });
         
         
-        const selectedChart = document.getElementById(chartId);
+        const selectedChart = document.getElementById('downloadsPerDatasetChart');
         selectedChart.style.display = selectedChart.style.display === "none" ? "block" : "none";
     }
 
     function toggleUserGraph() {
         
-        const allCharts = ['datasetsChart', 'visitsChart', 'downloadsChart', 'userVisitsChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChart', 'userviewsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
 
         
-        const userVisitsChart = document.getElementById('userVisitsChart');
-        userVisitsChart.style.display = userVisitsChart.style.display === "none" ? "block" : "none";
+        const userviewsPerDatasetChart = document.getElementById('userviewsPerDatasetChart');
+        userviewsPerDatasetChart.style.display = userviewsPerDatasetChart.style.display === "none" ? "block" : "none";
     }
 
 
         const dataContainer = document.getElementById('data-container');
+
+
         const authorNames = JSON.parse(dataContainer.getAttribute('data-author-names'));
         const datasetsCount = JSON.parse(dataContainer.getAttribute('data-datasets-count'));
-        const datasetsNames = JSON.parse(dataContainer.getAttribute('data-datasets-names'));
+
+        const datasetsNamesViews = JSON.parse(dataContainer.getAttribute('data-datasets-names-views'));
         const datasetsViews = JSON.parse(dataContainer.getAttribute('data-datasets-views'));
-        const datasetsNamesUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-names-user'));
+
+        const monthsDownloads = JSON.parse(dataContainer.getAttribute('data-months-downloads'));
+        const downloads = JSON.parse(dataContainer.getAttribute('data-downloads'));
+
+        const datasetsNamesUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-names-views-user'));
         const datasetsViewsUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-views-user'));
 
+
+
         
-        const ctx1 = document.getElementById('datasetsChart').getContext('2d');
-        const datasetsChart = new Chart(ctx1, {
+        const ctx1 = document.getElementById('datasetsPerAuthorChart').getContext('2d');
+        const datasetsPerAuthorChart = new Chart(ctx1, {
             type: 'bar',
             data: {
                 labels: authorNames,
@@ -172,13 +183,13 @@
             }
         });
 
-        const ctx2 = document.getElementById('visitsChart').getContext('2d');
-        const visitsChart = new Chart(ctx2, {
+        const ctx2 = document.getElementById('viewsPerDatasetChart').getContext('2d');
+        const viewsPerDatasetChart = new Chart(ctx2, {
             type: 'bar',
             data: {
-                labels: datasetsNames,
+                labels: datasetsNamesViews,
                 datasets: [{
-                    label: 'Number of visits per Dataset',
+                    label: 'Number of views per Dataset',
                     data: datasetsViews,
                     backgroundColor: 'rgba(255, 99, 132, 0.5)',
                     borderColor: 'rgba(255, 99, 132, 1)',
@@ -192,7 +203,7 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Number of Visits'
+                            text: 'Number of views'
                         }
                     },
                     x: {
@@ -205,13 +216,12 @@
             }
         });
         
-        const months = JSON.parse(dataContainer.getAttribute('data-months'));
-        const downloads = JSON.parse(dataContainer.getAttribute('data-downloads'));
-        const ctx3 = document.getElementById('downloadsChart').getContext('2d');
-        const downloadsChart = new Chart(ctx3, {
+
+        const ctx3 = document.getElementById('downloadsPerDatasetChart').getContext('2d');
+        const downloadsPerDatasetChart = new Chart(ctx3, {
             type: 'line', 
             data: {
-                labels: months, 
+                labels: monthsDownloads, 
                 datasets: [{
                     label: 'Downloads per Month',
                     data: downloads, 
@@ -243,13 +253,13 @@
                 }
             }
         });
-        const ctx4 = document.getElementById('userVisitsChart').getContext('2d');
-            const userVisitsChart = new Chart(ctx4, {
+        const ctx4 = document.getElementById('userviewsPerDatasetChart').getContext('2d');
+        const userviewsPerDatasetChart = new Chart(ctx4, {
                 type: 'bar',
                 data: {
                     labels: datasetsNamesUser,
                     datasets: [{
-                        label: 'Number of visits per Dataset(User)',
+                        label: 'Number of views per Dataset(User)',
                         data: datasetsViewsUser,
                         backgroundColor: 'rgba(54, 162, 235, 0.5)',
                         borderColor: 'rgba(54, 162, 235, 1)',
@@ -263,7 +273,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Number of Visits'
+                                text: 'Number of views'
                             }
                         },
                         x: {

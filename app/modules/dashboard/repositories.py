@@ -28,7 +28,7 @@ class DashboardRepository(BaseRepository):
             .all()
         )
         return result
-    def get_visits_per_dataset(self):
+    def get_views_per_dataset(self):
         result = (
             DataSet.query
             .join(DSMetaData, DataSet.ds_meta_data_id == DSMetaData.id)  
@@ -63,7 +63,30 @@ class DashboardRepository(BaseRepository):
 
         return months, download_counts
     
-    def get_visits_per_dataset_user_logued(self):
+    def get_last_12_months_views(self):
+        today = datetime.today()
+        months = []
+        view_counts = []
+        
+        for i in range(12):
+            first_day_of_month = today.replace(day=1) - timedelta(days=i * 30)
+            first_day_of_month_str = first_day_of_month.strftime('%Y-%m-01')
+            
+            result = (
+                DSViewRecord.query
+                .filter(func.date(DSViewRecord.view_date) >= first_day_of_month_str)
+                .filter(func.date(DSViewRecord.view_date) < (first_day_of_month + timedelta(days=32)).strftime('%Y-%m-01'))
+                .count()
+            )
+            months.append(first_day_of_month.strftime('%Y-%m'))  
+            view_counts.append(result)  
+        
+        months.reverse()  
+        view_counts.reverse() 
+
+        return months, view_counts
+    
+    def get_views_per_dataset_user_logued(self):
         result = (
             DataSet.query
             .join(DSMetaData, DataSet.ds_meta_data_id == DSMetaData.id)  

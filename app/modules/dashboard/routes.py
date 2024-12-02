@@ -15,14 +15,13 @@ READ ALL
 @dashboard_bp.route('/dashboard', methods=['GET'])
 @login_required
 def index():
-
+    #General
     author_names, dataset_counts = dashboardService.get_all_author_names_and_dataset_counts()
-    datasets_names, datasets_views = dashboardService.get_visits_per_dataset_lists()
+    datasets_names, datasets_views = dashboardService.get_views_per_dataset_lists()
     month , downloads = dashboardService.get_downloads_per_month()
-    datasets_names_user, datasets_views_user = dashboardService.get_visits_per_dataset_user_logued()
 
-    print(datasets_names_user)
-    print(datasets_views_user)
+    #User
+    datasets_names_user, datasets_views_user = dashboardService.get_views_per_dataset_user_logued()
 
     return render_template('dashboard/index.html', 
                            author_names=author_names, 
@@ -32,5 +31,5 @@ def index():
                            months=month,
                            downloads=downloads,
                            datasets_names_user=datasets_names_user,
-                           datasets_views_user=datasets_views_user
+                           datasets_views_user=datasets_views_user,
                            )
