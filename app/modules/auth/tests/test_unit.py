@@ -1,9 +1,11 @@
 import pytest
 from flask import url_for
+from unittest.mock import patch
 
 from app.modules.auth.services import AuthenticationService
 from app.modules.auth.repositories import UserRepository
 from app.modules.profile.repositories import UserProfileRepository
+from app.modules.dataset.repositories import DataSetRepository
 
 
 @pytest.fixture(scope="module")
@@ -117,3 +119,58 @@ def test_service_create_with_profile_fail_no_password(clean_database):
 
     assert UserRepository().count() == 0
     assert UserProfileRepository().count() == 0
+
+## NUEVOS TESTS -----------------------------------------------------------------------
+
+
+def test_get_all(test_client):
+   # Simular datos devueltos por el método get_all
+   mock_users = [
+       {"id": 1, "name": "UserProfile 1"},
+       {"id": 2, "name": "UserProfile 2"},
+       {"id": 3, "name": "UserProfile 3"}
+   ]
+
+
+   with patch('app.modules.auth.repositories.UserRepository.get_all', return_value=mock_users):
+       repository = UserRepository()
+       result = repository.get_all()
+
+
+       # Verificar que el resultado tiene 3 elementos
+       assert len(result) == 3
+       assert result == mock_users
+
+
+def test_user_without_datasets(test_client):
+   mock_users = [
+       {"id": 1, "name": "UserProfile 1"},
+       {"id": 2, "name": "UserProfile 2"},
+       {"id": 3, "name": "UserProfile 3"}
+   ]
+
+
+   with patch('app.modules.auth.repositories.UserRepository.get_all', return_value=mock_users):
+       repository = UserRepository()
+       repository2 = DataSetRepository()
+       user = repository.get_all()
+       result = repository2.get_unsynchronized(user[2]["id"])
+       assert len(result) == 0
+
+
+def test_user_with_datasets(test_client):
+   mock_users = [
+       {"id": 1, "name": "UserProfile 1"},
+       {"id": 2, "name": "UserProfile 2"},
+       {"id": 3, "name": "UserProfile 3"}
+   ]
+
+
+   with patch('app.modules.auth.repositories.UserRepository.get_all', return_value=mock_users):
+       repository = UserRepository()
+       repository2 = DataSetRepository()
+       user = repository.get_all()
+       result = repository2.get_unsynchronized(user[2]["id"])
+       assert len(result) == 0
+
+
