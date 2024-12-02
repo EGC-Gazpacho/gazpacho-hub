@@ -48,12 +48,31 @@ class TestGitHubIntegration:
             "Content-Type": "application/json"
         }
 
+    # Test for successful repository creation
     def test_create_repo(self, test_client):
-        print(f"Token obtenido: {self.token}")
-
         result = GitHubService.create_repo(self.repo_name, self.token)
         assert result is True, "Failed to create repository"  
+        GitHubService.delete_repo(self.token, self.repo_owner, self.repo_name)
+        
+    # Test for failed repository creation
+    def test_create_repo_fail(self, test_client):
+        result = GitHubService.create_repo(self.repo_name, "invalid_token")
+        assert result is False, "Failed to create repository"
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
     # def test_delete_repo(self, test_client):
-    #     result = GitHubService.delete_repo(self.token, self.repo_owner, "uvl100")
-    #     assert result is True, "Failed to delete repository"
+    #     result = GitHubService.delete_repo(self.token, self.repo_owner, "uvl3")
