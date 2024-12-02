@@ -4,9 +4,9 @@ import logging
 # Configurar el nivel de log para capturar más detalles
 logging.basicConfig(level=logging.INFO)
 
+
 class NotepadUser(HttpUser):
     wait_time = between(1, 3)  # Menor intervalo para pruebas más intensivas
-
 
     def on_start(self):
         """Inicio de sesión al comenzar la sesión simulada."""

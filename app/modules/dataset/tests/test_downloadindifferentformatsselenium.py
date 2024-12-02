@@ -4,34 +4,41 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
-class TestDownloadindifferentformatsselenium():
-  def setup_method(self, method):
+
+class TestDownloadInDifferentFormatsSelenium:
+    # Setup method to initialize the WebDriver
+    def setup_method(self, method):
         # Set up options for Chromium
         chrome_options = Options()
         chrome_options.binary_location = '/usr/bin/chromium-browser'  # Update this path as needed
-        
+
         # Create a service object for the ChromeDriver
         service = Service('/usr/bin/chromedriver')  # Ensure this is the correct path to your ChromeDriver
-        
+
         # Initialize the WebDriver with the Chromium options
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
         self.vars = {}
-  
-  def teardown_method(self, method):
-    self.driver.quit()
-  
-  def test_downloadindifferentformatsselenium(self):
-    self.driver.get("http://localhost:5000/")
-    self.driver.set_window_size(1854, 1011)
-    self.driver.find_element(By.LINK_TEXT, "Sample dataset 3").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .xml").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .json").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .yaml").click()
-    self.driver.get("http://localhost:5000/")
-    self.driver.find_element(By.LINK_TEXT, "Sample dataset 4").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .xml").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .json").click()
-    self.driver.find_element(By.LINK_TEXT, "Download in .yaml").click()
-  
-   
-  
+
+    # Teardown method to quit the WebDriver
+    def teardown_method(self, method):
+        self.driver.quit()
+
+    # Test method for downloading datasets in different formats
+    def test_download_in_different_formats(self):
+        self.driver.get("http://localhost:5000/")
+        self.driver.set_window_size(1854, 1011)
+
+        # Navigate to and download formats for Sample dataset 3
+        self.driver.find_element(By.LINK_TEXT, "Sample dataset 3").click()
+        self.driver.find_element(By.LINK_TEXT, "Download in .xml").click()
+        self.driver.find_element(By.LINK_TEXT, "Download in .json").click()
+        self.driver.find_element(By.LINK_TEXT, "Download in .yaml").click()
+
+        # Navigate back to home
+        self.driver.get("http://localhost:5000/")
+
+        # Navigate to and download formats for Sample dataset 4
+        self.driver.find_element(By.LINK_TEXT, "Sample dataset 4").click()
+        self.driver.find_element(By.LINK_TEXT, "Download in .xml").click()
+        self.driver.find_element(By.LINK_TEXT, "Download in .json").click()
+        self.driver.find_element(By.LINK_TEXT, "Download in .yaml").click()
