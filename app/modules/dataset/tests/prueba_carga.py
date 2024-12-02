@@ -1,5 +1,4 @@
 from locust import HttpUser, task, between
-import random
 import logging
 
 # Configurar el nivel de log para capturar más detalles
@@ -7,6 +6,7 @@ logging.basicConfig(level=logging.INFO)
 
 class NotepadUser(HttpUser):
     wait_time = between(1, 3)  # Menor intervalo para pruebas más intensivas
+
 
     def on_start(self):
         """Inicio de sesión al comenzar la sesión simulada."""
@@ -37,9 +37,9 @@ class NotepadUser(HttpUser):
         """Simula la descarga en múltiples formatos."""
         formats = ["json", "yaml", "xml"]
         dataset_id = 6
-
+        url = "/dataset/download_informat/"
         for file_format in formats:
-            with self.client.get(f"/dataset/download_informat/{file_format}/{dataset_id}", catch_response=True) as response:
+            with self.client.get(f"{url}{file_format}/{dataset_id}", catch_response=True) as response:
                 if response.status_code == 200:
                     # Validar que el contenido sea un ZIP para los formatos correctos
                     if "application/zip" in response.headers.get("Content-Type", ""):
