@@ -1,0 +1,65 @@
+import pytest
+from app import create_app, db
+from app.modules.github.services import GitHubService
+from app.modules.auth.models import User
+from app.modules.profile.models import UserProfile
+
+
+@pytest.fixture(scope="module")
+def app():
+    app = create_app()  # Suponiendo que tienes una función create_app que crea la aplicación
+    with app.app_context():
+        db.drop_all()  # Limpiar la base de datos antes de las pruebas
+        db.create_all()  # Esto creará todas las tablas necesarias
+    yield app
+    # Limpiar la base de datos después de las pruebas si es necesario
+    with app.app_context():
+        db.drop_all()  # Limpiar la base de datos
+
+
+@pytest.fixture(scope="module")
+def test_client(app):
+    """
+    Extiende la fixture test_client para agregar datos adicionales específicos para las pruebas del módulo.
+    """
+    with app.app_context():
+        user_test = User(email='user@example.com', password='test1234')
+        db.session.add(user_test)
+        db.session.commit()
+
+        profile = UserProfile(user_id=user_test.id, name="Name", surname="Surname")
+        db.session.add(profile)
+        db.session.commit()
+
+    yield app.test_client()
+
+
+class TestGitHubIntegration:
+
+    @pytest.fixture(autouse=True)
+    def setUp(self, test_client):
+        """
+        Configura los datos iniciales antes de cada prueba.
+        """
+        self.token = ""  
+        self.repo_owner = "rafduqcol"  
+        self.repo_name = "uvl_repo_tests"  
+        self.github_api_url = "https://api.github.com/user/repos"
+        self.headers = {
+            "Authorization": f"token {self.token}",
+            "Content-Type": "application/json"
+        }
+
+    def test_create_repo(self, test_client):
+        
+        result = GitHubService.create_repo(self.repo_name, self.token)
+
+        assert result is True, "Failed to create repository"  
+        
+        GitHubService.delete_repo(self.token, self.repo_owner, self.repo_name)  
+
+    #Usado para borrar repos mas rapido
+    def test_delete_repo(self, test_client):
+        
+        
+        result = GitHubService.delete_repo(self.token, self.repo_owner, "uvl100")
