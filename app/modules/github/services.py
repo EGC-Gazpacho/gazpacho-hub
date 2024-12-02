@@ -165,4 +165,38 @@ class GitHubService(BaseService):
             return False
 
 
+    @staticmethod
+    def delete_file_from_repo(token, repo_owner, repo_name, file_path, branch, commit_message):
+    
+        url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}?ref={branch}"
+
+        headers = {
+            'Authorization': f'token {token}',
+            'Accept': 'application/vnd.github.v3+json'
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            file_sha = response.json().get('sha')
+
+            delete_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}"
+            data = {
+                'message': commit_message,
+                'sha': file_sha,
+                'branch': branch
+            }
+
+            delete_response = requests.delete(delete_url, headers=headers, json=data)
+
+            if delete_response.status_code == 200 or delete_response.status_code == 204:
+                print(f"File '{file_path}' deleted successfully.")
+                return ('File deleted successfully', 200)
+            else:
+                print(f"Error deleting the file: {delete_response.json().get('message')}")
+                return False
+        else:
+            print(f"Error fetching file information: {response.json().get('message')}")
+            return False
+
     

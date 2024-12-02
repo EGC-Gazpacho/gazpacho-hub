@@ -402,3 +402,48 @@ def test_delete_repo_failure(mock_delete, github_service):
     assert result == False  
     
     mock_delete.assert_called_once()
+    
+# Test to delete a repository that does not exist in GitHub with success
+@patch('requests.get')
+@patch('requests.delete')
+def test_delete_file_success(mock_delete, mock_get, github_service):
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {'sha': '123456abcdef'}
+    
+    mock_delete.return_value.status_code = 200
+    mock_delete.return_value.ok = True
+    
+    token = "access_token"
+    repo_owner = "test_owner"
+    repo_name = "test_repo"
+    file_path = "path/to/file.txt"
+    branch = "main"
+    commit_message = "Delete file from repository"
+    
+    result = github_service.delete_file_from_repo(token, repo_owner, repo_name, file_path, branch, commit_message)
+    
+    assert result == ('File deleted successfully', 200)
+    
+    mock_get.assert_called_once()  
+    mock_delete.assert_called_once()  
+
+# Test to delete a repository that does not exist in GitHub with not success
+@patch('requests.get')
+@patch('requests.delete')
+def test_delete_file_not_found(mock_delete, mock_get, github_service):
+    mock_get.return_value.status_code = 404
+    mock_get.return_value.json.return_value = {'message': 'Not Found'}
+    
+    token = "access_token"
+    repo_owner = "test_owner"
+    repo_name = "test_repo"
+    file_path = "path/to/file.txt"
+    branch = "main"
+    commit_message = "Delete file from repository"
+    
+    result = github_service.delete_file_from_repo(token, repo_owner, repo_name, file_path, branch, commit_message)
+    
+    assert result == False
+    
+    mock_get.assert_called_once()  
+    mock_delete.assert_not_called()  
