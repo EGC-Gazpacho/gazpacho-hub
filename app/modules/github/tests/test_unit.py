@@ -265,7 +265,7 @@ def test_upload_dataset_to_github_success(mock_put, github_service):
     owner = "test_owner"
     repo_name = "test_repo"
     branch = "main"
-    token = "valid_token"
+    token = "access_token"
     commit_message = "Adding dataset"
     license = "MIT"
     repo_type = 'existing'
@@ -295,7 +295,7 @@ def test_upload_dataset_to_github_file_upload_failure(mock_put, github_service):
     owner = "test_owner"
     repo_name = "test_repo"
     branch = "main"
-    token = "valid_token"
+    token = "access_token"
     commit_message = "Adding dataset"
     license = "MIT"
     repo_type = 'existing'  
@@ -326,7 +326,7 @@ def test_upload_dataset_to_github_new_repo(mock_create_repo, mock_put, github_se
     owner = "test_owner"
     repo_name = "test_repo"
     branch = "main"
-    token = "valid_token"
+    token = "access_token"
     commit_message = "Adding dataset"
     license = "MIT"
     repo_type = 'new'  
@@ -352,7 +352,7 @@ def test_upload_dataset_to_github_new_repo_creation_failure(mock_create_repo, mo
     owner = "test_owner"
     repo_name = "test_repo"
     branch = "main"
-    token = "valid_token"
+    token = "access_token"
     commit_message = "Adding dataset"
     license = "MIT"
     repo_type = 'new'  
@@ -370,3 +370,35 @@ def test_upload_dataset_to_github_new_repo_creation_failure(mock_create_repo, mo
     mock_put.assert_not_called()
 
 
+# Test to delete a repository that does exist in GitHub with success
+@patch('requests.delete')
+def test_delete_repo_success(mock_delete, github_service):
+    mock_delete.return_value.status_code = 204
+    mock_delete.return_value.ok = True
+    
+    owner = "test_owner"
+    repo_name = "test_repo"
+    token = "access_token"
+    
+    result = github_service.delete_repo(owner, repo_name, token)
+    
+    assert result == ('Repository deleted successfully', 204)  
+    
+    mock_delete.assert_called() 
+    
+# Test to delete a repository that does exist in GitHub with not success
+@patch('requests.delete')
+def test_delete_repo_failure(mock_delete, github_service):
+    mock_delete.return_value.status_code = 400
+    mock_delete.return_value.json.return_value = {'message': 'Bad Request'}
+    mock_delete.return_value.ok = False
+    
+    owner = "test_owner"
+    repo_name = "test_repo"
+    token = "access_token"
+    
+    result = github_service.delete_repo(owner, repo_name, token)
+    
+    assert result == False  
+    
+    mock_delete.assert_called_once()
