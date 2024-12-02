@@ -1,3 +1,4 @@
+import os
 import pytest
 from app import create_app, db
 from app.modules.github.services import GitHubService
@@ -38,10 +39,7 @@ class TestGitHubIntegration:
 
     @pytest.fixture(autouse=True)
     def setUp(self, test_client):
-        """
-        Configura los datos iniciales antes de cada prueba.
-        """
-        self.token = ""  
+        self.token = os.getenv("UPLOAD_TOKEN_GITHUB")  # Obtener el token desde la variable de entorno
         self.repo_owner = "rafduqcol"  
         self.repo_name = "uvl_repo_tests"  
         self.github_api_url = "https://api.github.com/user/repos"
@@ -51,15 +49,11 @@ class TestGitHubIntegration:
         }
 
     def test_create_repo(self, test_client):
-        
+        print(f"Token obtenido: {self.token}")
+
         result = GitHubService.create_repo(self.repo_name, self.token)
-
         assert result is True, "Failed to create repository"  
-        
-        GitHubService.delete_repo(self.token, self.repo_owner, self.repo_name)  
 
-    #Usado para borrar repos mas rapido
-    def test_delete_repo(self, test_client):
-        
-        
-        result = GitHubService.delete_repo(self.token, self.repo_owner, "uvl100")
+    # def test_delete_repo(self, test_client):
+    #     result = GitHubService.delete_repo(self.token, self.repo_owner, "uvl100")
+    #     assert result is True, "Failed to delete repository"

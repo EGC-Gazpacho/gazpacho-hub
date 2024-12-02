@@ -1,0 +1,21 @@
+name: Test GitHub Integration
+
+on:
+    push:
+      branches: [main, develop]
+    pull_request:
+      branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up environment
+        run: echo "UPLOAD_TOKEN_GITHUB=${{ secrets.UPLOAD_TOKEN_GITHUB }}" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: |
+          pytest tests/test_integration.py
