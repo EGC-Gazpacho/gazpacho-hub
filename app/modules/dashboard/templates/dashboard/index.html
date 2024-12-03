@@ -13,6 +13,7 @@
         General Dashboard
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownGeneral">
+        <li><button class="dropdown-item" id="toggleStatisticsButton">General Statistics</button></li>
         <li><button class="dropdown-item" onclick="toggleDatasetsPerAuthorGraph()">Graph Datasets per Author(Top 10)</button></li>
         <li><button class="dropdown-item" onclick="toggleviewsPerDatasetGraph()">Graph Views per Dataset(Top 10)</button></li>
         <li><button class="dropdown-item" onclick="toggleDownloadsPerDatasetGraph()">Graph Downloads per Dataset(Top 10)</button></li>
@@ -65,6 +66,51 @@
      style="display: none;">
 </div>
 
+<div id="statisticsTable" style="display:none">
+    <h2>General Statistics</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Metric</th>
+                <th scope="col">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total de descargas</td>
+                <td>{{ statistics['total_downloads'] }}</td>
+            </tr>
+            <tr>
+                <td>Total de vistas</td>
+                <td>{{ statistics['total_views'] }}</td>
+            </tr>
+            <tr>
+                <td>Total de datasets sincronizados</td>
+                <td>{{ statistics['total_synchronized_datasets'] }}</td>
+            </tr>
+            <tr>
+                <td>Total de datasets no sincronizados</td>
+                <td>{{ statistics['total_unsynchronized_datasets'] }}</td>
+            </tr>
+            <tr>
+                <td>Total de datasets</td>
+                <td>{{ statistics['total_datasets'] }}</td>
+            </tr>
+            <tr>
+                <td>Datasets del mes pasado</td>
+                <td>{{ statistics['datasets_last_month'] }}</td>
+            </tr>
+            <tr>
+                <td>Última descarga</td>
+                <td>{{ statistics['last_download_date'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            </tr>
+            <tr>
+                <td>Última vista</td>
+                <td>{{ statistics['last_view_date'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 
 {% endblock %}
@@ -97,6 +143,21 @@
 
 {% block scripts %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const toggleButton = document.getElementById('toggleStatisticsButton');
+        const statisticsTable = document.getElementById('statisticsTable');
+
+        toggleButton.addEventListener('click', function() {
+            if (statisticsTable.style.display === 'none') {
+                statisticsTable.style.display = 'block';
+                toggleButton.textContent = 'Ocultar Estadísticas'; 
+            } else {
+                statisticsTable.style.display = 'none';
+                toggleButton.textContent = 'Mostrar Estadísticas';
+            }
+        });
+    </script>
 
     <script>
 

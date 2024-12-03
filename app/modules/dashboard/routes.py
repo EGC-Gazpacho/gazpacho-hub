@@ -16,6 +16,7 @@ READ ALL
 @login_required
 def index():
     #General
+    statistics = dashboardService.get_detailed_statistics()
     author_names, dataset_counts = dashboardService.get_all_author_names_and_dataset_counts()
     datasets_names_views, datasets_views = dashboardService.get_views_per_dataset_lists()
     datasets_names_downloads, datasets_downloads  = dashboardService.get_downloads_per_dataset_lists()
@@ -27,6 +28,7 @@ def index():
     datasets_names_user_downloads, datasets_download_user = dashboardService.get_downloads_per_dataset_user_logued()
 
     return render_template('dashboard/index.html', 
+                           statistics=statistics,
                            author_names=author_names, 
                            datasets_count=dataset_counts, 
                            datasets_names_views=datasets_names_views, 
