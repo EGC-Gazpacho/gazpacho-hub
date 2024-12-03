@@ -27,7 +27,9 @@
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownUsuario">
         <li><button class="dropdown-item" onclick="toggleUserGraph()">Graph Views per Dataset of User</button></li>
+        <li><button class="dropdown-item" onclick="toggleUserDownloadsGraph()">Graph Downloads per Dataset of User</button></li>
     </ul>
+    
  </div>
 
 <canvas id="datasetsPerAuthorChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
@@ -36,6 +38,8 @@
 <canvas id="downloadsPerDatasetChartMonth" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="viewsPerDatasetChartMonth" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="userviewsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<canvas id="userdownloadsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+
 
 <div id="data-container"
      data-author-names='{{ author_names | tojson | safe }}'
@@ -55,6 +59,9 @@
 
      data-datasets-names-views-user='{{ datasets_names_user | tojson | safe }}'
      data-datasets-views-user='{{ datasets_views_user | tojson | safe }}'
+
+     data-datasets-names-downloads-user='{{ datasets_names_user_downloads | tojson | safe }}'
+     data-datasets-downloads-user='{{ datasets_download_user | tojson | safe }}'
      style="display: none;">
 </div>
 
@@ -95,7 +102,7 @@
 
     function toggleDatasetsPerAuthorGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -107,7 +114,7 @@
 
     function toggleviewsPerDatasetGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -119,7 +126,7 @@
 
     function toggleDownloadsPerDatasetGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -131,7 +138,7 @@
 
     function toggleDownloadsPerMonthGraph(chartId) {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(id) {
             document.getElementById(id).style.display = "none";
         });
@@ -142,7 +149,7 @@
     }
     function toggleViewsPerMonthGraph(chartId) {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(id) {
             document.getElementById(id).style.display = "none";
         });
@@ -154,13 +161,24 @@
 
     function toggleUserGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart'];
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
 
         
         const userviewsPerDatasetChart = document.getElementById('userviewsPerDatasetChart');
+        userviewsPerDatasetChart.style.display = userviewsPerDatasetChart.style.display === "none" ? "block" : "none";
+    }
+    function toggleUserDownloadsGraph() {
+        
+        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
+        allCharts.forEach(function(chartId) {
+            document.getElementById(chartId).style.display = "none";
+        });
+
+        
+        const userviewsPerDatasetChart = document.getElementById('userdownloadsPerDatasetChart');
         userviewsPerDatasetChart.style.display = userviewsPerDatasetChart.style.display === "none" ? "block" : "none";
     }
 
@@ -185,6 +203,10 @@
 
         const datasetsNamesUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-names-views-user'));
         const datasetsViewsUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-views-user'));
+
+        const datasetsNamesUserDownloads = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-names-downloads-user'));
+        const datasetsDownloadsUser = JSON.parse(document.getElementById('data-container').getAttribute('data-datasets-downloads-user'));
+
 
 
 
@@ -382,6 +404,38 @@
                             title: {
                                 display: true,
                                 text: 'Number of views'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Datasets of the user'
+                            }
+                        }
+                    }
+                }
+            });
+        const ctx8 = document.getElementById('userdownloadsPerDatasetChart').getContext('2d');
+        const userdownloadsPerDatasetChart = new Chart(ctx8, {
+                type: 'bar',
+                data: {
+                    labels: datasetsNamesUserDownloads,
+                    datasets: [{
+                        label: 'Number of downloads per Dataset(User)',
+                        data: datasetsDownloadsUser,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of downloads'
                             }
                         },
                         x: {

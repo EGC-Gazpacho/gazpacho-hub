@@ -24,6 +24,7 @@ def index():
 
     #User
     datasets_names_user, datasets_views_user = dashboardService.get_views_per_dataset_user_logued()
+    datasets_names_user_downloads, datasets_download_user = dashboardService.get_downloads_per_dataset_user_logued()
 
     return render_template('dashboard/index.html', 
                            author_names=author_names, 
@@ -38,4 +39,6 @@ def index():
                            datasets_views_user=datasets_views_user,
                            months_views=month_views,
                            views_per_month=views,
+                           datasets_names_user_downloads=datasets_names_user_downloads,
+                           datasets_download_user=datasets_download_user
                            )

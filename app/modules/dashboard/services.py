@@ -41,3 +41,10 @@ class DashboardService(BaseService):
         dataset_views_user = [item[1] for item in result] 
 
         return dataset_names_user, dataset_views_user
+    
+    def get_downloads_per_dataset_user_logued(self):
+        result = DashboardRepository.get_downloads_per_dataset_user_logued(self)
+        dataset_names_user = [item[0] for item in result]  
+        dataset_download_user = [item[1] for item in result] 
+
+        return dataset_names_user, dataset_download_user

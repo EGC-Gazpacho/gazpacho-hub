@@ -111,4 +111,18 @@ class DashboardRepository(BaseRepository):
             .all()  
         )
         return result
+    def get_downloads_per_dataset_user_logued(self):
+        result = (
+            DataSet.query
+            .join(DSMetaData, DataSet.ds_meta_data_id == DSMetaData.id)  
+            .outerjoin(DSDownloadRecord, DataSet.id == DSDownloadRecord.dataset_id)  
+            .filter(DataSet.user_id == current_user.id) 
+            .with_entities(DSMetaData.title, func.count(DSDownloadRecord.id).label('view_count'))  
+            .group_by(DSMetaData.id)  
+            .order_by(func.count(DSDownloadRecord.id).desc())
+            .limit(10)  
+            .all()  
+        )
+        return result
+            
             
