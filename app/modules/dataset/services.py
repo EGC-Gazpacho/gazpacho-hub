@@ -194,8 +194,9 @@ class DataSetService(BaseService):
                 total_features += feature_count
 
                 # Calculate products for this feature model
-                product_count = calculate_number_of_products(parse_result["feature_hierarchy"],
-                 parse_result["constraints"])
+                product_count = calculate_number_of_products(
+                    parse_result["feature_hierarchy"],
+                    parse_result["constraints"])
                 total_products += product_count
 
                 file = self.hubfilerepository.create(
@@ -203,8 +204,9 @@ class DataSetService(BaseService):
                 )
                 fm.files.append(file)
 
-            dsmetrics = DSMetrics(number_of_models=str(total_models), number_of_features=str(total_features),
-             number_of_products=str(total_products))
+            dsmetrics = DSMetrics(number_of_models=str(total_models), 
+                                number_of_features=str(total_features),
+                                number_of_products=str(total_products))
             dsmetadata.ds_metrics = dsmetrics
 
             dataset.ds_meta_data = dsmetadata
