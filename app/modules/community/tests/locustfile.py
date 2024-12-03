@@ -1,5 +1,6 @@
+from flask import logging
 from locust import HttpUser, TaskSet, task
-from core.locust.common import get_csrf_token, fake
+from core.locust.common import get_csrf_token
 from core.environment.host import get_host_for_locust_testing
 
 
@@ -32,23 +33,6 @@ class CommunityBehavior(TaskSet):
             print(f"Failed to fetch community list: {response.status_code}")
 
     @task
-    def create_community(self):
-        """
-        Create a new community.
-        """
-        response = self.client.get("/community/create")
-        csrf_token = get_csrf_token(response)
-
-        response = self.client.post("/community/create", data={
-            "name": fake.company(),
-            "description": fake.text(),
-            "type": "public",
-            "csrf_token": csrf_token
-        })
-        if response.status_code != 200:
-            print(f"Community creation failed: {response.status_code}")
-
-    @task
     def view_user_communities(self):
         """
         View the communities the user is part of.
@@ -56,6 +40,17 @@ class CommunityBehavior(TaskSet):
         response = self.client.get("/user-communities")
         if response.status_code != 200:
             print(f"Failed to fetch user communities: {response.status_code}")
+
+    def on_stop(self):
+        """
+        Cierra sesión al terminar la sesión simulada.
+        """
+        with self.client.get("/logout", catch_response=True) as response:
+            if response.status_code == 200:
+                logging.info("Logout successful.")
+            else:
+                logging.error(f"Logout failed: {response.status_code}")
+                response.failure("Logout error.")
 
 
 class CommunityUser(HttpUser):
