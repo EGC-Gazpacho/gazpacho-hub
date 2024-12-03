@@ -167,15 +167,15 @@ class DataSetService(BaseService):
             dsmetadata = self.dsmetadata_repository.create(**form.get_dsmetadata())
             for author_data in [main_author] + form.get_authors():
                 author = self.author_repository.create(
-                    commit=False, 
-                    ds_meta_data_id=dsmetadata.id, 
+                    commit=False,
+                    ds_meta_data_id=dsmetadata.id,
                     **author_data
                 )
                 dsmetadata.authors.append(author)
 
             dataset = self.create(
-                commit=False, 
-                user_id=current_user.id, 
+                commit=False,
+                user_id=current_user.id,
                 ds_meta_data_id=dsmetadata.id
             )
 
@@ -186,20 +186,20 @@ class DataSetService(BaseService):
             for feature_model in form.feature_models:
                 uvl_filename = feature_model.uvl_filename.data
                 fmmetadata = self.fmmetadata_repository.create(
-                    commit=False, 
+                    commit=False,
                     **feature_model.get_fmmetadata()
                 )
                 for author_data in feature_model.get_authors():
                     author = self.author_repository.create(
-                        commit=False, 
-                        fm_meta_data_id=fmmetadata.id, 
+                        commit=False,
+                        fm_meta_data_id=fmmetadata.id,
                         **author_data
                     )
                     fmmetadata.authors.append(author)
 
                 fm = self.feature_model_repository.create(
-                    commit=False, 
-                    data_set_id=dataset.id, 
+                    commit=False,
+                    data_set_id=dataset.id,
                     fm_meta_data_id=fmmetadata.id
                 )
 
@@ -216,10 +216,10 @@ class DataSetService(BaseService):
                 total_products += product_count
 
                 file = self.hubfilerepository.create(
-                    commit=False, 
-                    name=uvl_filename, 
-                    checksum=checksum, 
-                    size=size, 
+                    commit=False,
+                    name=uvl_filename,
+                    checksum=checksum,
+                    size=size,
                     feature_model_id=fm.id
                 )
                 fm.files.append(file)
