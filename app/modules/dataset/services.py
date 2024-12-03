@@ -94,12 +94,10 @@ def calculate_number_of_products(feature_hierarchy, constraints):
     product_count *= 2 ** len(feature_hierarchy["optional"])
 
     # Handle "alternative" groups (1 choice per group)
-    for group in feature_hierarchy["alternative"]:
-        product_count *= len(group)
+    product_count *= len(feature_hierarchy["alternative"])
 
     # Handle "or" groups (any combination except empty set)
-    for group in feature_hierarchy["or"]:
-        product_count *= (2 ** len(group)) - 1
+    product_count *= (2 ** len(feature_hierarchy["or"])) - 1
 
     return product_count
 
