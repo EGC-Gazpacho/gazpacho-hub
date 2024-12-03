@@ -149,21 +149,18 @@
         const statisticsTable = document.getElementById('statisticsTable');
 
         toggleButton.addEventListener('click', function() {
-            if (statisticsTable.style.display === 'none') {
-                statisticsTable.style.display = 'block';
-                toggleButton.textContent = 'Ocultar Estadísticas'; 
-            } else {
-                statisticsTable.style.display = 'none';
-                toggleButton.textContent = 'Mostrar Estadísticas';
-            }
+            const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart','statisticsTable'];
+            allCharts.forEach(function(chartId) {
+            document.getElementById(chartId).style.display = "none";
+                });
+            statisticsTable.style.display = 'block';
         });
     </script>
 
     <script>
-
+    const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart','statisticsTable'];
     function toggleDatasetsPerAuthorGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -175,7 +172,6 @@
 
     function toggleviewsPerDatasetGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -187,7 +183,6 @@
 
     function toggleDownloadsPerDatasetGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -199,7 +194,6 @@
 
     function toggleDownloadsPerMonthGraph(chartId) {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(id) {
             document.getElementById(id).style.display = "none";
         });
@@ -210,7 +204,6 @@
     }
     function toggleViewsPerMonthGraph(chartId) {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(id) {
             document.getElementById(id).style.display = "none";
         });
@@ -222,7 +215,6 @@
 
     function toggleUserGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
@@ -233,7 +225,6 @@
     }
     function toggleUserDownloadsGraph() {
         
-        const allCharts = ['datasetsPerAuthorChart', 'viewsPerDatasetChart', 'downloadsPerDatasetChartMonth', 'userviewsPerDatasetChart','viewsPerDatasetChartMonth','downloadsPerDatasetChart','userdownloadsPerDatasetChart'];
         allCharts.forEach(function(chartId) {
             document.getElementById(chartId).style.display = "none";
         });
