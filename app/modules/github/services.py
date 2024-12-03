@@ -10,9 +10,7 @@ class GitHubService(BaseService):
         
     @staticmethod
     def upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type):
-        """
-        Upload dataset files to a GitHub repository.
-        """
+        
         if repo_type == 'new':
             print(f"Creating repository: {repo_name}")
             repo_created = GitHubService.create_repo(repo_name, token)

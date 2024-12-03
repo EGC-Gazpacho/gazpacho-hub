@@ -169,10 +169,6 @@ def test_request_exception(mock_get, github_service):
 
     with pytest.raises(requests.exceptions.RequestException, match="Unexpected error"):
         github_service.check_branch_exists(owner, repo_name, branch, access_token)
-import pytest
-from unittest.mock import patch
-import requests
-from app.modules.github.services import GitHubService
 
 
 # Test for successful repository creation
@@ -280,11 +276,6 @@ def test_upload_dataset_to_github_success(mock_put, github_service):
     mock_put.assert_called()  
 
 #Test to update the dataset to a repo that does exist in GitHub with not success
-import pytest
-from unittest.mock import patch, MagicMock
-import requests
-
-# Test para subir el dataset con fallo en la carga del archivo
 @patch('requests.put')
 def test_upload_dataset_to_github_file_upload_failure(mock_put, github_service):
    
