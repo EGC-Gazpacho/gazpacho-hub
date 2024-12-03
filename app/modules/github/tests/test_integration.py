@@ -40,6 +40,22 @@ class TestGitHubService:
         assert result is True, "Repository creation should have succeeded"
         
     
+ 
+    # Test to verify if a repository exists
+    def test_check_repository_exists_found(self):
+
+        result = GitHubService.check_repository_exists(self.repo_owner, self.repo_name, self.token)
+        assert result, "The repository should exist"
+
+
+    # Test to verify if a repository does not exist
+    def test_check_repository_exists_not_found(self):
+      
+        result = GitHubService.check_repository_exists("no_exists", self.repo_name, self.token)
+        assert not result, "The repository should not exist"
     
-    
-  
+        
+    def test_delete_repo(self):
+        
+        result = GitHubService.delete_repo(self.token, self.repo_owner, self.repo_name)
+        assert result, "Repository deletion should have succeeded"
