@@ -20,6 +20,14 @@ def test_client(test_client):
         db.session.add(profile)
         db.session.commit()
 
+        user_test = User(email='otheruser@example.com', password='password1234')
+        db.session.add(user_test)
+        db.session.commit()
+
+        profile = UserProfile(user_id=user_test.id, name="Name", surname="Surname")
+        db.session.add(profile)
+        db.session.commit()
+
     yield test_client
 
 
@@ -256,5 +264,471 @@ def test_delete_community_unauthorized(test_client):
     with test_client.application.app_context():
         community = Community.query.get(community_id)
         assert community is not None, "The community was deleted by an unauthorized user."
+
+    logout(test_client)
+
+
+def test_join_public_community(test_client):
+    """
+    Test joining a public community via POST request.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a public community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'Public Test Community',
+        'description': 'A public community for testing.',
+        'type': 'public'  # Public community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the public community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='Public Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Log out the creator and log in a different user
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Join the public community via the endpoint
+    join_response = test_client.post(f'/community/join/{community_id}', follow_redirects=True)
+    assert join_response.status_code == 200, "Failed to join the public community."
+
+    # Verify the different user was added to the community
+    with test_client.application.app_context():
+        from app.modules.community.models import UserCommunity, UserRole
+        from app.modules.auth.models import User
+        user_community = (
+            UserCommunity.query
+            .join(User)
+            .filter(UserCommunity.community_id == community_id, User.email == "otheruser@example.com")
+            .first()
+        )
+        assert user_community is not None, "The user was not added to the community."
+        assert user_community.role == UserRole.MEMBER, "The user was not added with the MEMBER role."
+
+    logout(test_client)
+
+
+def test_leave_community(test_client):
+    """
+    Test leaving a community via POST request.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a public community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'Leave Test Community',
+        'description': 'A community to test leaving functionality.',
+        'type': 'public'  # Public community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='Leave Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Log out the creator and log in a different user to join the community
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Join the public community
+    join_response = test_client.post(f'/community/join/{community_id}', follow_redirects=True)
+    assert join_response.status_code == 200, "Failed to join the community."
+
+    # Leave the community via the endpoint
+    leave_response = test_client.post(f'/community/leave/{community_id}', follow_redirects=True)
+    assert leave_response.status_code == 200, "Failed to leave the community."
+
+    # Verify the user is no longer a member of the community
+    with test_client.application.app_context():
+        from app.modules.community.models import UserCommunity
+        from app.modules.auth.models import User
+        user_community = (
+            UserCommunity.query
+            .join(User)
+            .filter(UserCommunity.community_id == community_id, User.email == "otheruser@example.com")
+            .first()
+        )
+        assert user_community is None, "The user is still a member of the community after leaving."
+
+    logout(test_client)
+
+
+def test_request_join_private_community(test_client):
+    """
+    Test requesting to join a private community via POST request.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a private community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'Request Join Test Community',
+        'description': 'A private community for testing join requests.',
+        'type': 'private'  # Private community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the private community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='Request Join Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Log out the creator and log in a different user to request to join the community
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Request to join the private community
+    request_response = test_client.post(f'/community/request-join/{community_id}', follow_redirects=True)
+    assert request_response.status_code == 200, "Failed to request to join the private community."
+
+    # Verify the join request exists in the database
+    with test_client.application.app_context():
+        from app.modules.community.models import JoinRequest
+        join_request = JoinRequest.query.filter_by(community_id=community_id).first()
+        assert join_request is not None, "The join request was not created in the database."
+        assert join_request.user.email == "otheruser@example.com", "The join request is not associated with the user."
+
+    logout(test_client)
+
+
+def test_admin_community_access(test_client):
+    """
+    Test accessing the community admin page as the creator or admin.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a private community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'Admin Test Community',
+        'description': 'A community to test admin access.',
+        'type': 'private'  # Private community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the private community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='Admin Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Access the admin page as the creator
+    admin_response = test_client.get(f'/community/{community_id}/admin')
+    assert admin_response.status_code == 200, "The creator could not access the admin page."
+    html_content = admin_response.data.decode()
+    assert "Admin Test Community" in html_content, "The community name is not displayed on the admin page."
+
+    # Log out the creator and log in as a different user
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Attempt to access the admin page as a non-admin
+    unauthorized_response = test_client.get(f'/community/{community_id}/admin', follow_redirects=True)
+    assert unauthorized_response.status_code == 200, "Non-admin user could not access the redirected page."
+
+    logout(test_client)
+
+
+def test_accept_join_request(test_client):
+    """
+    Test accepting a join request via POST request.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a private community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'Accept Request Test Community',
+        'description': 'A private community for testing join request acceptance.',
+        'type': 'private'  # Private community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the private community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='Accept Request Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Log out the creator and log in as a different user to request to join the community
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Request to join the private community
+    request_response = test_client.post(f'/community/request-join/{community_id}', follow_redirects=True)
+    assert request_response.status_code == 200, "Failed to request to join the private community."
+
+    # Get the join request ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import JoinRequest
+        join_request = JoinRequest.query.filter_by(community_id=community_id).first()
+        assert join_request is not None, "Join request was not found in the database."
+        request_id = join_request.id
+
+    # Log out the requester and log back in as the community creator to accept the request
+    logout(test_client)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Failed to log back in as the community creator."
+
+    # Accept the join request
+    accept_response = test_client.post(f'/community/{community_id}/requests/{request_id}/accept', follow_redirects=True)
+    assert accept_response.status_code == 200, "Failed to accept the join request."
+
+    # Verify the user was added as a member
+    with test_client.application.app_context():
+        from app.modules.community.models import UserCommunity, UserRole
+        user_community = UserCommunity.query.filter_by(community_id=community_id, user_id=join_request.user_id).first()
+        assert user_community is not None, "The user was not added to the community."
+        assert user_community.role == UserRole.MEMBER, "The user was not added with the MEMBER role."
+
+    logout(test_client)
+
+
+def test_reject_join_request(test_client):
+    """
+    Test rejecting a join request via POST request.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a private community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'Reject Request Test Community',
+        'description': 'A private community for testing join request rejection.',
+        'type': 'private'  # Private community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the private community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='Reject Request Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Log out the creator and log in as a different user to request to join the community
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Request to join the private community
+    request_response = test_client.post(f'/community/request-join/{community_id}', follow_redirects=True)
+    assert request_response.status_code == 200, "Failed to request to join the private community."
+
+    # Get the join request ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import JoinRequest
+        join_request = JoinRequest.query.filter_by(community_id=community_id).first()
+        assert join_request is not None, "Join request was not found in the database."
+        request_id = join_request.id
+
+    # Log out the requester and log back in as the community creator to reject the request
+    logout(test_client)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Failed to log back in as the community creator."
+
+    # Reject the join request
+    reject_response = test_client.post(f'/community/{community_id}/requests/{request_id}/reject', follow_redirects=True)
+    assert reject_response.status_code == 200, "Failed to reject the join request."
+
+    # Verify the join request no longer exists in the database
+    with test_client.application.app_context():
+        join_request = JoinRequest.query.filter_by(community_id=community_id, id=request_id).first()
+        assert join_request is None, "The join request was not deleted from the database."
+
+    logout(test_client)
+
+
+def test_remove_member(test_client):
+    """
+    Test removing a member from a community via POST request.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a private community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'Remove Member Test Community',
+        'description': 'A community to test removing members.',
+        'type': 'private'  # Private community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the private community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='Remove Member Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Log out the creator and log in as a different user to join the community
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Join the community
+    join_response = test_client.post(f'/community/join/{community_id}', follow_redirects=True)
+    assert join_response.status_code == 200, "Failed to join the community."
+
+    # Get the other user's ID from the database
+    with test_client.application.app_context():
+        from app.modules.auth.models import User
+        other_user = User.query.filter_by(email="otheruser@example.com").first()
+        assert other_user is not None, "Other user was not found in the database."
+        other_user_id = other_user.id
+
+    # Log out the member and log back in as the community creator to remove the member
+    logout(test_client)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Failed to log back in as the community creator."
+
+    # Remove the member
+    remove_response = test_client.post(f'/community/{community_id}/remove/{other_user_id}', follow_redirects=True)
+    assert remove_response.status_code == 200, "Failed to remove the member from the community."
+
+    # Verify the member is no longer part of the community
+    with test_client.application.app_context():
+        from app.modules.community.models import UserCommunity
+        user_community = UserCommunity.query.filter_by(community_id=community_id, user_id=other_user_id).first()
+        assert user_community is None, "The user was not removed from the community."
+
+    logout(test_client)
+
+
+def test_promote_member_to_admin(test_client):
+    """
+    Test promoting a community member to admin via POST request.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a private community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'Promote Member Test Community',
+        'description': 'A community to test member promotion.',
+        'type': 'private'  # Private community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the private community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='Promote Member Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Log out the creator and log in as a different user to request to join the community
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Request to join the private community
+    request_response = test_client.post(f'/community/request-join/{community_id}', follow_redirects=True)
+    assert request_response.status_code == 200, "Failed to request to join the community."
+
+    # Get the join request ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import JoinRequest
+        join_request = JoinRequest.query.filter_by(community_id=community_id).first()
+        assert join_request is not None, "Join request was not found in the database."
+        request_id = join_request.id
+
+    # Log out the requester and log back in as the community creator to accept the request
+    logout(test_client)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Failed to log back in as the community creator."
+
+    # Accept the join request
+    accept_response = test_client.post(f'/community/{community_id}/requests/{request_id}/accept', follow_redirects=True)
+    assert accept_response.status_code == 200, "Failed to accept the join request."
+
+    # Get the other user's ID from the database
+    with test_client.application.app_context():
+        from app.modules.auth.models import User
+        other_user = User.query.filter_by(email="otheruser@example.com").first()
+        assert other_user is not None, "Other user was not found in the database."
+        other_user_id = other_user.id
+
+    # Promote the member to admin
+    promote_response = test_client.post(f'/community/{community_id}/promote/{other_user_id}', follow_redirects=True)
+    assert promote_response.status_code == 200, "Failed to promote the member to admin."
+
+    # Verify the member's role is now admin
+    with test_client.application.app_context():
+        from app.modules.community.models import UserCommunity, UserRole
+        user_community = UserCommunity.query.filter_by(community_id=community_id, user_id=other_user_id).first()
+        assert user_community is not None, "The user is not part of the community."
+        assert user_community.role == UserRole.ADMIN, "The user's role was not updated to ADMIN."
+
+    logout(test_client)
+
+
+def test_user_communities(test_client):
+    """
+    Test retrieving the communities a user is a member of via GET request.
+    """
+    # Log in the test user (creator of the community)
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+
+    # Create a public community via the endpoint
+    create_response = test_client.post('/community/create', data={
+        'name': 'User Communities Test Community',
+        'description': 'A community to test user communities retrieval.',
+        'type': 'public'  # Public community
+    }, follow_redirects=True)
+    assert create_response.status_code == 200, "Failed to create the public community."
+
+    # Get the community ID from the database
+    with test_client.application.app_context():
+        from app.modules.community.models import Community
+        community = Community.query.filter_by(name='User Communities Test Community').first()
+        assert community is not None, "Community was not found in the database."
+        community_id = community.id
+
+    # Log out the creator and log in as a different user to join the community
+    logout(test_client)
+    login_response = login(test_client, "otheruser@example.com", "password1234")
+    assert login_response.status_code == 200, "Failed to log in as a different user."
+
+    # Join the public community
+    join_response = test_client.post(f'/community/join/{community_id}', follow_redirects=True)
+    assert join_response.status_code == 200, "Failed to join the community."
+
+    # Access the user-communities page
+    user_communities_response = test_client.get('/user-communities', follow_redirects=True)
+    assert user_communities_response.status_code == 200, "Failed to access the user communities page."
+    html_content = user_communities_response.data.decode()
+
+    # Verify the community is listed in the user's communities
+    assert "User Communities Test Community" in html_content, "The community name is not displayed in user communities."
+    assert "A community to test user communities retrieval." in html_content, "Description is not displayed"
 
     logout(test_client)
