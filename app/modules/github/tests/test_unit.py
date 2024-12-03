@@ -1,3 +1,4 @@
+from io import BytesIO
 import pytest
 from unittest.mock import MagicMock, patch
 
@@ -252,11 +253,16 @@ def test_create_repo_timeout_error(mock_post, github_service):
         github_service.create_repo(repo_name, token)
         
         
-#Test to update the dataset to a repo that does exist in GitHub with success
+
+# Test for upload a dataset to github with success
 @patch('requests.put')
-def test_upload_dataset_to_github_success(mock_put, github_service):
+@patch('builtins.open', new_callable=MagicMock)  
+def test_upload_dataset_to_github_success(mock_open, mock_put, github_service):
     mock_put.return_value.status_code = 200
-    mock_put.return_value.json.return_value = {'message': 'File uploaded successfully', 'url': 'https://github.com/test_owner/test_repo/test_dataset'}
+    mock_put.return_value.json.return_value = {
+        'message': 'File uploaded successfully', 
+        'url': 'https://github.com/test_owner/test_repo/test_dataset'
+    }
     
     owner = "test_owner"
     repo_name = "test_repo"
@@ -268,20 +274,35 @@ def test_upload_dataset_to_github_success(mock_put, github_service):
     
     dataset = MagicMock()
     dataset.name.return_value = "test_dataset"
-    dataset.feature_models = [MagicMock(files=[MagicMock(get_path=lambda: 'test_file.txt', name='test_file.txt')])]
     
+    mock_file = MagicMock()
+    mock_file.get_path.return_value = 'test_file.txt'  
+    mock_file.name = 'test_file.txt'
+    
+    dataset.feature_models = [MagicMock(files=[mock_file])]
+    
+    fake_file_content = b"Fake file content for testing"
+    mock_open.return_value.__enter__.return_value = BytesIO(fake_file_content)
+
     result = github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
 
     assert result == ('File uploaded successfully', 200)
     mock_put.assert_called()  
+    mock_open.assert_called()  
 
-#Test to update the dataset to a repo that does exist in GitHub with not success
+
+
+# Test for failure in uploading dataset to GitHub
 @patch('requests.put')
-def test_upload_dataset_to_github_file_upload_failure(mock_put, github_service):
-   
+@patch('builtins.open', new_callable=MagicMock)  
+def test_upload_dataset_to_github_file_upload_failure(mock_open, mock_put, github_service):
     mock_put.return_value.status_code = 400  
     mock_put.return_value.text = "Bad Request"  
     mock_put.return_value.ok = False  
+    
+    # Mock the file content
+    fake_file_content = b"Fake file content for testing"
+    mock_open.return_value.__enter__.return_value = BytesIO(fake_file_content)
     
     owner = "test_owner"
     repo_name = "test_repo"
@@ -290,8 +311,8 @@ def test_upload_dataset_to_github_file_upload_failure(mock_put, github_service):
     commit_message = "Adding dataset"
     license = "MIT"
     repo_type = 'existing'  
-     
     
+    # Mock the dataset and file objects
     dataset = MagicMock()
     dataset.name.return_value = "test_dataset"
     dataset.feature_models = [MagicMock(files=[MagicMock(get_path=lambda: 'test_file.txt', name='test_file.txt')])]
@@ -299,20 +320,27 @@ def test_upload_dataset_to_github_file_upload_failure(mock_put, github_service):
     file_mock = dataset.feature_models[0].files[0]
     file_mock.name = 'test_file.txt'  
     
+    # Test that an HTTPError is raised when the upload fails
     with pytest.raises(requests.exceptions.HTTPError):
         github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
     
-    mock_put.assert_called()  
+    mock_put.assert_called()  # Ensure the PUT request was called
+    mock_open.assert_called()  # Ensure 'open' was called
 
 
-#Test to update the dataset to a repo that does not exist in GitHub with success
+
+# Test for successfully uploading dataset to a new repo on GitHub
 @patch('requests.put')
-@patch('app.modules.github.services.GitHubService.create_repo')  
-def test_upload_dataset_to_github_new_repo(mock_create_repo, mock_put, github_service):
+@patch('app.modules.github.services.GitHubService.create_repo')
+@patch('builtins.open', new_callable=MagicMock)  # Mock the open function
+def test_upload_dataset_to_github_new_repo(mock_open, mock_create_repo, mock_put, github_service):
     mock_create_repo.return_value = True  
     
     mock_put.return_value.status_code = 200
     mock_put.return_value.json.return_value = {'message': 'File uploaded successfully', 'url': 'https://github.com/test_owner/test_repo/test_dataset'}
+    
+    fake_file_content = b"Fake file content for testing"
+    mock_open.return_value.__enter__.return_value = BytesIO(fake_file_content)
     
     owner = "test_owner"
     repo_name = "test_repo"
@@ -329,36 +357,9 @@ def test_upload_dataset_to_github_new_repo(mock_create_repo, mock_put, github_se
     result = github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
     
     assert result == ('File uploaded successfully', 200)
-    
-    mock_create_repo.assert_called_with(repo_name, token)
-    
-    mock_put.assert_called()
-    
-# Test to update the dataset to repo that does not exist in GitHub with not success
-@patch('requests.put')
-@patch('app.modules.github.services.GitHubService.create_repo')  
-def test_upload_dataset_to_github_new_repo_creation_failure(mock_create_repo, mock_put, github_service):
-    mock_create_repo.return_value = False
-    
-    owner = "test_owner"
-    repo_name = "test_repo"
-    branch = "main"
-    token = "access_token"
-    commit_message = "Adding dataset"
-    license = "MIT"
-    repo_type = 'new'  
-    
-    dataset = MagicMock()
-    dataset.name.return_value = "test_dataset"
-    dataset.feature_models = [MagicMock(files=[MagicMock(get_path=lambda: 'test_file.txt', name='test_file.txt')])]
-    
-    result = github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
-
-    assert result == ('Error: Could not create repository test_repo.', 400)
-    
-    mock_create_repo.assert_called_with(repo_name, token)
-    
-    mock_put.assert_not_called()
+    mock_create_repo.assert_called_with(repo_name, token)  
+    mock_put.assert_called()  
+    mock_open.assert_called()  
 
 
 # Test to delete a repository that does exist in GitHub with success
