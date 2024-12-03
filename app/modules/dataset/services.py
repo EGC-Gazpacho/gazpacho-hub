@@ -166,10 +166,18 @@ class DataSetService(BaseService):
             logger.info(f"Creating dsmetadata...: {form.get_dsmetadata()}")
             dsmetadata = self.dsmetadata_repository.create(**form.get_dsmetadata())
             for author_data in [main_author] + form.get_authors():
-                author = self.author_repository.create(commit=False, ds_meta_data_id=dsmetadata.id, **author_data)
+                author = self.author_repository.create(
+                    commit=False, 
+                    ds_meta_data_id=dsmetadata.id, 
+                    **author_data
+                )
                 dsmetadata.authors.append(author)
 
-            dataset = self.create(commit=False, user_id=current_user.id, ds_meta_data_id=dsmetadata.id)
+            dataset = self.create(
+                commit=False, 
+                user_id=current_user.id, 
+                ds_meta_data_id=dsmetadata.id
+            )
 
             total_features = 0
             total_models = len(form.feature_models)
@@ -177,36 +185,50 @@ class DataSetService(BaseService):
 
             for feature_model in form.feature_models:
                 uvl_filename = feature_model.uvl_filename.data
-                fmmetadata = self.fmmetadata_repository.create(commit=False, **feature_model.get_fmmetadata())
+                fmmetadata = self.fmmetadata_repository.create(
+                    commit=False, 
+                    **feature_model.get_fmmetadata()
+                )
                 for author_data in feature_model.get_authors():
-                    author = self.author_repository.create(commit=False, fm_meta_data_id=fmmetadata.id, **author_data)
+                    author = self.author_repository.create(
+                        commit=False, 
+                        fm_meta_data_id=fmmetadata.id, 
+                        **author_data
+                    )
                     fmmetadata.authors.append(author)
 
                 fm = self.feature_model_repository.create(
-                    commit=False, data_set_id=dataset.id, fm_meta_data_id=fmmetadata.id
+                    commit=False, 
+                    data_set_id=dataset.id, 
+                    fm_meta_data_id=fmmetadata.id
                 )
 
-                # associated files in feature model
                 file_path = os.path.join(current_user.temp_folder(), uvl_filename)
                 checksum, size = calculate_checksum_and_size(file_path)
                 parse_result = parse_uvl(file_path)
                 feature_count = len(parse_result["features"])
                 total_features += feature_count
 
-                # Calculate products for this feature model
                 product_count = calculate_number_of_products(
                     parse_result["feature_hierarchy"],
-                    parse_result["constraints"])
+                    parse_result["constraints"]
+                )
                 total_products += product_count
 
                 file = self.hubfilerepository.create(
-                    commit=False, name=uvl_filename, checksum=checksum, size=size, feature_model_id=fm.id
+                    commit=False, 
+                    name=uvl_filename, 
+                    checksum=checksum, 
+                    size=size, 
+                    feature_model_id=fm.id
                 )
                 fm.files.append(file)
 
-            dsmetrics = DSMetrics(number_of_models=str(total_models), 
-                                number_of_features=str(total_features),
-                                number_of_products=str(total_products))
+            dsmetrics = DSMetrics(
+                number_of_models=str(total_models),
+                number_of_features=str(total_features),
+                number_of_products=str(total_products)
+            )
             dsmetadata.ds_metrics = dsmetrics
 
             dataset.ds_meta_data = dsmetadata

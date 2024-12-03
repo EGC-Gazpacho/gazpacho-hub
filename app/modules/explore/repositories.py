@@ -10,8 +10,16 @@ class ExploreRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
 
-    def filter(self, query="", sorting="newest", publication_type="any", number_of_features=None
-                ,number_of_products=None, tags=[], **kwargs):
+    def filter(
+        self,
+        query="",
+        sorting="newest",
+        publication_type="any",
+        number_of_features=None,
+        number_of_products=None,
+        tags=[],
+        **kwargs
+    ):
         # Normalize and remove unwanted characters
         normalized_query = unidecode.unidecode(query).lower()
         cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
