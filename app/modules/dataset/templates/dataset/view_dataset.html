@@ -154,6 +154,36 @@
 
                 </div>
 
+                {% if dataset.ds_meta_data.ds_metrics.number_of_features %}
+                <div class="row mb-2">
+                    <div class="col-md-4 col-12">
+                        <span class="text-secondary">
+                            Number of features
+                        </span>
+                    </div>
+                    <div class="col-md-8 col-12">
+                        <a href="{{ dataset.ds_meta_data.ds_metrics.number_of_features }}">
+                            {{ dataset.ds_meta_data.ds_metrics.number_of_features }}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+            {% if dataset.ds_meta_data.ds_metrics.number_of_products %}
+                <div class="row mb-2">
+                    <div class="col-md-4 col-12">
+                        <span class="text-secondary">
+                            Number of products
+                        </span>
+                    </div>
+                    <div class="col-md-8 col-12">
+                        <a href="{{ dataset.ds_meta_data.ds_metrics.number_of_products }}">
+                            {{ dataset.ds_meta_data.ds_metrics.number_of_products }}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
                 
 
             </div>
@@ -181,6 +211,7 @@
                 
             </div>
             {% endif %}
+
 
         </div>
 
