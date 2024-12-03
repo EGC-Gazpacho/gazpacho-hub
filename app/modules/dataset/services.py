@@ -85,8 +85,6 @@ def parse_uvl(file_path):
 
 
 def calculate_number_of_products(feature_hierarchy, constraints):
-    from itertools import product
-    
     # Start with mandatory features (1 configuration)
     product_count = 1
 
@@ -196,7 +194,8 @@ class DataSetService(BaseService):
                 total_features += feature_count
 
                 # Calculate products for this feature model
-                product_count = calculate_number_of_products(parse_result["feature_hierarchy"], parse_result["constraints"])
+                product_count = calculate_number_of_products(parse_result["feature_hierarchy"],
+                 parse_result["constraints"])
                 total_products += product_count
 
                 file = self.hubfilerepository.create(
@@ -204,7 +203,8 @@ class DataSetService(BaseService):
                 )
                 fm.files.append(file)
 
-            dsmetrics = DSMetrics(number_of_models=str(total_models), number_of_features=str(total_features), number_of_products=str(total_products))
+            dsmetrics = DSMetrics(number_of_models=str(total_models), number_of_features=str(total_features),
+             number_of_products=str(total_products))
             dsmetadata.ds_metrics = dsmetrics
 
             dataset.ds_meta_data = dsmetadata
