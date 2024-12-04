@@ -172,5 +172,3 @@ def test_user_with_datasets(test_client):
        user = repository.get_all()
        result = repository2.get_unsynchronized(user[2]["id"])
        assert len(result) == 0
-
-
