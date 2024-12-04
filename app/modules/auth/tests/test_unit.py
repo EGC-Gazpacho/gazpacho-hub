@@ -130,25 +130,33 @@ def test_get_all(test_client):
         {"id": 2, "name": "UserProfile 2"},
         {"id": 3, "name": "UserProfile 3"}
     ]
+
+
     with patch('app.modules.auth.repositories.UserRepository.get_all', return_value=mock_users):
         repository = UserRepository()
         result = repository.get_all()
-        # Verificar que el resultado tiene 3 elementos
+
+
+       # Verificar que el resultado tiene 3 elementos
         assert len(result) == 3
         assert result == mock_users
 
+
 def test_user_without_datasets(test_client):
     mock_users = [
-        {"id": 1, "name": "UserProfile 1"},
-        {"id": 2, "name": "UserProfile 2"},
-        {"id": 3, "name": "UserProfile 3"}
-   ]
+       {"id": 1, "name": "UserProfile 1"},
+       {"id": 2, "name": "UserProfile 2"},
+       {"id": 3, "name": "UserProfile 3"}
+    ]
+
+
     with patch('app.modules.auth.repositories.UserRepository.get_all', return_value=mock_users):
         repository = UserRepository()
-        repository_dataset = DataSetRepository()
+        repository2 = DataSetRepository()
         user = repository.get_all()
-        result = repository_dataset.get_unsynchronized(user[2]["id"])
+        result = repository2.get_unsynchronized(user[2]["id"])
         assert len(result) == 0
+
 
 def test_user_with_datasets(test_client):
     mock_users = [
@@ -156,9 +164,11 @@ def test_user_with_datasets(test_client):
         {"id": 2, "name": "UserProfile 2"},
         {"id": 3, "name": "UserProfile 3"}
     ]
+
+
     with patch('app.modules.auth.repositories.UserRepository.get_all', return_value=mock_users):
         repository = UserRepository()
-        repository_dataset= DataSetRepository()
+        repository2 = DataSetRepository()
         user = repository.get_all()
-        result = repository_dataset.get_unsynchronized(user[2]["id"])
+        result = repository2.get_unsynchronized(user[2]["id"])
         assert len(result) == 0
