@@ -27,6 +27,18 @@ def test_client(test_client):
 def mock_dataset():
     return {"id": 1, "name": "Test Dataset", "files": ["file1.txt", "file2.txt"]}
 
+# Test the route get create_dataset_github
+def test_create_dataset_github(test_client, mock_dataset):
+    login_response = login(test_client, "user@example.com", "test1234")
+    assert login_response.status_code == 200, "Login was unsuccessful."
+    
+    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+        mock_get.return_value = mock_dataset
+        
+        response = test_client.get("/github/upload/1")
+        assert response.status_code == 200
+        logout(test_client)
+
 # Test the route create_dataset_github with success
 def test_create_dataset_github_succes(test_client, mock_dataset):
     login_response = login(test_client, "user@example.com", "test1234")
