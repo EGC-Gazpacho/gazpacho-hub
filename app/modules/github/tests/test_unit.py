@@ -1,15 +1,21 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from flask import Flask
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user
+import requests
+from app.modules.auth.models import User
+from app.modules.github.services import GitHubService
 from app.modules.github.routes import github_bp
-
+import os
+from app import db
 
 @pytest.fixture(scope="module")
 def test_client(test_client):
     with test_client.application.app_context():
         # Add HERE new elements to the database that you want to exist in the test context.
-        # DO NOT FORGET to use db.session.add(<element>) and db.session.commit() to save the data.
+        os.environ["GITHUB_TOKEN"] = "tu_token_de_github"  # Establecer el token de GitHub en el entorno
+        test_client.application.config["GITHUB_TOKEN"] = os.getenv("GITHUB_TOKEN")
+
         pass
     yield test_client
 
@@ -19,10 +25,32 @@ def mock_dataset():
     return {"id": 1, "name": "Test Dataset", "files": ["file1.txt", "file2.txt"]}
 
 # Test the route create_dataset_github with success
-def create_dataset_github_succes(test_client, mock_dataset):
+def test_create_dataset_github_succes(test_client, mock_dataset):
     with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+    
         mock_get.return_value = mock_dataset
 
         response = test_client.get("/github/upload/1")
 
-        assert response.status_code == 302
+        assert response.status_code == 200
+
+# Test the route create_dataset_github with a repository that does not exist
+def test_repository_not_found(test_client, mock_dataset):
+    print("holaaa", os.getenv("GITHUB_TOKEN"))
+    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+        mock_get.return_value = mock_dataset
+
+        with patch.object(GitHubService, 'check_repository_exists', return_value=False):
+            response = test_client.post("/github/upload/1", data={
+                'commit_message': 'Test commit',
+                'owner': 'rafduqcol',
+                'repo_name': 'non_existent_repo',
+                'branch': 'main',
+                'repo_type': 'existing',
+                'access_token': os.getenv("GITHUB_TOKEN"),
+                'license': 'MIT'
+            })
+
+            assert response.status_code == 404
+            assert response.json["error"] == "Repository not found. Verify the repository owner and name."
+  

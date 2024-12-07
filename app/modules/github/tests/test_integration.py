@@ -19,6 +19,10 @@ class TestGitHubService:
         
         # Establecer el contexto de la aplicación fuera de test_client
         with app.app_context():
+            dataset = DataSet.query.filter_by(id=1).first()
+            db.session.add(dataset)
+            print("DATASET_1", dataset)
+
             
             author = Author(
             name="John Doe",
@@ -104,20 +108,21 @@ class TestGitHubService:
         
         # Test for failed dataset upload
     def test_upload_dataset_to_github_fail(self):
-
-        result_message, status_code = GitHubService.upload_dataset_to_github(
-            self.repo_owner,
-            self.repo_name,
-            self.branch,
-            self.dataset,
-            self.invalid_token,
-            self.commit_message,
-            self.license,
-            "new"
+        with db.session.begin():
+            # Reasociar el objeto a la sesión
+            # Ahora se puede acceder al atributo relacionado
+            result_message, status_code = GitHubService.upload_dataset_to_github(
+                self.repo_owner,
+                self.repo_name,
+                self.branch,
+                self.dataset,
+                self.invalid_token,
+                self.commit_message,
+                self.license,
+                "existing"
             )
+        print(result_message, status_code)
         assert status_code == 404, f"Expected status code 404, but got {status_code}"
-
-        
 
     def test_delete_repo(self):
         result = GitHubService.delete_repo(self.token, self.repo_owner, self.repo_name)
