@@ -38,8 +38,56 @@
 <canvas id="downloadsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas> 
 <canvas id="downloadsPerDatasetChartMonth" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
 <canvas id="viewsPerDatasetChartMonth" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
-<canvas id="userviewsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
-<canvas id="userdownloadsPerDatasetChart" width="400" height="200" style="margin-top: 20px; display: none;"></canvas>
+<div style="width: 100%; height: 600px; position: relative;">
+    <div id="statisticsTable" style="display:none">
+        <h2></h2>
+        <h2>General Statistics</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Metric</th>
+                    <th scope="col">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Downloads (Datasets)</td>
+                    <td>{{ statistics['total_downloads'] }}</td>
+                </tr>
+                <tr>
+                    <td>Total Views (Datasets)</td>
+                    <td>{{ statistics['total_views'] }}</td>
+                </tr>
+                <tr>
+                    <td>Total Synchronized Datasets</td>
+                    <td>{{ statistics['total_synchronized_datasets'] }}</td>
+                </tr>
+                <tr>
+                    <td>Total Non Sinchronized Datasets</td>
+                    <td>{{ statistics['total_unsynchronized_datasets'] }}</td>
+                </tr>
+                <tr>
+                    <td>Total Datasets</td>
+                    <td>{{ statistics['total_datasets'] }}</td>
+                </tr>
+                <tr>
+                    <td>Datasets from last month</td>
+                    <td>{{ statistics['datasets_last_month'] }}</td>
+                </tr>
+                <tr>
+                    <td>Last Download</td>
+                    <td>{{ statistics['last_download_date'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                <tr>
+                    <td>Last View</td>
+                    <td>{{ statistics['last_view_date'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <canvas id="userviewsPerDatasetChart" style="margin-top: 20px; display: none; width: 100%; height: 100%;"></canvas>
+    <canvas id="userdownloadsPerDatasetChart" style="margin-top: 20px; display: none; width: 100%; height: 100%;"></canvas>
+</div>
 
 
 <div id="data-container"
@@ -66,52 +114,7 @@
      style="display: none;">
 </div>
 
-<div id="statisticsTable" style="display:none">
-    <h2></h2>
-    <h2>General Statistics</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Metric</th>
-                <th scope="col">Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Total Downloads (Datasets)</td>
-                <td>{{ statistics['total_downloads'] }}</td>
-            </tr>
-            <tr>
-                <td>Total Views (Datasets)</td>
-                <td>{{ statistics['total_views'] }}</td>
-            </tr>
-            <tr>
-                <td>Total Synchronized Datasets</td>
-                <td>{{ statistics['total_synchronized_datasets'] }}</td>
-            </tr>
-            <tr>
-                <td>Total Non Sinchronized Datasets</td>
-                <td>{{ statistics['total_unsynchronized_datasets'] }}</td>
-            </tr>
-            <tr>
-                <td>Total Datasets</td>
-                <td>{{ statistics['total_datasets'] }}</td>
-            </tr>
-            <tr>
-                <td>Datasets from last month</td>
-                <td>{{ statistics['datasets_last_month'] }}</td>
-            </tr>
-            <tr>
-                <td>Last Download</td>
-                <td>{{ statistics['last_download_date'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            </tr>
-            <tr>
-                <td>Last View</td>
-                <td>{{ statistics['last_view_date'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+
 
 
 {% endblock %}
@@ -438,63 +441,65 @@
         });
         const ctx4 = document.getElementById('userviewsPerDatasetChart').getContext('2d');
         const userviewsPerDatasetChart = new Chart(ctx4, {
-                type: 'bar',
-                data: {
-                    labels: datasetsNamesUser,
-                    datasets: [{
-                        label: 'Number of views per Dataset(User)',
-                        data: datasetsViewsUser,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Number of views'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Datasets of the user'
+            type: 'doughnut',  // Cambiar el tipo de gráfico a 'doughnut'
+            data: {
+                labels: datasetsNamesUser,  // Etiquetas, los nombres de los datasets
+                datasets: [{
+                    label: 'Number of views per Dataset(User)',
+                    data: datasetsViewsUser,  // Los valores correspondientes de vistas
+                    backgroundColor: [
+                        '#FF5733', '#33FF57', '#3357FF', '#FF33A8', '#FF8C00', 
+                        '#8A2BE2', '#00BFFF', '#FFD700', '#32CD32', '#FF1493'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.7)',  // Color de los bordes
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',  // Coloca la leyenda en la parte superior
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${tooltipItem.label}: ${tooltipItem.raw} views`;  // Personaliza el texto del tooltip
                             }
                         }
                     }
-                }
-            });
-        const ctx8 = document.getElementById('userdownloadsPerDatasetChart').getContext('2d');
-        const userdownloadsPerDatasetChart = new Chart(ctx8, {
-                type: 'bar',
+                },
+                cutoutPercentage: 50,  // Define el tamaño del agujero en el centro
+            }
+        });
+
+            const ctx8 = document.getElementById('userdownloadsPerDatasetChart').getContext('2d');
+            const userdownloadsPerDatasetChart = new Chart(ctx8, {
+                type: 'doughnut', // Cambiar de 'bar' a 'pie'
                 data: {
-                    labels: datasetsNamesUserDownloads,
+                    labels: datasetsNamesUserDownloads, // Etiquetas, que son los nombres de los datasets
                     datasets: [{
                         label: 'Number of downloads per Dataset(User)',
-                        data: datasetsDownloadsUser,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
+                        data: datasetsDownloadsUser, // Los valores asociados con cada dataset
+                        backgroundColor: [
+                            '#FF5733', '#33FF57', '#3357FF', '#FF33A8', '#FF8C00', // Naranja, verde, azul, rosa, naranja claro
+                            '#8A2BE2', '#00BFFF', '#FFD700', '#32CD32', '#FF1493'  // Púrpura, azul celeste, dorado, verde lima, rosa fuerte
+                        ],
+                        borderColor: 'rgba(255, 255, 255, 0.7)', // Color del borde
                     }]
                 },
                 options: {
                     responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Number of downloads'
-                            }
+                    plugins: {
+                        legend: {
+                            position: 'top', // Coloca la leyenda en la parte superior
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Datasets of the user'
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    // Formatea la etiqueta del tooltip para que muestre el nombre del dataset y su número de descargas
+                                    return `${tooltipItem.label}: ${tooltipItem.raw} downloads`;
+                                }
                             }
                         }
                     }
