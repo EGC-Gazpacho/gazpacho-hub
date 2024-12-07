@@ -26,13 +26,23 @@ def mock_dataset():
 
 # Test the route create_dataset_github with success
 def test_create_dataset_github_succes(test_client, mock_dataset):
-    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
-    
+     with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
         mock_get.return_value = mock_dataset
 
-        response = test_client.get("/github/upload/1")
+        with patch.object(GitHubService, 'check_repository_exists', return_value=True):
+            with patch.object(GitHubService, 'upload_dataset_to_github', return_value=("Upload successful", 200)):
+                response = test_client.post("/github/upload/1", data={
+                    'commit_message': 'Test commit',
+                    'owner': 'rafduqcol',
+                    'repo_name': 'uvl',
+                    'branch': 'main',
+                    'repo_type': 'new',
+                    'access_token': os.getenv("GITHUB_TOKEN"),
+                    'license': 'MIT'
+                })
 
-        assert response.status_code == 200
+                assert response.status_code == 200
+                assert response.json["message"] == "Upload successful"
 
 # Test the route create_dataset_github with a new repository
 def test_create_new_repo(test_client, mock_dataset):
