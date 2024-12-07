@@ -95,3 +95,24 @@ def test_upload_dataset_error(test_client, mock_dataset):
 
                     assert response.status_code == 500
                     assert response.json["error"] == "Failed to connect to GitHub API: Error de conexión"
+
+#Test the route create_dataset_github with a bad token
+def test_bad_token(test_client, mock_dataset):
+    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+        mock_get.return_value = mock_dataset
+
+        with patch.object(GitHubService, 'check_repository_exists', return_value=True):
+            with patch.object(GitHubService, 'check_branch_exists', return_value=True):
+                with patch.object(GitHubService, 'upload_dataset_to_github', side_effect=requests.exceptions.HTTPError("Error 401: Bad credentials")):
+                    response = test_client.post("/github/upload/1", data={
+                        'commit_message': 'Test commit',
+                        'owner': 'rafduqcol',
+                        'repo_name': 'existing_repo',
+                        'branch': 'main',
+                        'repo_type': 'existing',
+                        'access_token': 'bad_token',
+                        'license': 'MIT'
+                    })
+
+                    assert response.status_code == 401
+                    assert response.json["error"] == "Bad credentials. Verify your access token."
