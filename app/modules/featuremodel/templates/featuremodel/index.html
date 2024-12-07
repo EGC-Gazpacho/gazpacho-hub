@@ -1,21 +1,11 @@
-{% for feature_model in feature_models %}
-    <div class="list-group-item">
-        <div class="row">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-8">
-                        <h5>{{ feature_model.title }}</h5>
-                        <p><small class="text-muted">Description: {{ feature_model.description }}</small></p>
-                        <p><small class="text-muted">Publication Type: {{ feature_model.publication_type }}</small></p>
-                        <p><small class="text-muted">Tags: {{ feature_model.tags }}</small></p>
-                    </div>
-                    <div class="col-4 text-end">
-                        <button onclick="viewModel('{{ feature_model.id }}')" class="btn btn-outline-secondary btn-sm" style="border-radius: 5px;">
-                            <i data-feather="eye"></i> View
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endfor %}
+{% extends "base_template.html" %}
+
+{% block title %}View featuremodel{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('featuremodel.scripts') }}"></script>
+{% endblock %}

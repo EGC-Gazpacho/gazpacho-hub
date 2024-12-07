@@ -10,9 +10,7 @@ class FeatureModelService(BaseService):
         
     def search_by_name(self, query):
         if not query:
-            return []  # Si no hay consulta, devolvemos una lista vacía
-
-        # Buscar en la base de datos usando el nombre del modelo (en este caso el título de `fm_meta_data`)
+            return []  
         return self.repository.filter_by_name(query)
 
     def total_feature_model_views(self) -> int:

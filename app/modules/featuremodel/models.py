@@ -11,6 +11,14 @@ class FeatureModel(db.Model):
     files = db.relationship('Hubfile', backref='feature_model', lazy=True, cascade="all, delete")
     fm_meta_data = db.relationship('FMMetaData', uselist=False, backref='feature_model', cascade="all, delete")
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'data_set_id': self.data_set_id,
+            'data_set_title': self.data_set.ds_meta_data.title if self.data_set else None,
+            'fm_meta_data': self.fm_meta_data.to_dict() if self.fm_meta_data else {}
+        }
+        
     def __repr__(self):
         return f'FeatureModel<{self.id}>'
 
@@ -29,6 +37,17 @@ class FMMetaData(db.Model):
     authors = db.relationship('Author', backref='fm_metadata', lazy=True, cascade="all, delete",
                               foreign_keys=[Author.fm_meta_data_id])
 
+    def to_dict(self):
+        return {
+            'uvl_filename': self.uvl_filename,
+            'title': self.title,
+            'description': self.description,
+            'publication_type': self.publication_type.name,
+            'publication_doi': self.publication_doi,
+            'tags': self.tags,
+            'uvl_version': self.uvl_version
+        }
+    
     def __repr__(self):
         return f'FMMetaData<{self.title}'
 
