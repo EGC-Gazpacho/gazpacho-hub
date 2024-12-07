@@ -89,3 +89,10 @@ class DashboardService(BaseService):
         dataset_download_user = [item[1] for item in result] 
 
         return dataset_names_user, dataset_download_user
+    def get_downloads_per_month_user_logued(self):
+        listas = DashboardRepository.get_last_12_months_views_for_user(self)
+        return listas
+    
+    def get_views_per_month_user_logued(self):
+        listas = DashboardRepository.get_last_12_months_downloads_user_logued(self)
+        return listas

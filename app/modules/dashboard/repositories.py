@@ -124,5 +124,59 @@ class DashboardRepository(BaseRepository):
             .all()  
         )
         return result
+    def get_last_12_months_views_for_user(self):
+        today = datetime.today()
+        months = []
+        view_counts = []
+
+        user_id = current_user.id
+
+        datasets_for_user = DataSet.query.filter_by(user_id=user_id).all()
+        dataset_ids_for_user = [dataset.id for dataset in datasets_for_user]
+
+        for i in range(12):
+            first_day_of_month = today.replace(day=1) - timedelta(days=i * 30)
+            first_day_of_month_str = first_day_of_month.strftime('%Y-%m-01')
+            result = (
+                DSViewRecord.query
+                .filter(DSViewRecord.dataset_id.in_(dataset_ids_for_user))  
+                .filter(func.date(DSViewRecord.view_date) >= first_day_of_month_str) 
+                .filter(func.date(DSViewRecord.view_date) < (first_day_of_month + timedelta(days=32)).strftime('%Y-%m-01'))  
+                .count()
+            )
+            months.append(first_day_of_month.strftime('%Y-%m'))
+            view_counts.append(result)
+
+        months.reverse()
+        view_counts.reverse()
+
+        return months, view_counts
+    def get_last_12_months_downloads_user_logued(self):
+        today = datetime.today()
+        months = []
+        download_counts = []
+        
+        for i in range(12):
+            first_day_of_month = today.replace(day=1) - timedelta(days=i * 30)
+            first_day_of_month_str = first_day_of_month.strftime('%Y-%m-01')
+            
+           
+            result = (
+                DSDownloadRecord.query
+                .join(DataSet, DataSet.id == DSDownloadRecord.dataset_id)  
+                .filter(DataSet.user_id == current_user.id)  
+                .filter(func.date(DSDownloadRecord.download_date) >= first_day_of_month_str)
+                .filter(func.date(DSDownloadRecord.download_date) < (first_day_of_month + timedelta(days=32)).strftime('%Y-%m-01'))
+                .count()
+            )
+            
+            months.append(first_day_of_month.strftime('%Y-%m')) 
+            download_counts.append(result) 
+            
+        months.reverse()
+        download_counts.reverse()
+
+        return months, download_counts
+
             
             
