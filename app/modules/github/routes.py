@@ -14,7 +14,6 @@ dataset_service = DataSetService()
 
 
 @github_bp.route("/github/upload/<int:dataset_id>", methods=["GET", "POST"])
-@login_required
 def create_dataset_github(dataset_id):
     form = DataSetFormGithub()
     dataset = dataset_service.get_or_404(dataset_id)
@@ -90,5 +89,6 @@ def create_dataset_github(dataset_id):
                 "error": f"Failed to connect to GitHub API: {str(e)}",
                 "code": 500
             }), 500
+        
 
     return render_template("upload_dataset_github.html", form=form, dataset=dataset)

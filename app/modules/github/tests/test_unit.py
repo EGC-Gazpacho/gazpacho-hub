@@ -53,4 +53,45 @@ def test_repository_not_found(test_client, mock_dataset):
 
             assert response.status_code == 404
             assert response.json["error"] == "Repository not found. Verify the repository owner and name."
-  
+
+          
+# Tests the route create_dataset_github with a branch that does not exist
+def test_branch_not_found(test_client, mock_dataset):
+    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+        mock_get.return_value = mock_dataset
+
+        with patch.object(GitHubService, 'check_repository_exists', return_value=True):
+            with patch.object(GitHubService, 'check_branch_exists', return_value=False):
+                response = test_client.post("/github/upload/1", data={
+                    'commit_message': 'Test commit',
+                    'owner': 'rafduqcol',
+                    'repo_name': 'existing_repo',
+                    'branch': 'non_existent_branch',
+                    'repo_type': 'existing',
+                    'access_token': os.getenv("GITHUB_TOKEN"),
+                    'license': 'MIT'
+                })
+
+                assert response.status_code == 404
+                assert response.json["error"] == "Branch non_existent_branch not found. Verify the branch name."
+
+# Tests the route create_dataset_github with a connection error
+def test_upload_dataset_error(test_client, mock_dataset):
+    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+        mock_get.return_value = mock_dataset
+
+        with patch.object(GitHubService, 'check_repository_exists', return_value=True):
+            with patch.object(GitHubService, 'check_branch_exists', return_value=True):
+                with patch.object(GitHubService, 'upload_dataset_to_github', side_effect=requests.exceptions.RequestException("Error de conexión")):
+                    response = test_client.post("/github/upload/1", data={
+                        'commit_message': 'Test commit',
+                        'owner': 'rafduqcol',
+                        'repo_name': 'existing_repo',
+                        'branch': 'main',
+                        'repo_type': 'existing',
+                        'access_token': os.getenv("GITHUB_TOKEN"),
+                        'license': 'MIT'
+                    })
+
+                    assert response.status_code == 500
+                    assert response.json["error"] == "Failed to connect to GitHub API: Error de conexión"
