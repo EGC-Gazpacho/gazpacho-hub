@@ -1,4 +1,4 @@
-from app.modules.explore.repositories import ExploreRepository
+from app.modules.explore.repositories import ExploreRepository, ModelRepository
 from core.services.BaseService import BaseService
 
 
@@ -12,7 +12,7 @@ class ExploreService(BaseService):
 
 class ModelService:
     def __init__(self):
-        super().__init__(ExploreRepository())
+        super().__init__(ModelRepository())
 
     def filter(self, query="", **kwargs):
         return self.repository.filter(query, **kwargs)
