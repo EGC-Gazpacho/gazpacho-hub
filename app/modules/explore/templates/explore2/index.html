@@ -21,7 +21,8 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{ model.fm_meta_data.title }}</h5>
                                 <p class="card-text">{{ model.fm_meta_data.uvl_filename }}</p>
-                                <a href="{{ url_for('featuremodel.index', model_id=model.id) }}" class="btn btn-primary">View Model</a>
+                                
+                                <a href="{{ url_for('hubfile.download_file', file_id=model.id) }}" class="btn btn-primary" download>Download Model</a>
                             </div>
                         </div>
                     </div>
@@ -50,7 +51,7 @@
                     <div class="col-12">
                         <div class="mb-3">
                             <label class="form-label" for="query">
-                                Search for datasets by title, description, authors, tags, UVL files...
+                                Search for models by title
                             </label>
                             <input class="form-control" id="query" name="query" required="" type="text"
                                    value="" autofocus>
@@ -67,11 +68,6 @@
                             <div id="authors">
 
                             </div>
-
-                            <button id="clear-filters" class="btn btn-outline-primary">
-                                <i data-feather="x-circle" style="vertical-align: middle; margin-top: -2px"></i>
-                                Clear filters
-                            </button>
 
                             <div class="col text-left mt-3">
                                 <button onclick="location.href='{{ url_for('explore.index')}}'" class="btn btn-primary">Search Datasets</button>
@@ -97,5 +93,5 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ url_for('explore.static', filename='assets/scripts2.js') }}"></script>
+    <script src="../../assets/scripts2.js"></script>
 {% endblock %}

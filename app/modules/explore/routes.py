@@ -24,7 +24,7 @@ def index():
 @explore_bp.route('/explore2/models', methods=['GET'])
 def explore2_models():
     query = request.args.get('query', '')
-    form = ExploreForm() 
+    form = ModelForm()  # Asegúrate de que ModelForm esté importado y definido
     models = ModelService().filter(name=query)
     if request.headers.get('Accept') == 'application/json':
         return jsonify([model.to_dict() for model in models])
