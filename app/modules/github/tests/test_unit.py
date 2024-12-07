@@ -34,6 +34,27 @@ def test_create_dataset_github_succes(test_client, mock_dataset):
 
         assert response.status_code == 200
 
+# Test the route create_dataset_github with a new repository
+def test_create_new_repo(test_client, mock_dataset):
+    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+        mock_get.return_value = mock_dataset
+
+        with patch.object(GitHubService, 'check_repository_exists', return_value=False):
+            with patch.object(GitHubService, 'upload_dataset_to_github', return_value=("Upload successful", 200)):
+                response = test_client.post("/github/upload/1", data={
+                    'commit_message': 'Test commit',
+                    'owner': 'rafduqcol',
+                    'repo_name': 'new_repo',
+                    'branch': 'main',
+                    'repo_type': 'new',
+                    'access_token': os.getenv("GITHUB_TOKEN"),
+                    'license': 'MIT'
+                })
+
+                assert response.status_code == 200
+                assert response.json["message"] == "Upload successful"
+
+
 # Test the route create_dataset_github with a repository that does not exist
 def test_repository_not_found(test_client, mock_dataset):
     print("holaaa", os.getenv("GITHUB_TOKEN"))
@@ -44,7 +65,7 @@ def test_repository_not_found(test_client, mock_dataset):
             response = test_client.post("/github/upload/1", data={
                 'commit_message': 'Test commit',
                 'owner': 'rafduqcol',
-                'repo_name': 'non_existent_repo',
+                'repo_name': 'uvl',
                 'branch': 'main',
                 'repo_type': 'existing',
                 'access_token': os.getenv("GITHUB_TOKEN"),
@@ -65,7 +86,7 @@ def test_branch_not_found(test_client, mock_dataset):
                 response = test_client.post("/github/upload/1", data={
                     'commit_message': 'Test commit',
                     'owner': 'rafduqcol',
-                    'repo_name': 'existing_repo',
+                    'repo_name': 'uvl',
                     'branch': 'non_existent_branch',
                     'repo_type': 'existing',
                     'access_token': os.getenv("GITHUB_TOKEN"),
@@ -107,7 +128,7 @@ def test_bad_token(test_client, mock_dataset):
                     response = test_client.post("/github/upload/1", data={
                         'commit_message': 'Test commit',
                         'owner': 'rafduqcol',
-                        'repo_name': 'existing_repo',
+                        'repo_name': 'uvl',
                         'branch': 'main',
                         'repo_type': 'existing',
                         'access_token': 'bad_token',
@@ -116,3 +137,28 @@ def test_bad_token(test_client, mock_dataset):
 
                     assert response.status_code == 401
                     assert response.json["error"] == "Bad credentials. Verify your access token."
+                    
+#Test the route create_dataset_github with a dataset that already exists in the repository
+def test_create_dataset_github_already_exists(test_client, mock_dataset):
+      with patch.object(GitHubService, 'check_repository_exists', return_value=True):
+            with patch.object(GitHubService, 'check_branch_exists', return_value=True):
+                with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get, \
+                    patch.object(GitHubService, 'upload_dataset_to_github') as mock_upload:
+
+                    mock_get.return_value = mock_dataset
+
+                    mock_upload.side_effect = requests.exceptions.HTTPError("422 Unprocessable Entity")
+
+                    response = test_client.post("/github/upload/1", data={
+                        'commit_message': 'Test commit',
+                        'owner': 'rafduqcol',
+                        'repo_name': 'uvl',
+                        'branch': 'main',
+                        'repo_type': 'existing',
+                        'access_token': os.getenv("GITHUB_TOKEN"),
+                        'license': 'MIT'
+                    })
+                    print(response.json)
+                    assert response.status_code == 422
+                    assert response.json["error"] == "A dataset with the same name already exists in the repository."
+                    assert response.json["code"] == 422
