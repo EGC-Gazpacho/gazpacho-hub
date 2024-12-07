@@ -119,7 +119,7 @@ function send_query() {
                                                 Download (${dataset.total_size_in_human_format})
                                             </a>
                                             <a href="/github/upload/${dataset.id}" class="btn btn-outline-primary btn-sm" id="search" style="border-radius: 5px;">
-                                                Backup data to GitHub 
+                                                Backup dataset to GitHub 
                                             </a>
                                         </div>
 
