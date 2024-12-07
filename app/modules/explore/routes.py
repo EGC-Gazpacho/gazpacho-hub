@@ -24,12 +24,12 @@ def index():
 @explore_bp.route('/explore2/models', methods=['GET'])
 def explore2_models():
     query = request.args.get('query', '')
+    form = ExploreForm() 
+    models = ModelService().filter(name=query)
     if request.headers.get('Accept') == 'application/json':
-        models = ModelService().filter(name=query)
         return jsonify([model.to_dict() for model in models])
     else:
-        models = ModelService().filter(name=query)
-        return render_template('explore2/index.html', models=models)
+        return render_template('explore2/index.html', form=form, models=models)
 
 @explore_bp.route('/explore2/models/download', methods=['GET'])
 def download_all_models():
