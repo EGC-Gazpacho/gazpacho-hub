@@ -1,11 +1,7 @@
-from flask import render_template, request, jsonify, Blueprint, send_file
-
+from flask import render_template, request, jsonify
 from app.modules.explore import explore_bp
-from app.modules.explore.forms import ExploreForm, ModelForm
-from app.modules.explore.services import ExploreService, ModelService
-import os
-import tempfile
-from zipfile import ZipFile
+from app.modules.explore.forms import ExploreForm
+from app.modules.explore.services import ExploreService
 
 
 @explore_bp.route('/explore', methods=['GET', 'POST'])
@@ -22,32 +18,8 @@ def index():
 
 
 @explore_bp.route('/explore2/models', methods=['GET'])
-def explore2_models():
-    query = request.args.get('query', '')
-    form = ModelForm()  # Asegúrate de que ModelForm esté importado y definido
-    models = ModelService().filter(name=query)
-    if request.headers.get('Accept') == 'application/json':
-        return jsonify([model.to_dict() for model in models])
-    else:
-        return render_template('explore2/index.html', form=form, models=models)
-
-@explore_bp.route('/explore2/models/download', methods=['GET'])
-def download_all_models():
-    models = ModelService().get_all_models()
-    temp_dir = tempfile.mkdtemp()
-    zip_path = os.path.join(temp_dir, 'models.zip')
-
-    with ZipFile(zip_path, 'w') as zipf:
-        for model in models:
-            model_path = os.path.join(temp_dir, f"{model.id}.json")
-            with open(model_path, 'w') as model_file:
-                model_file.write(model.to_json())
-            zipf.write(model_path, os.path.basename(model_path))
-
-    return send_file(zip_path, as_attachment=True, mimetype='application/zip')
-
-@explore_bp.route('/explore3/models', methods=['GET'])
-def explore3_models():
-    query = request.args.get('query', '')
-    models = ModelService().filter(name=query)
-    return jsonify([model.to_dict() for model in models])
+def modelIndex():
+    if request.method == 'GET':
+        query = request.args.get('query', '')
+        form = ExploreForm()
+        return render_template('explore2/index.html', form=form, query=query)

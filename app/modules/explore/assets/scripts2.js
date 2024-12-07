@@ -1,10 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('query');
-    searchInput.addEventListener('input', send_query);
+    if (searchInput) {
+        console.log('Search input found');
+        searchInput.addEventListener('input', send_query);
+    } else {
+        console.log('Search input not found');
+    }
 });
 
 function send_query() {
     const query = document.getElementById('query').value;
+    console.log('Query:', query);
 
     fetch(`/explore2/models?query=${encodeURIComponent(query)}`, {
         method: 'GET',
@@ -12,8 +18,12 @@ function send_query() {
             'Content-Type': 'application/json',
         },
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Data received:', data);
         const resultsContainer = document.getElementById('results');
         resultsContainer.innerHTML = '';
 
@@ -29,7 +39,6 @@ function send_query() {
                         <div class="card-body">
                             <h5 class="card-title">${model.fm_meta_data.title}</h5>
                             <p class="card-text">${model.fm_meta_data.uvl_filename}</p>
-                            <a href="/featuremodel/${model.id}" class="btn btn-primary">View Model</a>
                         </div>
                     </div>
                 `;

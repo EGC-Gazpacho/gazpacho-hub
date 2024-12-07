@@ -1,6 +1,5 @@
 from app.modules.explore.repositories import ExploreRepository
 from core.services.BaseService import BaseService
-from app.modules.featuremodel.models import FeatureModel, FMMetaData
 
 
 class ExploreService(BaseService):
@@ -12,11 +11,8 @@ class ExploreService(BaseService):
 
 
 class ModelService:
-    def get_all_models(self):
-        return FeatureModel.query.all()
+    def __init__(self):
+        super().__init__(ExploreRepository())
 
-    def filter(self, name=''):
-        query = FeatureModel.query
-        if name:
-            query = query.join(FMMetaData).filter(FMMetaData.title.contains(name))
-        return query.all()
+    def filter(self, query="", **kwargs):
+        return self.repository.filter(query, **kwargs)
