@@ -11,9 +11,7 @@ class TestGitHubService:
 
     @pytest.fixture(autouse=True)
     def github_setup(self, test_client):
-        """
-        Initial setup for the tests.
-        """
+       
         app = create_app()  
         
         with app.app_context():
