@@ -1,7 +1,6 @@
 from io import BytesIO
 import pytest
 from unittest.mock import MagicMock, patch
-
 import requests
 from app.modules.github.services import GitHubService
 from app.modules.github.repositories import GitHubRepository
@@ -22,7 +21,6 @@ def test_check_repository_exists_found(mock_get, github_service):
     repo_name = 'test_repo'
     
     result = github_service.check_repository_exists(owner, repo_name, 'access_token')
-    print(result)
     
     assert result
     mock_get.assert_called_once_with(f"https://api.github.com/repos/{owner}/{repo_name}", 
@@ -312,7 +310,6 @@ def test_upload_dataset_to_github_file_upload_failure(mock_open, mock_put, githu
     license = "MIT"
     repo_type = 'existing'  
     
-    # Mock the dataset and file objects
     dataset = MagicMock()
     dataset.name.return_value = "test_dataset"
     dataset.feature_models = [MagicMock(files=[MagicMock(get_path=lambda: 'test_file.txt', name='test_file.txt')])]
@@ -320,19 +317,18 @@ def test_upload_dataset_to_github_file_upload_failure(mock_open, mock_put, githu
     file_mock = dataset.feature_models[0].files[0]
     file_mock.name = 'test_file.txt'  
     
-    # Test that an HTTPError is raised when the upload fails
     with pytest.raises(requests.exceptions.HTTPError):
         github_service.upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type)
     
-    mock_put.assert_called()  # Ensure the PUT request was called
-    mock_open.assert_called()  # Ensure 'open' was called
+    mock_put.assert_called() 
+    mock_open.assert_called() 
 
 
 
 # Test for successfully uploading dataset to a new repo on GitHub
 @patch('requests.put')
 @patch('app.modules.github.services.GitHubService.create_repo')
-@patch('builtins.open', new_callable=MagicMock)  # Mock the open function
+@patch('builtins.open', new_callable=MagicMock)  
 def test_upload_dataset_to_github_new_repo(mock_open, mock_create_repo, mock_put, github_service):
     mock_create_repo.return_value = True  
     
@@ -438,4 +434,4 @@ def test_delete_file_not_found(mock_delete, mock_get, github_service):
     assert result == False
     
     mock_get.assert_called_once()  
-    mock_delete.assert_not_called()  
+    mock_delete.assert_not_called()
