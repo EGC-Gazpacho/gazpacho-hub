@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from app.modules.github.repositories import GitHubRepository
 import pytest
 import requests
 from app.modules.auth.models import User
@@ -17,6 +18,11 @@ def test_client(test_client):
 
         pass
     yield test_client
+
+@pytest.fixture(scope='module')
+def github_service():
+    repo = GitHubRepository(name="my_repo", owner="my_user")
+    return GitHubService(repository=repo)
 
 
 @pytest.fixture

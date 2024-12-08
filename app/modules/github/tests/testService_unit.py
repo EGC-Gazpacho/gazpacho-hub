@@ -187,7 +187,7 @@ def test_create_repo_success(mock_post):
     repo_name = "test_repo"
     token = "access_token"
 
-    result = GitHubService.create_repo(repo_name, token)
+    result = github_service.create_repo(repo_name, token)
 
     assert result is True
     mock_post.assert_called_once_with(
