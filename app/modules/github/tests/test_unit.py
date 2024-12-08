@@ -36,7 +36,7 @@ def test_create_dataset_github(test_client, mock_dataset):
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
 
-    with requests.patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
         mock_get.return_value = mock_dataset
 
         response = test_client.get("/github/upload/1")
