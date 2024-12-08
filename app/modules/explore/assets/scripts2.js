@@ -12,20 +12,20 @@ function filterModels() {
     const query = document.getElementById('query').value.toLowerCase();
     console.log('Query:', query);
 
-    const cards = document.querySelectorAll('.card');
+    const cards = document.querySelectorAll('.col-12.mb-4'); // Select the parent div of each card
     console.log('Number of cards:', cards.length);
     let found = false;
 
-    cards.forEach(card => {
-        const title = card.querySelector('.card-title').textContent.toLowerCase();
-        console.log('Card title:', title);
-        if (title.includes(query)) {
-            console.log('Match found:', title);
-            card.style.display = 'block';
+    cards.forEach(cardWrapper => {
+        const cardTitle = cardWrapper.querySelector('.card-title').textContent.toLowerCase();
+        console.log('Card title:', cardTitle);
+        if (cardTitle.includes(query)) {
+            console.log('Match found:', cardTitle);
+            cardWrapper.style.display = 'block';
             found = true;
         } else {
-            console.log('No match:', title);
-            card.style.display = 'none';
+            console.log('No match:', cardTitle);
+            cardWrapper.style.display = 'none';
         }
     });
 
