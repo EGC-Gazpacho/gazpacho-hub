@@ -189,14 +189,6 @@ chico sundermann">
                            placeholder="Search datasets..." aria-label="Search">
                 </div>
             </form>
-            
-
-            <form class="d-none d-sm-inline-block" onsubmit="submitSearchFormModels(event)">
-                <div class="input-group input-group-navbar">
-                    <input type="text" id="search-query" name="query" class="form-control rounded-search"
-                           placeholder="Search models..." aria-label="Search">
-                </div>
-            </form>
 
             <div class="navbar-collapse collapse">
                 <ul class="navbar-nav navbar-align">
@@ -330,12 +322,6 @@ Romero-Organvidez, D., Galindo, J. A., Sundermann, C., Horcas, J.-M., & Benavide
         event.preventDefault();
         let query = document.getElementById('search-query').value;
         window.location.href = '/explore?query=' + encodeURIComponent(query);
-    }
-
-    function submitSearchFormModels(event) {
-        event.preventDefault();
-        let query = document.getElementById('search-query').value;
-        window.location.href = '/explore2/models?query=' + encodeURIComponent(query);
     }
 
     function copyText(div_identifier) {
