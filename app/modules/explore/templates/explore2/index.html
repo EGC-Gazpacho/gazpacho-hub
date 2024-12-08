@@ -20,7 +20,8 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">{{ model.fm_meta_data.title }}</h5>
-                                <p class="card-text">{{ model.fm_meta_data.uvl_filename }}</p>                    
+                                <p class="card-text">{{ model.fm_meta_data.uvl_filename }}</p>
+                                
                                 <a href="{{ url_for('hubfile.download_file', file_id=model.id) }}" class="btn btn-primary" download>Download Model</a>
                             </div>
                         </div>
@@ -50,9 +51,10 @@
                     <div class="col-12">
                         <div class="mb-3">
                             <label class="form-label" for="query">
-                            Buscar modelos por título
-                        </label>
-                        <input class="form-control" id="query" name="query" required="" type="text" value="" autofocus>
+                                Search for models by title
+                            </label>
+                            <input class="form-control" id="query" name="query" required="" type="text"
+                                   value="" autofocus>
                         </div>
                     </div>
                 </div>

@@ -63,32 +63,3 @@ class ExploreRepository(BaseRepository):
             datasets = datasets.order_by(self.model.created_at.desc())
 
         return datasets.all()
-
-
-class ModelRepository(BaseRepository):
-    def __init__(self):
-        super().__init__(FeatureModel)
-
-    def filter(self, query="", sorting="newest", **kwargs):
-        # Normalize and remove unwanted characters
-        normalized_query = unidecode.unidecode(query).lower()
-        cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
-
-        filters = []
-        for word in cleaned_query.split():
-            filters.append(FMMetaData.title.ilike(f"%{word}%"))
-            filters.append(FMMetaData.uvl_filename.ilike(f"%{word}%"))
-
-        models = (
-            self.model.query
-            .join(FeatureModel.fm_meta_data)
-            .filter(or_(*filters))
-        )
-
-        # Order by created_at
-        if sorting == "oldest":
-            models = models.order_by(self.model.created_at.asc())
-        else:
-            models = models.order_by(self.model.created_at.desc())
-
-        return models.all()

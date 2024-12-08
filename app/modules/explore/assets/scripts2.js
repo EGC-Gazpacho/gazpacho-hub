@@ -2,49 +2,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('query');
     if (searchInput) {
         console.log('Search input found');
-        searchInput.addEventListener('input', send_query);
+        searchInput.addEventListener('input', filterModels);
     } else {
         console.log('Search input not found');
     }
 });
 
-function send_query() {
-    const query = document.getElementById('query').value;
+function filterModels() {
+    const query = document.getElementById('query').value.toLowerCase();
     console.log('Query:', query);
 
-    fetch(`/explore2/models?query=${encodeURIComponent(query)}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Data received:', data);
-        const resultsContainer = document.getElementById('results');
-        resultsContainer.innerHTML = '';
+    const cards = document.querySelectorAll('.card');
+    console.log('Number of cards:', cards.length);
+    let found = false;
 
-        if (data.length === 0) {
-            document.getElementById("results_not_found").style.display = "block";
+    cards.forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        console.log('Card title:', title);
+        if (title.includes(query)) {
+            console.log('Match found:', title);
+            card.style.display = 'block';
+            found = true;
         } else {
-            document.getElementById("results_not_found").style.display = "none";
-            data.forEach(model => {
-                const card = document.createElement('div');
-                card.className = 'col-12 mb-4';
-                card.innerHTML = `
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">${model.fm_meta_data.title}</h5>
-                            <p class="card-text">${model.fm_meta_data.uvl_filename}</p>
-                        </div>
-                    </div>
-                `;
-                resultsContainer.appendChild(card);
-            });
+            console.log('No match:', title);
+            card.style.display = 'none';
         }
-    })
-    .catch(error => console.error('Error:', error));
+    });
+
+    const resultsNotFound = document.getElementById('results_not_found');
+    if (found) {
+        console.log('Models found');
+        resultsNotFound.style.display = 'none';
+    } else {
+        console.log('No models found');
+        resultsNotFound.style.display = 'block';
+    }
 }
