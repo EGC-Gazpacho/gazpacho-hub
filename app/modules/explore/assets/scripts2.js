@@ -12,7 +12,7 @@ function filterModels() {
     const query = document.getElementById('query').value.toLowerCase();
     console.log('Query:', query);
 
-    const cards = document.querySelectorAll('.col-12.mb-4'); // Select the parent div of each card
+    const cards = document.querySelectorAll('.col-12.mb-4'); 
     console.log('Number of cards:', cards.length);
     let found = false;
 
