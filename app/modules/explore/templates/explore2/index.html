@@ -15,19 +15,22 @@
         
         <div class="row" id="results">
             {% if models %}
-                {% for model in models %}
-                    <div class="col-12 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ model.fm_meta_data.title }}</h5>
-                                <p class="card-text">{{ model.fm_meta_data.uvl_filename }}</p>
-                                
-                                <a href="{{ url_for('hubfile.download_file', file_id=model.id) }}"
-                                 class="btn btn-primary" download>Download Model</a>
-                            </div>
-                        </div>
+            {% for model in models %}
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ model.fm_meta_data.title }}</h5>
+                        {% for file in model.files %}
+                                <i data-feather="file"></i> {{ file.name }}
+                                        <small class="text-muted">({{ file.get_formatted_size() }})</small>
+                                        <br>
+                                        <br>
+                        {% endfor %}
+                        <a href="{{ url_for('hubfile.download_file', file_id=model.id) }}" class="btn btn-primary" download>Download Model</a>
                     </div>
-                {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
             {% else %}
             <div class="col text-center" id="results_not_found">
                 <img src="{{ url_for('static', filename='img/items/not_found.svg') }}"
