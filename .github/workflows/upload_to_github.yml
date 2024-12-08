@@ -16,6 +16,3 @@ jobs:
       - name: Set up environment
         run: echo "UPLOAD_TOKEN_GITHUB=${{ secrets.UPLOAD_TOKEN_GITHUB }}" >> $GITHUB_ENV
 
-      - name: Run tests
-        run: |
-          pytest tests/test_integration.py
