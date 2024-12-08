@@ -3,14 +3,14 @@ import requests
 from core.services.BaseService import BaseService
 
 
-class GitHubService(BaseService):   
-    
+class GitHubService(BaseService):
+
     def __init__(self, repository):
         super().__init__(repository)
-        
+
     @staticmethod
     def upload_dataset_to_github(owner, repo_name, branch, dataset, token, commit_message, license, repo_type):
-        
+
         if repo_type == 'new':
             print(f"Creating repository: {repo_name}")
             repo_created = GitHubService.create_repo(repo_name, token)
@@ -69,11 +69,11 @@ class GitHubService(BaseService):
         try:
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
-                return True  
+                return True
             elif response.status_code == 404:
-                return False 
+                return False
             else:
-                response.raise_for_status()  
+                response.raise_for_status()
         except requests.exceptions.RequestException as e:
             raise e
 
@@ -92,17 +92,17 @@ class GitHubService(BaseService):
             print(f"HTTP Status: {response.status_code}")
 
             if response.status_code == 200:
-                return True  
+                return True
             elif response.status_code == 404:
-                return False  
+                return False
             elif response.status_code == 401:
                 raise requests.exceptions.HTTPError("Unauthorized - Invalid or expired access token.")
             else:
-                response.raise_for_status()  
+                response.raise_for_status()
 
         except requests.exceptions.HTTPError as http_err:
             print(f"HTTP Error when checking branch: {http_err}")
-            raise 
+            raise
 
         except requests.exceptions.ConnectionError:
             print("Connection error while trying to access GitHub API.")
@@ -116,7 +116,7 @@ class GitHubService(BaseService):
 
         except requests.exceptions.RequestException as req_err:
             print(f"Unexpected error when checking branch: {req_err}")
-            raise 
+            raise
 
     @staticmethod
     def create_repo(repo_name, token):
@@ -143,7 +143,6 @@ class GitHubService(BaseService):
             print(f"Error creating repository: {response.json().get('message')}")
             return False
 
-
     @staticmethod
     def delete_repo(token, repo_owner, repo_name):
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}"
@@ -162,10 +161,9 @@ class GitHubService(BaseService):
             print(f"Error deleting the repository: {response.json().get('message')}")
             return False
 
-
     @staticmethod
     def delete_file_from_repo(token, repo_owner, repo_name, file_path, branch, commit_message):
-    
+
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}?ref={branch}"
 
         headers = {
@@ -196,5 +194,3 @@ class GitHubService(BaseService):
         else:
             print(f"Error fetching file information: {response.json().get('message')}")
             return False
-
-    

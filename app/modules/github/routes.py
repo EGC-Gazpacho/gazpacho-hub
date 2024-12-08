@@ -90,6 +90,5 @@ def create_dataset_github(dataset_id):
                 "error": f"Failed to connect to GitHub API: {str(e)}",
                 "code": 500
             }), 500
-        
 
     return render_template("upload_dataset_github.html", form=form, dataset=dataset)
