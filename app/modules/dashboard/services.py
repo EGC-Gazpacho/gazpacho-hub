@@ -9,11 +9,7 @@ from sqlalchemy import desc
 class DashboardService(BaseService):
     def __init__(self, repo=None):
         self.repository = repo or DashboardRepository()
-
-
-    def get_all_dataset(self):
-        return self.repository.count(self)
-    
+  
     def get_detailed_statistics(self):
         download_repo = DSDownloadRecordRepository()
         view_repo = DSViewRecordRepository()
@@ -24,36 +20,35 @@ class DashboardService(BaseService):
         total_synchronized_datasets = dataset_repo.count_synchronized_datasets()
         total_unsynchronized_datasets = dataset_repo.count_unsynchronized_datasets()
 
-        total_datasets = dataset_repo.model.query.count()
+        #total_datasets = dataset_repo.model.query.count()
         
-        one_month_ago = datetime.now() - timedelta(days=30)
-        datasets_last_month = dataset_repo.model.query.filter(
-            dataset_repo.model.created_at >= one_month_ago
-        ).count()
+        #one_month_ago = datetime.now() - timedelta(days=30)
+        #datasets_last_month = dataset_repo.model.query.filter(
+        #    dataset_repo.model.created_at >= one_month_ago
+        #).count()
 
-        last_download = download_repo.model.query.order_by(desc(DSDownloadRecord.download_date)).first()
-        last_download_date = last_download.download_date if last_download else None
+        #last_download = download_repo.model.query.order_by(desc(DSDownloadRecord.download_date)).first()
+        #last_download_date = last_download.download_date if last_download else None
 
-        last_view = view_repo.model.query.order_by(desc(DSViewRecord.view_date)).first()
-        last_view_date = last_view.view_date if last_view else None
+        #last_view = view_repo.model.query.order_by(desc(DSViewRecord.view_date)).first()
+        #last_view_date = last_view.view_date if last_view else None
 
         statistics = {
             "total_downloads": total_downloads,
             "total_views": total_views,
             "total_synchronized_datasets": total_synchronized_datasets,
             "total_unsynchronized_datasets": total_unsynchronized_datasets,
-            "total_datasets": total_datasets,
-            "datasets_last_month": datasets_last_month,
-            "last_download_date": last_download_date,
-            "last_view_date": last_view_date
+            #"total_datasets": total_datasets,
+            #"datasets_last_month": datasets_last_month,
+            #"last_download_date": last_download_date,
+            #"last_view_date": last_view_date
         }
-        print(statistics)
         return statistics
 
     def get_all_author_names_and_dataset_counts(self):
         author_data = DashboardRepository.get_author_names_and_dataset_counts(self)
-        author_names = [data.name for data in author_data]
-        dataset_counts = [data.dataset_count for data in author_data]
+        author_names = [item[0] for item in author_data]
+        dataset_counts = [item[1] for item in author_data] 
         return author_names, dataset_counts
     
     def get_views_per_dataset_lists(self):
