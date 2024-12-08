@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    populateNumberOfFeatures(1, 1000);
+    populateNumberOfProducts(1, 1000);
     send_query();
 });
 
@@ -20,10 +22,14 @@ function send_query() {
                 csrf_token: csrfToken,
                 query: document.querySelector('#query').value,
                 publication_type: document.querySelector('#publication_type').value,
+                number_of_features: document.querySelector('#number_of_features').value,
+                number_of_products: document.querySelector('#number_of_products').value,
                 sorting: document.querySelector('[name="sorting"]:checked').value,
             };
 
             console.log(document.querySelector('#publication_type').value);
+            console.log(document.querySelector('#number_of_features').value);
+            console.log(document.querySelector('#number_of_products').value);
 
             fetch('/explore', {
                 method: 'POST',
@@ -61,6 +67,12 @@ function send_query() {
                                         <h3><a href="${dataset.url}">${dataset.title}</a></h3>
                                         <div>
                                             <span class="badge bg-primary" style="cursor: pointer;" onclick="set_publication_type_as_query('${dataset.publication_type}')">${dataset.publication_type}</span>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-primary" style="cursor: pointer;" onclick="set_number_of_features_as_query('${dataset.number_of_features}')">${dataset.number_of_features}</span>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-primary" style="cursor: pointer;" onclick="set_number_of_products_as_query('${dataset.number_of_products}')">${dataset.number_of_products}</span>
                                         </div>
                                     </div>
                                     <p class="text-secondary">${formatDate(dataset.created_at)}</p>
@@ -161,6 +173,61 @@ function set_publication_type_as_query(publicationType) {
     publicationTypeSelect.dispatchEvent(new Event('input', {bubbles: true}));
 }
 
+function set_number_of_features_as_query(numberOfFeatures) {
+    const numberOfFeaturesSelect = document.getElementById('number_of_features');
+    for (let i = 0; i < numberOfFeaturesSelect.options.length; i++) {
+        if (numberOfFeaturesSelect.options[i].text === numberOfFeatures.trim()) {
+            // Set the value of the select to the value of the matching option
+            numberOfFeaturesSelect.value = numberOfFeaturesSelect.options[i].value;
+            break;
+        }
+    }
+    numberOfFeaturesSelect.dispatchEvent(new Event('input', {bubbles: true}));
+}
+
+function set_number_of_products_as_query(numberOfProducts) {
+    const numberOfProductsSelect = document.getElementById('number_of_products');
+    for (let i = 0; i < numberOfProductsSelect.options.length; i++) {
+        if (numberOfProductsSelect.options[i].text === numberOfProducts.trim()) {
+            // Set the value of the select to the value of the matching option
+            numberOfProductsSelect.value = numberOfProductsSelect.options[i].value;
+            break;
+        }
+    }
+    numberOfProductsSelect.dispatchEvent(new Event('input', {bubbles: true}));
+}
+
+function populateNumberOfFeatures(min, max) {
+    const numberOfFeaturesSelect = document.getElementById('number_of_features');
+
+    // Clear existing options (except "Any")
+    numberOfFeaturesSelect.innerHTML = '<option value="any">Any</option>';
+
+    // Populate with numbers from min to max
+    for (let i = min; i <= max; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        numberOfFeaturesSelect.appendChild(option);
+    }
+}
+
+function populateNumberOfProducts(min, max) {
+    const numberOfProductsSelect = document.getElementById('number_of_products');
+
+    // Clear existing options (except "Any")
+    numberOfProductsSelect.innerHTML = '<option value="any">Any</option>';
+
+    // Populate with numbers from min to max
+    for (let i = min; i <= max; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        numberOfProductsSelect.appendChild(option);
+    }
+}
+
+
 document.getElementById('clear-filters').addEventListener('click', clearFilters);
 
 function clearFilters() {
@@ -174,6 +241,14 @@ function clearFilters() {
     let publicationTypeSelect = document.querySelector('#publication_type');
     publicationTypeSelect.value = "any"; // replace "any" with whatever your default value is
     // publicationTypeSelect.dispatchEvent(new Event('input', {bubbles: true}));
+
+    // Reset the number of features to its default value
+    let numberOfFeaturesSelect = document.querySelector('#number_of_features');
+    numberOfFeaturesSelect.value = "";
+
+    // Reset the number of products to its default value
+    let numberOfProductsSelect = document.querySelector('#number_of_products');
+    numberOfProductsSelect.value = "";
 
     // Reset the sorting option
     let sortingOptions = document.querySelectorAll('[name="sorting"]');
