@@ -158,7 +158,8 @@ def test_check_branch_exists_timeout_error(mock_get, github_service):
     branch = 'main'
     access_token = 'access_token'
 
-    with pytest.raises(requests.exceptions.RequestException, match="TimeoutError: The request to GitHub exceeded the timeout."):
+    with pytest.raises(requests.exceptions.RequestException, 
+                       match="TimeoutError: The request to GitHub exceeded the timeout."):
         github_service.check_branch_exists(owner, repo_name, branch, access_token)
 
 # Test to manage the exception when the request fails with an unexpected error
@@ -405,7 +406,7 @@ def test_delete_repo_failure(mock_delete, github_service):
 
     result = github_service.delete_repo(owner, repo_name, token)
 
-    assert result == False
+    assert not result
 
     mock_delete.assert_called_once()
 
@@ -453,7 +454,7 @@ def test_delete_file_not_found(mock_delete, mock_get, github_service):
 
     result = github_service.delete_file_from_repo(token, repo_owner, repo_name, file_path, branch, commit_message)
 
-    assert result == False
+    assert not result
 
     mock_get.assert_called_once()
     mock_delete.assert_not_called()

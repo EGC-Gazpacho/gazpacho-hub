@@ -1,10 +1,7 @@
-from datetime import datetime
 import pytest
 import os
 from app.modules.github.services import GitHubService
 from app import create_app, db
-from app.modules.dataset.models import Author, DSMetaData, DSMetrics, DataSet, PublicationType
-from app.modules.auth.models import User
 
 
 class TestGitHubService:

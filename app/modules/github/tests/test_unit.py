@@ -1,11 +1,8 @@
+from unittest.mock import patch
 import pytest
-from unittest.mock import patch, MagicMock
-from flask import Flask
-from flask_login import LoginManager, login_user
 import requests
 from app.modules.auth.models import User
 from app.modules.github.services import GitHubService
-from app.modules.github.routes import github_bp
 import os
 from app import db
 from app.modules.conftest import login, logout
@@ -33,7 +30,7 @@ def test_create_dataset_github(test_client, mock_dataset):
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
 
-    with patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
+    with requests.patch("app.modules.dataset.services.DataSetService.get_or_404") as mock_get:
         mock_get.return_value = mock_dataset
 
         response = test_client.get("/github/upload/1")
