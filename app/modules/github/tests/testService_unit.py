@@ -158,7 +158,7 @@ def test_check_branch_exists_timeout_error(mock_get, github_service):
     branch = 'main'
     access_token = 'access_token'
 
-    with pytest.raises(requests.exceptions.RequestException, 
+    with pytest.raises(requests.exceptions.RequestException,
                        match="TimeoutError: The request to GitHub exceeded the timeout."):
         github_service.check_branch_exists(owner, repo_name, branch, access_token)
 

@@ -1,7 +1,7 @@
 import pytest
 import os
 from app.modules.github.services import GitHubService
-from app import create_app, db
+from app import create_app
 
 
 class TestGitHubService:
