@@ -25,12 +25,6 @@ def github_service():
     repo = GitHubRepository(name="my_repo", owner="my_user")
     return GitHubService(repository=repo)
 
-
-@pytest.fixture(scope='module')
-def github_service():
-    repo = GitHubRepository(name="my_repo", owner="my_user")
-    return GitHubService(repository=repo)
-
 # Test to check if repository exists with success
 
 
