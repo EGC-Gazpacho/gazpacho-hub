@@ -546,9 +546,6 @@
         });
     }
 
-    // Variables globales para almacenar las calificaciones seleccionadas
-    const defRate = {};
-
     document.addEventListener('DOMContentLoaded', function () {
         const datasetId = {{ dataset.id }};
         const rateContainer = document.getElementById('star-rating-' + datasetId);
@@ -575,6 +572,9 @@
                 }
             });
         }
+
+        // Variables globales para almacenar las calificaciones seleccionadas
+        const defRate = {};
 
         // Enviar calificación al backend
         function submitRating(datasetId) {
