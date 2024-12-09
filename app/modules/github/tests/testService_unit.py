@@ -4,6 +4,19 @@ from unittest.mock import MagicMock, patch
 import requests
 from app.modules.github.services import GitHubService
 from app.modules.github.repositories import GitHubRepository
+from app import db
+from app.modules.auth.models import User
+
+
+@pytest.fixture(scope="module")
+def test_client(test_client):
+    with test_client.application.app_context():
+        user_test = User(email='user@example.com', password='test1234')
+        db.session.add(user_test)
+        db.session.commit()
+
+        pass
+    yield test_client
 
 
 @pytest.fixture(scope='module')
@@ -12,7 +25,6 @@ def github_service():
     return GitHubService(repository=repo)
 
 
-# Test to check if the repository exists
 @patch('requests.get')
 def test_check_repository_exists_found(mock_get, github_service):
     mock_get.return_value.status_code = 200
