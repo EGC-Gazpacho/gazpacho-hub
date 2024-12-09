@@ -6,6 +6,7 @@ from sqlalchemy.orm.query import Query
 from app import create_app, db
 from app.modules.auth.models import User
 from app.modules.conftest import login, logout
+from flask_login import login_user
 
 
 @pytest.fixture
@@ -383,6 +384,8 @@ def test_repository_get_last_12_months_views(dashboard_repository):
 
 
 def test_repository_get_views_per_dataset_user_logued(dashboard_repository, test_client):
+    mock_user = User(id=1)
+    login_user(mock_user)
     mock_author_data = [
         ('Dataset1', 1),
         ('Dataset2', 2),
@@ -393,12 +396,10 @@ def test_repository_get_views_per_dataset_user_logued(dashboard_repository, test
         assert result == [('Dataset1', 1), ('Dataset2', 2)]
         Query.all.assert_called_once()
 
-from flask_login import login_user
 
 def test_repository_get_downloads_per_dataset_user_logued(dashboard_repository, test_client):
-    mock_user = User(id=1) 
+    mock_user = User(id=1)
     login_user(mock_user)
-
     mock_author_data = [
         ('Dataset1', 1),
         ('Dataset2', 2),
@@ -410,6 +411,8 @@ def test_repository_get_downloads_per_dataset_user_logued(dashboard_repository, 
 
 
 def test_repository_get_last_12_months_views_for_user(dashboard_repository):
+    mock_user = User(id=1)
+    login_user(mock_user)
     mock_author_data = 1
     with patch.object(Query, 'count', return_value=mock_author_data):
         result = dashboard_repository.get_last_12_months_views_for_user()
@@ -418,6 +421,8 @@ def test_repository_get_last_12_months_views_for_user(dashboard_repository):
 
 
 def test_repository_get_last_12_months_downloads_user_logued(dashboard_repository):
+    mock_user = User(id=1)
+    login_user(mock_user)
     mock_author_data = 1
     with patch.object(Query, 'count', return_value=mock_author_data):
         result = dashboard_repository.get_last_12_months_downloads_user_logued()
