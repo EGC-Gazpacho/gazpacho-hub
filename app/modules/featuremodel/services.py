@@ -7,10 +7,10 @@ class FeatureModelService(BaseService):
     def __init__(self):
         super().__init__(FeatureModelRepository())
         self.hubfile_service = HubfileService()
-        
+
     def search_by_name(self, query):
         if not query:
-            return []  
+            return []
         return self.repository.filter_by_name(query)
 
     def total_feature_model_views(self) -> int:
@@ -25,4 +25,3 @@ class FeatureModelService(BaseService):
     class FMMetaDataService(BaseService):
         def __init__(self):
             super().__init__(FMMetaDataRepository())
-    

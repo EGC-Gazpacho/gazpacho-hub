@@ -26,4 +26,3 @@ def explore2_models():
         return jsonify([model.to_dict() for model in models])
     else:
         return render_template('explore2/index.html', form=form, models=models)
-

@@ -126,7 +126,7 @@ def test_model_search_with_title_and_size(test_client, mock_models):
 def test_model_search_with_file_and_size(test_client, mock_models):
     @pytest.fixture(scope='module')
     def test_client():
-        
+
         #Extends the test_client fixture to add additional specific data for module testing.
 
         app = create_app()
@@ -174,7 +174,7 @@ def test_model_search_with_file_and_size(test_client, mock_models):
         with patch.object(FeatureModelService, 'get_by_id', return_value=mock_models[0]):
             response = test_client.get(url_for('hubfile.download_file', file_id=mock_models[0].id))
             assert response.status_code == 200
-            assert response.headers['Content-Disposition'] == f'attachment; 
+            assert response.headers['Content-Disposition'] == f'attachment;
                 filename={mock_models[0].fm_meta_data.title}.uvl'
 
     def test_model_file_display(test_client, mock_models):
