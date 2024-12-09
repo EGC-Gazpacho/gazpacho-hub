@@ -1,16 +1,16 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from core.environment.host import get_host_for_selenium_testing
 import time
+
 
 def initialize_driver():
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service)
     return driver
+
 
 class TestDashboard:
     def setup_method(self, method):
@@ -23,7 +23,6 @@ class TestDashboard:
     def test_selenium_dashboard(self):
         host = get_host_for_selenium_testing()
         self.driver.get(f'{host}/login')
-        
 
         time.sleep(4)
 
