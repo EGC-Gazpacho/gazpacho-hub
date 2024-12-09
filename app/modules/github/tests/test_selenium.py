@@ -10,7 +10,7 @@ from app.modules.github.services import GitHubService
 class TestUploadDataSetToGitHub:
     
     def setup_method(self):
-        self.token = os.getenv("GITHUB_ACCESS_TOKEN")
+        self.token = os.getenv("GITHUB_TOKEN")
     
 
     # Test the creation of a dataset in GitHub with success
