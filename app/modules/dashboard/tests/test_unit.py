@@ -280,25 +280,25 @@ def test_route(test_client):
     mock_month_downloads_user = ['2024-01', '2024-02']
     mock_downloads_user = [220, 200]
 
-    with patch('app.modules.dashboard.services.DashboardService.get_detailed_statistics', 
+    with patch('app.modules.dashboard.services.DashboardService.get_detailed_statistics',
                return_value=mock_statistics), \
-            patch('app.modules.dashboard.services.DashboardService.get_all_author_names_and_dataset_counts', 
+            patch('app.modules.dashboard.services.DashboardService.get_all_author_names_and_dataset_counts',
                   return_value=(mock_author_names, mock_dataset_counts)), \
-            patch('app.modules.dashboard.services.DashboardService.get_views_per_dataset_lists', 
+            patch('app.modules.dashboard.services.DashboardService.get_views_per_dataset_lists',
                   return_value=(mock_datasets_names_views, mock_datasets_views)), \
-            patch('app.modules.dashboard.services.DashboardService.get_downloads_per_dataset_lists', 
+            patch('app.modules.dashboard.services.DashboardService.get_downloads_per_dataset_lists',
                   return_value=(mock_datasets_names_downloads, mock_datasets_downloads)), \
-            patch('app.modules.dashboard.services.DashboardService.get_downloads_per_month', 
+            patch('app.modules.dashboard.services.DashboardService.get_downloads_per_month',
                   return_value=(mock_month, mock_downloads)), \
-            patch('app.modules.dashboard.services.DashboardService.get_views_per_month', 
+            patch('app.modules.dashboard.services.DashboardService.get_views_per_month',
                   return_value=(mock_month_views, mock_views)), \
-            patch('app.modules.dashboard.services.DashboardService.get_views_per_dataset_user_logued', 
+            patch('app.modules.dashboard.services.DashboardService.get_views_per_dataset_user_logued',
                   return_value=(mock_datasets_names_user, mock_datasets_views_user)), \
-            patch('app.modules.dashboard.services.DashboardService.get_downloads_per_dataset_user_logued', 
+            patch('app.modules.dashboard.services.DashboardService.get_downloads_per_dataset_user_logued',
                   return_value=(mock_datasets_names_user_downloads, mock_datasets_download_user)), \
-            patch('app.modules.dashboard.services.DashboardService.get_downloads_per_month_user_logued', 
+            patch('app.modules.dashboard.services.DashboardService.get_downloads_per_month_user_logued',
                   return_value=(mock_month_downloads_user, mock_downloads_user)), \
-            patch('app.modules.dashboard.services.DashboardService.get_views_per_month_user_logued', 
+            patch('app.modules.dashboard.services.DashboardService.get_views_per_month_user_logued',
                   return_value=(mock_month_views_user, mock_views_user)):
 
         response = test_client.get('/dashboard')
