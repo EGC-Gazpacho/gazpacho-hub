@@ -596,10 +596,24 @@
         fetch(`/datasets/${datasetId}/average-rating`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById('average-rating-' + datasetId).innerText = data.average_rating.toFixed(1);
+            const avgRatingElement = document.getElementById('average-rating-' + datasetId);
+            if (avgRatingElement) {
+                const avgRating = data.average_rating || 0; // Valor por defecto
+                avgRatingElement.innerText = avgRating.toFixed(1);
+                
+                // Resaltar estrellas
+                const starRatingContainer = document.getElementById('star-rating-' + datasetId);
+                if (starRatingContainer) {
+                    starRatingContainer.querySelectorAll('span').forEach(star => {
+                        const starValue = parseInt(star.getAttribute('data-value'));
+                        star.style.color = starValue <= Math.round(avgRating) ? '#FFD700' : '#ddd';
+                    });
+                }
+            }
         })
         .catch(error => console.error('Error fetching average rating:', error));
     }
+    
     // Escuchar el evento DOMContentLoaded
     document.addEventListener('DOMContentLoaded', function () {
         const datasetId = {{ dataset.id }};

@@ -307,10 +307,9 @@ def rate_dataset(dataset_id):
 
 
 @dataset_bp.route('/datasets/<int:dataset_id>/average-rating', methods=['GET'])
-@login_required
-def get_dataset_average_rating(dataset_id):
-    avg_rating = ds_rating_service.get_dataset_average_rating(dataset_id)
-    return jsonify({'avg_rating': avg_rating}), 200
+def get_average_rating(dataset_id):
+    average_rating = ds_rating_service.get_dataset_average_rating(dataset_id)
+    return jsonify({'average_rating': average_rating})
 
 
 # Descargar los datos en .json
