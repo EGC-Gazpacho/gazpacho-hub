@@ -15,12 +15,12 @@ class TestGitHubService:
 
     @pytest.fixture(autouse=True)
     def github_setup(self, test_client):
+        self.token = os.getenv("GITHUB_TOKEN")
 
         app = create_app()
 
         with app.app_context():
 
-            self.token = os.getenv("GITHUB_TOKEN")
             self.invalid_token = "invalid_token"
             self.repo_owner = "rafduqcol"
             self.repo_name = "uvl_repo_tests"
