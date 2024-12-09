@@ -305,3 +305,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const datasetIds = Array.from(document.querySelectorAll('[id^="average-rating-"]'))
+        .map(el => el.id.split('-')[2]); // Obtener los IDs de dataset desde el HTML
+
+    console.log('Dataset IDs found:', datasetIds);
+
+    // Obtener y actualizar el promedio para cada dataset
+    datasetIds.forEach(datasetId => {
+        fetchAverageRating(datasetId);
+    });
+
+    // Función para obtener el promedio desde el backend
+    function fetchAverageRating(datasetId) {
+        console.log(`Fetching average rating for datasetId: ${datasetId}`);
+        fetch(`/datasets/${datasetId}/average-rating`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch average rating. Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(`Average rating for datasetId ${datasetId}:`, data);
+                updateAverageRating(datasetId, data.average_rating || 0);
+            })
+            .catch(error => {
+                console.error(`Error fetching average rating for datasetId ${datasetId}:`, error);
+            });
+    }
+
+    // Función para actualizar el promedio en el DOM
+    function updateAverageRating(datasetId, averageRating) {
+        const avgRatingElement = document.getElementById(`average-rating-${datasetId}`);
+        if (avgRatingElement) {
+            avgRatingElement.innerText = averageRating.toFixed(1); // Mostrar el promedio con 1 decimal
+            console.log(`Updated average rating for datasetId ${datasetId}: ${averageRating}`);
+        } else {
+            console.warn(`Element with ID average-rating-${datasetId} not found in DOM.`);
+        }
+    }
+});
+
+
