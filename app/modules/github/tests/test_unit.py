@@ -19,12 +19,11 @@ def test_client(test_client):
         pass
     yield test_client
 
+
 @pytest.fixture(scope='module')
 def github_service():
     repo = GitHubRepository(name="my_repo", owner="my_user")
     return GitHubService(repository=repo)
-
-
 
 
 @pytest.fixture(scope='module')
@@ -33,6 +32,8 @@ def github_service():
     return GitHubService(repository=repo)
 
 # Test to check if repository exists with success
+
+
 @patch('requests.get')
 def test_check_repository_exists_found(mock_get, github_service):
     mock_get.return_value.status_code = 200
@@ -518,7 +519,7 @@ def test_create_dataset_github_succes(test_client, mock_dataset):
                     'repo_name': 'uvl',
                     'branch': 'main',
                     'repo_type': 'new',
-                    'access_token':"valid_token",
+                    'access_token': "valid_token",
                     'license': 'MIT'
                 })
 
@@ -543,7 +544,7 @@ def test_create_new_repo(test_client, mock_dataset):
                     'repo_name': 'new_repo',
                     'branch': 'main',
                     'repo_type': 'new',
-                    'access_token':"valid_token",
+                    'access_token': "valid_token",
                     'license': 'MIT'
                 })
 
@@ -567,7 +568,7 @@ def test_repository_not_found(test_client, mock_dataset):
                 'repo_name': 'uvl',
                 'branch': 'main',
                 'repo_type': 'existing',
-                'access_token':"valid_token",
+                'access_token': "valid_token",
                 'license': 'MIT'
             })
 
@@ -592,7 +593,7 @@ def test_branch_not_found(test_client, mock_dataset):
                     'repo_name': 'uvl',
                     'branch': 'non_existent_branch',
                     'repo_type': 'existing',
-                    'access_token':"valid_token",
+                    'access_token': "valid_token",
                     'license': 'MIT'
                 })
 
@@ -620,7 +621,7 @@ def test_upload_dataset_error(test_client, mock_dataset):
                         'repo_name': 'existing_repo',
                         'branch': 'main',
                         'repo_type': 'existing',
-                        'access_token':"valid_token",
+                        'access_token': "valid_token",
                         'license': 'MIT'
                     })
 
@@ -678,7 +679,7 @@ def test_create_dataset_github_already_exists(test_client, mock_dataset):
                     'repo_name': 'uvl',
                     'branch': 'main',
                     'repo_type': 'existing',
-                    'access_token':"valid_token",
+                    'access_token': "valid_token",
                     'license': 'MIT'
                 })
                 print(response.json)
