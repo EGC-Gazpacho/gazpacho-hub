@@ -108,7 +108,7 @@ class DataSet(db.Model):
     def get_uvlhub_doi(self):
         from app.modules.dataset.services import DataSetService
         return DataSetService().get_uvlhub_doi(self)
-    
+
     def update_rating(self):
         total_ratings = sum(rating.rating for rating in self.ratings)
         count = len(self.ratings)
@@ -118,7 +118,7 @@ class DataSet(db.Model):
     def to_dict(self):
         from app.modules.dataset.services import DSRatingService
         avg_rating = DSRatingService().get_dataset_average_rating(self.ds_meta_data.id)
-    
+
         return {
             'title': self.ds_meta_data.title,
             'id': self.id,
@@ -128,7 +128,6 @@ class DataSet(db.Model):
             'authors': [author.to_dict() for author in self.ds_meta_data.authors],
             'publication_type': self.get_cleaned_publication_type(),
             'publication_doi': self.ds_meta_data.publication_doi,
-            'rating': self.ds_meta_data.rating,
             'rating': avg_rating,
             'dataset_doi': self.ds_meta_data.dataset_doi,
             'tags': self.ds_meta_data.tags.split(",") if self.ds_meta_data.tags else [],
@@ -176,7 +175,7 @@ class DOIMapping(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dataset_doi_old = db.Column(db.String(120))
     dataset_doi_new = db.Column(db.String(120))
-    
+
 
 class DSRating(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -186,7 +185,7 @@ class DSRating(db.Model):
     rated_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     ds_meta_data = db.relationship('DSMetaData', backref=db.backref('ratings', lazy=True))
-    
+
     def to_dict(self):
         return {
             'id': self.id,
