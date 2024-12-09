@@ -652,6 +652,9 @@
                     rateButton.disabled = false;
 
                     alert('Rating submitted successfully!');
+
+                    // Recargar la página para reflejar los cambios
+                    location.reload();
                 })
                 .catch(error => {
                     console.error('Error submitting rating:', error);
