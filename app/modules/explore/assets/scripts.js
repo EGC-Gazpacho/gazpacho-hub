@@ -138,22 +138,18 @@ function send_query() {
                                             <div class="d-flex align-items-center">
                                                 <!-- Estrellas -->
                                                 <div id="star-rating-${dataset.id}" class="stars" 
-                                                    style="color: rgb(248, 186, 15); font-size: 1.8em;">
-                                                    ${[1, 2, 3, 4, 5].map(i => `<span data-value="${i}">★</span>`).join('')} <!-- Generar estrellas dinámicamente -->
+                                                    style="color: #ddd; font-size: 1.8em;">
+                                                    ${[1, 2, 3, 4, 5].map(i => `<span data-value="${i}">★</span>`).join('')}
                                                 </div>
                                                 <!-- Promedio -->
                                                 <span id="average-rating-${dataset.id}" 
                                                     class="ms-2" 
                                                     style="font-size: 1.2em; color: #000;">
-                                                    ${dataset.average_rating ? dataset.average_rating.toFixed(1) + '/5' : '0/5'}
+                                                    ${dataset.average_rating ? dataset.average_rating.toFixed(1) + '/5' : '0.0/5'}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
-
-
-
-
 
                                 </div>
                             </div>
@@ -248,34 +244,42 @@ function clearFilters() {
 }
 
 function avgRateUpdate(datasetId) {
+    console.log(`Fetching average rating for dataset ${datasetId}`);
     fetch(`/datasets/${datasetId}/average-rating`)
-        .then(response => response.json())
-        .then(data => {
-            const averageRating = data.average_rating.toFixed(1);
-            const avgRatingElement = document.getElementById('average-rating-' + datasetId);
-
-            if (avgRatingElement) {
-                avgRatingElement.innerText = `${averageRating}/5`; // Mostrar el promedio con formato
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error fetching average rating for dataset ${datasetId}`);
             }
+            return response.json();
+        })
+        .then(data => {
+            console.log(`Average rating data for dataset ${datasetId}:`, data);
+            const avgRatingElement = document.getElementById('average-rating-' + datasetId);
+            if (avgRatingElement) {
+                const avgRating = data.average_rating || 0;
+                avgRatingElement.innerText = avgRating.toFixed(1);
 
-            // Actualizar estrellas de calificación
-            const starContainer = document.getElementById('star-rating-' + datasetId);
-            if (starContainer) {
-                updateStars(starContainer, Math.round(data.average_rating));
+                const starRatingContainer = document.getElementById('star-rating-' + datasetId);
+                if (starRatingContainer) {
+                    starRatingContainer.querySelectorAll('span').forEach(star => {
+                        const starValue = parseInt(star.getAttribute('data-value'));
+                        star.style.color = starValue <= Math.round(avgRating) ? '#FFD700' : '#ddd';
+                    });
+                }
             }
         })
         .catch(error => console.error('Error fetching average rating:', error));
 }
 
-function updateStars(container, rating) {
-    container.querySelectorAll('span').forEach(star => {
-        const starValue = parseInt(star.getAttribute('data-value'), 10);
-        star.style.color = starValue <= rating ? '#FFD700' : '#ddd'; // Estrellas doradas para rating actual
-    });
-}
-
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    console.log('DOMContentLoaded event triggered');
+
+    const datasetIds = Array.from(document.querySelectorAll('[id^="average-rating-"]'))
+        .map(element => element.id.replace('average-rating-', ''));
+
+    console.log('Dataset IDs found:', datasetIds);
 
     //let queryInput = document.querySelector('#query');
     //queryInput.dispatchEvent(new Event('input', {bubbles: true}));
@@ -294,4 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const queryInput = document.getElementById('query');
         queryInput.dispatchEvent(new Event('input', {bubbles: true}));
     }
+
+    // Actualizar el promedio para cada dataset
+    datasetIds.forEach(datasetId => {
+        avgRateUpdate(datasetId);
+    });
 });
+
