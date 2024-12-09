@@ -205,10 +205,11 @@
                         {% endfor %}
                     </div>
                     <!-- Botón para enviar la calificación -->
-                    <button id="rate-button-{{ dataset.id }}" onclick="submitRating('{{ dataset.id }}')" 
-                    class="btn btn-primary btn-sm" style="margin-left: 50px; font-size: 0.9rem; border-radius: 5px">
+                    <!-- Botón para enviar la calificación -->
+                    <button id="rate-button-{{ dataset.id }}" onclick="submitRating('{{ dataset.id }}')" class="btn btn-primary btn-sm" style="margin-left: 50px; font-size: 0.9rem; border-radius: 5px">
                         Rate
                     </button>
+
 
                     {% endif %}
 
@@ -577,9 +578,14 @@
         const defRate = {};
 
         // Enviar calificación al backend
+        // Enviar calificación al backend
         function submitRating(datasetId) {
+            console.log('Submitting rating for dataset:', datasetId);
+
             // Verificar si se seleccionó una calificación
             const rating = defRate[datasetId];
+            console.log('Rating to submit:', rating);
+
             if (!rating || rating < 1 || rating > 5) {
                 alert('Please select a valid rating (1-5) before submitting.');
                 return;
@@ -628,7 +634,9 @@
         }
 
 
+
         // Función para actualizar las estrellas promedio
+        // Función para actualizar las estrellas de promedio
         // Función para actualizar las estrellas de promedio
         function updateAverageStars(avgRating) {
             const avgContainer = document.getElementById('average-rating-container');
@@ -639,6 +647,7 @@
                 });
             }
         }
+
 
 
         // Actualizar promedio inicial al cargar
