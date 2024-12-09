@@ -130,7 +130,7 @@ class DSRatingRepository(BaseRepository):
 
     def get_user_rating(self, ds_meta_data_id: int, user_id: int) -> Optional[DSRating]:
         return self.model.query.filter(DSRating.ds_meta_data_id == ds_meta_data_id, DSRating.user_id == user_id).first()    
-    
+
     def get_average_rating(self, ds_meta_data_id: int) -> float:
         avg = func.avg(DSRating.rating)
         average = self.model.query.filter(DSRating.ds_meta_data_id == ds_meta_data_id).with_entities(avg).scalar()

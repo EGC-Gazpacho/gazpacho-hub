@@ -588,6 +588,10 @@
 
     
     // Definir avgRateUpdate en el ámbito global
+    avgRateUpdate(datasetId);
+
+    // Actualizar el promedio de calificación inicial
+
     function avgRateUpdate(datasetId) {
         fetch(`/datasets/${datasetId}/average-rating`)
         .then(response => response.json())
