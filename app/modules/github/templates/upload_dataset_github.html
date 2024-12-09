@@ -5,10 +5,12 @@
 {% block content %}
 <h1 class="h2 mb-3"><b>Upload</b> dataset to Github</h1>
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subir UVL</title>
+
 </head>
 
 {% if messages %}
@@ -53,6 +55,16 @@
                             {% endfor %}
                         </div>
                     </div>
+                    <div class="col-12">
+                        <div class="mb-3">
+                            {{ form.branch.label(class="form-label") }} *
+                            {{ form.branch(rows=4, class="form-control") }}
+                            {% for error in form.branch.errors %}
+                                <span style="color: red;">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
                     <div class="row" style="padding-left: 2rem">
                         <div class="col-lg-6 col-6">
                             <div class="mb-3">
@@ -81,6 +93,7 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        <input type="hidden" id="dataset_id" value="{{ dataset.id }}">
                     </div>
                 </div>
             </div>
@@ -90,14 +103,10 @@
 
 <div class="row">
     <div class="col-12 mt-4">
-        <form action="{{ url_for('github.dropzone') }}" method="POST" id="myDropzoneGithub" class="dropzone">
-            <div class="dz-message">
-                <strong>Drag & drop your .uvl file here</strong> or <span class="btn btn-link">click to select one</span>
-            </div>
-        </form>
-
+        
         <div class="mt-4" style="padding-left: 2rem">
-            <button id="upload_button_github" class="btn btn-primary btn-lg" style="display: none; width: 100%;">Upload to GitHub</button>
+            <button id="upload_button_github" data-dataset-id="{{ dataset.id }}" 
+                class="btn btn-primary btn-lg" style="display: block; width: 100%;">Upload to GitHub</button>
 
             <div id="loading" style="display: none">
                 <img width="40px" src="{{ url_for('static', filename='gifs/loading.svg') }}"/>
@@ -118,42 +127,7 @@
 </div>
 
 {% block scripts %}
-<script>
-    Dropzone.autoDiscover = false;
 
-    let dropzoneInstanceGithub;
-
-    document.addEventListener("DOMContentLoaded", function () {
-
-        const commitMessage = document.getElementById('commit_message').value;
-
-        if (!dropzoneInstanceGithub) {
-            const dropzoneElement = document.getElementById('myDropzoneGithub');
-            dropzoneInstanceGithub = new Dropzone(dropzoneElement, {
-                url: '{{ url_for("github.dropzone") }}',
-                method: 'post',
-                paramName: "file",
-                acceptedFiles: ".uvl",
-                addRemoveLinks: true, 
-                dictRemoveFile: "Eliminar", 
-                init: function() {
-                    this.on("addedfile", function(file) {
-                        // Mostrar el botón cuando se haya agregado al menos un archivo
-                        document.getElementById('upload_button_github').style.display = 'block';
-                    });
-                    this.on("removedfile", function(file) {
-                        // Ocultar el botón si no hay archivos
-                        if (this.getAcceptedFiles().length === 0) {
-                            document.getElementById('upload_button_github').style.display = 'none';
-                        }
-                    });
-                }
-            });
-
-           
-        }
-    });
-</script>
 <script src="{{ url_for('github.scripts') }}"></script>
 {% endblock %}
 
