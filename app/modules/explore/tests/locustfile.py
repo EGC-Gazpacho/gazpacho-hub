@@ -1,21 +1,27 @@
-from locust import HttpUser, TaskSet, task
-from core.environment.host import get_host_for_locust_testing
+from locust import HttpUser, task, between
+import random
 
 
-class ExploreModelsBehavior(TaskSet):
-    def on_start(self):
-        self.index()
+class ExploreModelBehavoiur(HttpUser):
+    wait_time = between(1, 5)
 
-    @task
-    def index(self):
-        response = self.client.get("/explore.explore2_models")
+    @task(3)
+    def view_models(self):
+        with self.client.get("/explore.explore2_models", catch_response=True) as response:
+            if response.status_code == 200:
+                print("Explore models page loaded successfully.")
+            else:
+                print(f"Error loading explore models page: {response.status_code}")
+                response.failure(f"Got status code {response.status_code}")
 
-        if response.status_code != 200:
-            print(f"Explore models index failed: {response.status_code}")
-
-
-class ExploreModelsUser(HttpUser):
-    tasks = [ExploreModelsBehavior]
-    min_wait = 5000
-    max_wait = 9000
-    host = get_host_for_locust_testing()
+    @task(1)
+    def download_specific_model(self):
+        file_id = random.randint(1, 100)
+        with self.client.get(f"/file/download/{file_id}", catch_response=True) as response:
+            if response.status_code == 200:
+                print(f"Model {file_id} loaded successfully.")
+            elif response.status_code == 404:
+                print(f"Model {file_id} not found.")
+            else:
+                print(f"Error loading file {file_id}: {response.status_code}")
+                response.failure(f"Got status code {response.status_code}")
