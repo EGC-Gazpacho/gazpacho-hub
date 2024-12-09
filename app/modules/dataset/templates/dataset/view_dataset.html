@@ -206,11 +206,12 @@
                             <span data-value="{{ i }}" style="font-size: 1.8em;">☆</span>
                         {% endfor %}
                     </div>
-
-                    <!-- Rate Button -->
-                    <button onclick="submitRating('{{ dataset.id }}')" class="btn btn-primary btn-sm" style="margin-left: 50px; font-size: 0.9rem; border-radius: 5px">
+                    <!-- Botón para enviar la calificación -->
+                    <button onclick="submitRating('{{ dataset.id }}')" class="btn btn-primary btn-sm" 
+                            style="margin-left: 50px; font-size: 0.9rem; border-radius: 5px">
                         Rate
                     </button>
+                    
                     
                     {% endif %}
 
@@ -481,6 +482,28 @@
             // Handle fetch errors
             outputDiv.innerHTML = `<span class="badge badge-danger">An unexpected error occurred: ${error.message}</span>`;
         });
+
+        const datasetId = {{ dataset.id }};
+    const rateContainer = document.getElementById('star-rating-' + datasetId);
+
+    if (rateContainer) {
+        // Enlazar eventos click a cada estrella
+        rateContainer.querySelectorAll('span').forEach(star => {
+            star.addEventListener('click', function () {
+                const rating = parseInt(this.getAttribute('data-value'), 10); // Obtener valor
+                defRate[datasetId] = rating; // Almacenar calificación seleccionada
+                showRate(rateContainer, rating); // Resaltar estrellas seleccionadas
+            });
+        });
+    }
+
+    // Función para resaltar estrellas seleccionadas
+    function showRate(container, rating) {
+        container.querySelectorAll('span').forEach(star => {
+            const starRate = parseInt(star.getAttribute('data-value'), 10);
+            star.style.color = starRate <= rating ? '#FFD700' : '#ddd'; // Estrella dorada o gris
+        });
+    
 }
 
 
@@ -614,28 +637,6 @@
         .catch(error => console.error('Error fetching average rating:', error));
     }
     
-    // Escuchar el evento DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', function () {
-        const datasetId = {{ dataset.id }};
-        const rateCont = document.getElementById('star-rating-' + datasetId);
-        // Agregar evento a cada estrella para seleccionar la calificación
-        rateCont.querySelectorAll('span').forEach(star => {
-            star.addEventListener('click', function () {
-                const rating = this.getAttribute('data-value'); // Obtiene el valor de la estrella seleccionada
-                defRate[datasetId] = rating; // Almacena la calificación seleccionada en la variable global
-                showRate(rateCont, rating); // Resaltar estrellas
-            });
-        });
-        // Actualizar el promedio de calificación inicial
-        avgRateUpdate(datasetId);
-        // Función para resaltar las estrellas según la calificación seleccionada
-        function showRate(container, rating) {
-            container.querySelectorAll('span').forEach(star => {
-                const starRate = star.getAttribute('data-value');
-                star.style.color = starRate <= rating ? '#FFD700' : '#ddd'; // Cambia el color de la estrella
-            });
-        }
-    });
 
 </script>
 
