@@ -312,6 +312,21 @@ def get_average_rating(dataset_id):
     return jsonify({'average_rating': average_rating})
 
 
+@dataset_bp.route('/datasets/<int:dataset_id>', methods=['GET'])
+def view_dataset(dataset_id):
+    # Obtener el dataset
+    dataset = dataset_service.get_dataset_by_id(dataset_id)  # Ajusta según tu implementación
+
+    # Calcular el promedio de calificaciones
+    average_rating = ds_rating_service.get_dataset_average_rating(dataset_id) or 0.0
+
+    # Asignar el promedio al dataset
+    dataset.ds_meta_data.rating = average_rating
+
+    # Renderizar el template
+    return render_template('dataset/view_dataset.html', dataset=dataset)
+
+
 # Descargar los datos en .json
 def convert_uvl_to_json(content):
     lines = content.splitlines()
