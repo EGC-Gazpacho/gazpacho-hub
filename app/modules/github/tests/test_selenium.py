@@ -179,7 +179,7 @@ class TestUploadDataSetToGitHub:
             
             time.sleep(4)
             
-            driver.find_element(By.LINK_TEXT, "Backup dataset to GitHub").click()
+            driver.find_element(By.XPATH, "(//a[contains(text(),\'Backup dataset to GitHub\')])[1]").click()          
             driver.find_element(By.ID, "commit_message").click()
             driver.find_element(By.ID, "commit_message").send_keys("Esto es un test de Selenium")
             driver.find_element(By.ID, "owner").click()
@@ -192,13 +192,70 @@ class TestUploadDataSetToGitHub:
             
             # Check if the dataset was uploaded to GitHub
             time.sleep(4)
+            
+            error_element = driver.find_element(By.ID, "upload_github_error")
+            assert error_element.is_displayed(), "El mensaje de error no se muestra."
+
+            error_message = driver.find_element(By.ID, "error_message").text
+            expected_message = ("Error to upload the file: A dataset with the same name already exists in the repository.")
+            assert error_message == expected_message, f"El mensaje de error no coincide. Actual: {error_message}"
+                        
+        finally:
+            close_driver(driver)
+            
+            
+    # Test the creation of a dataset in GitHub in a new branch
+    # Test the creation of a dataset in GitHub with no succes, the branch no exists
+    def test_create_dataset_github_no_existing_branch(self):
+           
+        driver = initialize_driver()
+        
+        try:
+            host = get_host_for_selenium_testing()
+            driver.get(f'{host}/login')
+            
+            time.sleep(4)
+            
+            driver.maximize_window()
+            driver.find_element(By.ID, "email").click()
+            driver.find_element(By.ID, "email").send_keys("user1@example.com")
+            driver.find_element(By.ID, "password").send_keys("1234")
+            driver.find_element(By.ID, "submit").click()
+            driver.find_element(By.LINK_TEXT, "Explore").click()
+            
+            time.sleep(4)
+            
+            driver.find_element(By.LINK_TEXT, "Backup dataset to GitHub").click()
+            driver.find_element(By.ID, "commit_message").click()
+            driver.find_element(By.ID, "commit_message").send_keys("Esto es un test de Selenium")
+            driver.find_element(By.ID, "owner").click()
+            driver.find_element(By.ID, "owner").send_keys("rafduqcol")
+            driver.find_element(By.ID, "repo_name").click()
+            driver.find_element(By.ID, "repo_name").send_keys("uvl_test_repo")
+            driver.find_element(By.ID, "branch").click()    
+            driver.find_element(By.ID, "branch").send_keys("not_existing_branch")
+            driver.find_element(By.ID, "access_token").click()
+            driver.find_element(By.ID, "access_token").send_keys(self.token)
+            driver.find_element(By.ID, "upload_button_github").click()
+            
+            # Check if the dataset was uploaded to GitHub
+            time.sleep(4)
+            
+            error_element = driver.find_element(By.ID, "upload_github_error")
+            assert error_element.is_displayed(), "El mensaje de error no se muestra."
+
+            error_message = driver.find_element(By.ID, "error_message").text
+            expected_message = ("Error to upload the file: Branch not_existing_branch not found. Verify the branch name.")
+            assert error_message == expected_message, f"El mensaje de error no coincide. Actual: {error_message}"
+            
                         
         finally:
             close_driver(driver)
             GitHubService.delete_repo(
-                self.token, 
-                "rafduqcol",        
-                "uvl_test_repo")
+                "rafduqcol", 
+                "uvl_test_repo", 
+                self.token)
+            
             
             
             
