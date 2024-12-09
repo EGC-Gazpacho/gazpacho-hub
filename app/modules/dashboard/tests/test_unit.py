@@ -393,13 +393,16 @@ def test_repository_get_views_per_dataset_user_logued(dashboard_repository, test
         assert result == [('Dataset1', 1), ('Dataset2', 2)]
         Query.all.assert_called_once()
 
+from flask_login import login_user
 
 def test_repository_get_downloads_per_dataset_user_logued(dashboard_repository, test_client):
+    mock_user = User(id=1) 
+    login_user(mock_user)
+
     mock_author_data = [
         ('Dataset1', 1),
         ('Dataset2', 2),
     ]
-
     with patch.object(Query, 'all', return_value=mock_author_data):
         result = dashboard_repository.get_downloads_per_dataset_user_logued()
         assert result == [('Dataset1', 1), ('Dataset2', 2)]
