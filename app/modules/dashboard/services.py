@@ -1,7 +1,6 @@
 from app.modules.dashboard.repositories import DashboardRepository
 from core.services.BaseService import BaseService
 from app.modules.dataset.repositories import DSDownloadRecordRepository, DSViewRecordRepository, DataSetRepository
-from sqlalchemy import desc
 
 
 class DashboardService(BaseService):
