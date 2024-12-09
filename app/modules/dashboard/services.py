@@ -20,28 +20,11 @@ class DashboardService(BaseService):
         total_synchronized_datasets = dataset_repo.count_synchronized_datasets()
         total_unsynchronized_datasets = dataset_repo.count_unsynchronized_datasets()
 
-        #total_datasets = dataset_repo.model.query.count()
-        
-        #one_month_ago = datetime.now() - timedelta(days=30)
-        #datasets_last_month = dataset_repo.model.query.filter(
-        #    dataset_repo.model.created_at >= one_month_ago
-        #).count()
-
-        #last_download = download_repo.model.query.order_by(desc(DSDownloadRecord.download_date)).first()
-        #last_download_date = last_download.download_date if last_download else None
-
-        #last_view = view_repo.model.query.order_by(desc(DSViewRecord.view_date)).first()
-        #last_view_date = last_view.view_date if last_view else None
-
         statistics = {
             "total_downloads": total_downloads,
             "total_views": total_views,
             "total_synchronized_datasets": total_synchronized_datasets,
             "total_unsynchronized_datasets": total_unsynchronized_datasets,
-            #"total_datasets": total_datasets,
-            #"datasets_last_month": datasets_last_month,
-            #"last_download_date": last_download_date,
-            #"last_view_date": last_view_date
         }
         return statistics
 

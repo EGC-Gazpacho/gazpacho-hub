@@ -31,31 +31,25 @@ def test_client(test_client):
 @patch('app.modules.dataset.repositories.DataSetRepository.count_synchronized_datasets')
 @patch('app.modules.dataset.repositories.DSViewRecordRepository.total_dataset_views')
 @patch('app.modules.dataset.repositories.DSDownloadRecordRepository.total_dataset_downloads')
-def test_get_detailed_statistics(
+def test_get_detailed_statistics(    
                                      mock_total_dataset_downloads,
                                      mock_total_dataset_views,
                                      mock_count_synchronized_datasets,
                                      mock_count_unsynchronized_datasets):
-        
-        # Datos mock
+    
         mock_total_dataset_downloads.return_value = 100
         mock_total_dataset_views.return_value = 200
         mock_count_synchronized_datasets.return_value = 50
         mock_count_unsynchronized_datasets.return_value = 30
-        
-        # Simulamos el resultado de la consulta de count()
-
-        # Crear la instancia del servicio
+    
         service = DashboardService()
         result = service.get_detailed_statistics()
 
-        # Verificar que los métodos fueron llamados correctamente
         mock_total_dataset_downloads.assert_called_once()
         mock_total_dataset_views.assert_called_once()
         mock_count_synchronized_datasets.assert_called_once()
         mock_count_unsynchronized_datasets.assert_called_once()
 
-        # Verificar que los resultados son correctos
         expected_result = {
             "total_downloads": 100,
             "total_views": 200,
@@ -211,7 +205,7 @@ def test_service_get_views_per_month_user_logued(mock_get_last_12_months_downloa
     assert downloads == [0,3,3,6,1,0,0,0,1,0,0,0]
     mock_get_last_12_months_downloads_user_logued.assert_called_once()
 
-def test_create_dataset_github(test_client):
+def test_route(test_client):
     login_response = login(test_client, 'user@example.com', 'password')
     assert login_response.status_code == 200, "Login was not successful"
     mock_statistics = {
@@ -288,3 +282,4 @@ def test_create_dataset_github(test_client):
         assert b'500' in response.data  
         assert b'400' in response.data  
     logout(test_client)
+       

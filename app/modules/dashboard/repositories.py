@@ -14,10 +14,7 @@ from flask_login import current_user
 class DashboardRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet) 
-
-    def get_dataset_count(self):
-        return DataSet.query.count()
-
+        
     def get_author_names_and_dataset_counts(self):
         result = (
             Author.query
