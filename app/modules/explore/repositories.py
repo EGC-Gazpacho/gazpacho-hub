@@ -10,7 +10,16 @@ class ExploreRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
 
-    def filter(self, query="", sorting="newest", publication_type="any", number_of_features=None, tags=[], **kwargs):
+    def filter(
+        self,
+        query="",
+        sorting="newest",
+        publication_type="any",
+        number_of_features=None,
+        number_of_products=None,
+        tags=[],
+        **kwargs
+    ):
         # Normalize and remove unwanted characters
         normalized_query = unidecode.unidecode(query).lower()
         cleaned_query = re.sub(r'[,.":\'()\[\]^;!¡¿?]', "", normalized_query)
@@ -52,9 +61,13 @@ class ExploreRepository(BaseRepository):
         if tags:
             datasets = datasets.filter(DSMetaData.tags.ilike(any_(f"%{tag}%" for tag in tags)))
 
-        if number_of_features != "any":
+        if number_of_features != "":
             datasets = datasets.join(DSMetaData.ds_metrics)
             datasets = datasets.filter(DSMetrics.number_of_features == number_of_features)
+
+        if number_of_products != "":
+            datasets = datasets.join(DSMetaData.ds_metrics)
+            datasets = datasets.filter(DSMetrics.number_of_products == number_of_products)
 
         # Order by created_at
         if sorting == "oldest":
