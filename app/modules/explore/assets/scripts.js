@@ -131,22 +131,26 @@ function send_query() {
 
                                     <div class="row mb-2">
                                         <div class="col-md-12 d-flex justify-content-between align-items-center" style="min-height: 60px;">
-                                            <!-- Rating Text -->
+                                            <!-- Texto del promedio -->
                                             <span class="text-secondary" style="font-size: 1em;">Rating</span>
-                                            
-                                            <!-- Stars and Average Rating -->
+
+                                            <!-- Contenedor de estrellas y promedio -->
                                             <div class="d-flex align-items-center">
+                                                <!-- Estrellas -->
                                                 <div id="star-rating-${dataset.id}" class="stars" 
                                                     style="color: rgb(248, 186, 15); font-size: 1.8em;">
-                                                    ${'<span data-value="1">★</span>'.repeat(5)} <!-- Interactive Stars -->
+                                                    ${[1, 2, 3, 4, 5].map(i => `<span data-value="${i}">★</span>`).join('')} <!-- Generar estrellas dinámicamente -->
                                                 </div>
+                                                <!-- Promedio -->
                                                 <span id="average-rating-${dataset.id}" 
                                                     class="ms-2" 
-                                                    style="font-size: 1.2em; color: #000;"></span>
-                                                <!-- Average Rating -->
+                                                    style="font-size: 1.2em; color: #000;">
+                                                    ${dataset.average_rating ? dataset.average_rating.toFixed(1) + '/5' : '0/5'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
+
 
 
 
@@ -247,21 +251,29 @@ function avgRateUpdate(datasetId) {
     fetch(`/datasets/${datasetId}/average-rating`)
         .then(response => response.json())
         .then(data => {
-            const rating = data.average_rating.toFixed(1);
-            document.getElementById('average-rating-' + datasetId).innerText = rating;
-            // Resaltar el número correcto de estrellas en amarillo
-            const ratingStar = document.getElementById('star-rating-' + datasetId);
-            showRate(ratingStar, Math.round(data.average_rating));
+            const averageRating = data.average_rating.toFixed(1);
+            const avgRatingElement = document.getElementById('average-rating-' + datasetId);
+
+            if (avgRatingElement) {
+                avgRatingElement.innerText = `${averageRating}/5`; // Mostrar el promedio con formato
+            }
+
+            // Actualizar estrellas de calificación
+            const starContainer = document.getElementById('star-rating-' + datasetId);
+            if (starContainer) {
+                updateStars(starContainer, Math.round(data.average_rating));
+            }
         })
         .catch(error => console.error('Error fetching average rating:', error));
 }
 
-function showRate(container, rating) {
+function updateStars(container, rating) {
     container.querySelectorAll('span').forEach(star => {
-        const starRate = star.getAttribute('data-value');
-        star.style.color = starRate <= rating ? '#FFD700' : '#ddd'; // Estrellas doradas según el rating
+        const starValue = parseInt(star.getAttribute('data-value'), 10);
+        star.style.color = starValue <= rating ? '#FFD700' : '#ddd'; // Estrellas doradas para rating actual
     });
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
