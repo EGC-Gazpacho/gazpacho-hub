@@ -140,13 +140,17 @@ class DashboardRepository(BaseRepository):
             first_day_of_month_str = first_day_of_month.strftime('%Y-%m-01')
 
             result = (
-                DSViewRecord.query
-                .join(DataSet, DataSet.id == DSViewRecord.dataset_id) 
-                .filter(DataSet.user_id == current_user.id)  
-                .filter(func.date(DSViewRecord.view_date) >= first_day_of_month_str)
-                .filter(func.date(DSViewRecord.view_date) < (first_day_of_month + timedelta(days=32)).strftime('%Y-%m-01'))
-                .count()
-            )
+                DSViewRecord.query .join(
+                    DataSet,
+                    DataSet.id == DSViewRecord.dataset_id) .filter(
+                    DataSet.user_id == current_user.id) .filter(
+                    func.date(
+                        DSViewRecord.view_date) >= first_day_of_month_str) .filter(
+                        func.date(
+                            DSViewRecord.view_date) < (
+                                first_day_of_month +
+                                timedelta(
+                                    days=32)).strftime('%Y-%m-01')) .count())
 
             months.append(first_day_of_month.strftime('%Y-%m'))
             view_counts.append(result)
@@ -155,8 +159,6 @@ class DashboardRepository(BaseRepository):
         view_counts.reverse()
 
         return months, view_counts
-
-
 
     def get_last_12_months_downloads_user_logued(self):
         today = datetime.today()
@@ -187,6 +189,6 @@ class DashboardRepository(BaseRepository):
         download_counts.reverse()
 
         return months, download_counts
-    
+
     def auxiliarfunc(self):
         return datetime.today()
