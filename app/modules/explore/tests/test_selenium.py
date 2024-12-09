@@ -1,8 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
 import time
 
 from core.environment.host import get_host_for_selenium_testing
@@ -44,7 +42,8 @@ def test_explore_models_page():
         try:
             print('Looking for model Feature Model 11...')
             time.sleep(1)
-            model_element = driver.find_element(By.XPATH, "//h5[contains(@class, 'card-title') and contains(text(), 'Feature Model 11')]")
+            model_element = driver.find_element
+            (By.XPATH, "//h5[contains(@class, 'card-title') and contains(text(), 'Feature Model 11')]")
             assert model_element.is_displayed(), 'Model Feature Model 11 not found'
             print('Feature Model 11 found')
         except NoSuchElementException:
@@ -55,13 +54,14 @@ def test_explore_models_page():
         try:
             print('Looking for download button...')
             time.sleep(1)
-            download_button = driver.find_element(By.XPATH, "/html/body/div[1]/div/main/div/div/div[1]/div/div[11]/div/div/a")
+            download_button = driver.find_element
+            (By.XPATH, "/html/body/div[1]/div/main/div/div/div[1]/div/div[11]/div/div/a")
             assert download_button.is_displayed(), 'Download button not found'
             print('Download button detected')
         except NoSuchElementException:
             print(driver.page_source)  # Print the page source for debugging
             raise AssertionError('Download button not found')
-        
+
         # Step 7: Click the download button
         print('Checking the path of the download button...')
         time.sleep(1)
@@ -72,8 +72,6 @@ def test_explore_models_page():
         expected_url_part = f"{host}/file/download"
         assert expected_url_part in download_url, f"Download URL does not match expected format. Found: {download_url}"
 
-        # Click the button and verify the behavior
-        
     finally:
         # Close the browser
         close_driver(driver)
