@@ -4,7 +4,6 @@ import pytest
 import requests
 from app.modules.auth.models import User
 from app.modules.github.services import GitHubService
-import os
 from app import db
 from app.modules.conftest import login, logout
 
