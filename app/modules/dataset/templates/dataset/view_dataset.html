@@ -204,10 +204,12 @@
                             <span data-value="{{ i }}" style="font-size: 1.8em;">☆</span>
                         {% endfor %}
                     </div>
-                    <button onclick="submitRating('{{ dataset.id }}')" class="btn btn-primary btn-sm" 
-                            style="margin-left: 50px; font-size: 0.9rem; border-radius: 5px">
+                    <!-- Botón para enviar la calificación -->
+                    <button id="rate-button-{{ dataset.id }}" onclick="submitRating('{{ dataset.id }}')" 
+                    class="btn btn-primary btn-sm" style="margin-left: 50px; font-size: 0.9rem; border-radius: 5px">
                         Rate
                     </button>
+
                     {% endif %}
 
                     
@@ -576,37 +578,58 @@
 
         // Enviar calificación al backend
         function submitRating(datasetId) {
+            // Verificar si se seleccionó una calificación
             const rating = defRate[datasetId];
-            if (rating >= 1 && rating <= 5) {
-                const rateButton = document.querySelector(`#star-rating-${datasetId} + button`);
-                fetch(`/datasets/${datasetId}/rate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ rating: rating })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Rating submitted:', data);
-
-                        // Actualizar promedio en el frontend
-                        const avgRatingElement = document.getElementById('average-rating-' + datasetId);
-                        if (avgRatingElement) {
-                            avgRatingElement.innerText = data.average_rating.toFixed(1);
-                        }
-
-                        // Actualizar promedio visual
-                        updateAverageStars(data.average_rating);
-
-                        // Deshabilitar el botón para evitar múltiples envíos
-                        rateButton.disabled = true;
-                    })
-                    .catch(error => console.error('Error submitting rating:', error));
-            } else {
+            if (!rating || rating < 1 || rating > 5) {
                 alert('Please select a valid rating (1-5) before submitting.');
+                return;
             }
+
+            // Deshabilitar temporalmente el botón para evitar múltiples envíos
+            const rateButton = document.querySelector(`#rate-button-${datasetId}`);
+            rateButton.disabled = true;
+
+            // Enviar calificación al backend
+            fetch(`/datasets/${datasetId}/rate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: rating })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Rating submitted:', data);
+
+                    // Actualizar promedio en el frontend
+                    const avgRatingElement = document.getElementById('average-rating-' + datasetId);
+                    if (avgRatingElement) {
+                        avgRatingElement.innerText = data.average_rating.toFixed(1);
+                    }
+
+                    // Actualizar las estrellas de promedio visual
+                    updateAverageStars(data.average_rating);
+
+                    // Rehabilitar el botón después de la respuesta
+                    rateButton.disabled = false;
+
+                    alert('Rating submitted successfully!');
+                })
+                .catch(error => {
+                    console.error('Error submitting rating:', error);
+                    alert('Failed to submit rating. Please try again.');
+
+                    // Rehabilitar el botón en caso de error
+                    rateButton.disabled = false;
+                });
         }
 
+
         // Función para actualizar las estrellas promedio
+        // Función para actualizar las estrellas de promedio
         function updateAverageStars(avgRating) {
             const avgContainer = document.getElementById('average-rating-container');
             if (avgContainer) {
@@ -616,6 +639,7 @@
                 });
             }
         }
+
 
         // Actualizar promedio inicial al cargar
         avgRateUpdate({{ dataset.id }});
