@@ -72,7 +72,8 @@ def test_client():
             file2 = Hubfile(name='test2.uvl', size=5678, feature_model=model2, checksum='5678')
 
             # Add instances to the session
-            db.session.add_all([user, ds_meta_data1, ds_meta_data2, data_set1, data_set2, fm_meta_data1, fm_meta_data2, model1, model2, file1, file2])
+            db.session.add_all([user, ds_meta_data1, ds_meta_data2, data_set1, data_set2,
+                                fm_meta_data1, fm_meta_data2, model1, model2, file1, file2])
             db.session.commit()
 
             yield client
@@ -88,7 +89,7 @@ def test_model_search_by_name(test_client):
     assert response.status_code == 200
     assert b'Test Model 1' in response.data
     assert b'Another Model' not in response.data
-    
+
 
 def test_model_search_non_existent(test_client):
     # Test for a non-existent model
