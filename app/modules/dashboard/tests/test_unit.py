@@ -282,4 +282,85 @@ def test_route(test_client):
         assert b'500' in response.data  
         assert b'400' in response.data  
     logout(test_client)
+
+
+def test_repository_get_all_author_names_and_dataset_counts(dashboard_repository):
+    mock_author_data = [
+        ('author1', 1),
+        ('author2', 2),
+    ]
+
+    with patch.object(Query, 'all', return_value=mock_author_data):
+        result = dashboard_repository.get_author_names_and_dataset_counts()
+        assert result == [('author1', 1), ('author2', 2)]
+        Query.all.assert_called_once()
+def test_repository_get_views_per_dataset(dashboard_repository):
+    mock_author_data = [
+        ('Dataset1', 1),
+        ('Dataset2', 2),
+    ]
+
+    with patch.object(Query, 'all', return_value=mock_author_data):
+        result = dashboard_repository.get_views_per_dataset()
+        assert result == [('Dataset1', 1), ('Dataset2', 2)]
+        Query.all.assert_called_once()
+
+
+def test_repository_get_downloads_per_dataset(dashboard_repository):
+    mock_author_data = [
+        ('Dataset1', 1),
+        ('Dataset2', 2),
+    ]
+
+    with patch.object(Query, 'all', return_value=mock_author_data):
+        result = dashboard_repository.get_downloads_per_dataset()
+        assert result == [('Dataset1', 1), ('Dataset2', 2)]
+        Query.all.assert_called_once()
+
+def test_repository_get_last_12_months_downloads(dashboard_repository):
+
+    with patch.object(Query, 'count', return_value=1):
+        result = dashboard_repository.get_last_12_months_downloads()
+        assert result == (['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12'],[1,1,1,1,1,1,1,1,1,1,1,1])
+
+def test_repository_get_last_12_months_views(dashboard_repository):
+    mock_author_data = 1
+    with patch.object(Query, 'count', return_value=mock_author_data):
+        result = dashboard_repository.get_last_12_months_views()
+        assert result == (['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12'],[1,1,1,1,1,1,1,1,1,1,1,1])
+
+def test_repository_get_views_per_dataset_user_logued(dashboard_repository,test_client):
+    mock_author_data = [
+        ('Dataset1', 1),
+        ('Dataset2', 2),
+    ]
+
+    with patch.object(Query, 'all', return_value=mock_author_data):
+        result = dashboard_repository.get_views_per_dataset_user_logued()
+        assert result == [('Dataset1', 1), ('Dataset2', 2)]
+        Query.all.assert_called_once()  
+
+def test_repository_get_downloads_per_dataset_user_logued(dashboard_repository,test_client):
+    mock_author_data = [
+        ('Dataset1', 1),
+        ('Dataset2', 2),
+    ]
+
+    with patch.object(Query, 'all', return_value=mock_author_data):
+        result = dashboard_repository.get_downloads_per_dataset_user_logued()
+        assert result == [('Dataset1', 1), ('Dataset2', 2)]
+        Query.all.assert_called_once()
+
+def test_repository_get_last_12_months_views_for_user(dashboard_repository):
+    mock_author_data = 1
+    with patch.object(Query, 'count', return_value=mock_author_data):
+        result = dashboard_repository.get_last_12_months_views_for_user()
+        assert result == (['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12'],[1,1,1,1,1,1,1,1,1,1,1,1])
+
+
+def test_repository_get_last_12_months_downloads_user_logued(dashboard_repository):
+    mock_author_data = 1
+    with patch.object(Query, 'count', return_value=mock_author_data):
+        result = dashboard_repository.get_last_12_months_downloads_user_logued()
+        assert result == (['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12'],[1,1,1,1,1,1,1,1,1,1,1,1]) 
        
