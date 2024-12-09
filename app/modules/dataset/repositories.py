@@ -138,4 +138,3 @@ class DSRatingRepository(BaseRepository):
 
     def count_ratings(self, ds_meta_data_id: int) -> int:
         return self.model.query.filter(DSRating.ds_meta_data_id == ds_meta_data_id).count()
-    
