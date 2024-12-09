@@ -284,7 +284,7 @@ class DSRatingService(BaseService):
     def add_or_update_rating(self, dsmetadata_id: int, user_id: int, rating_value: int) -> DSRating:
         # Verificar si ya existe una calificación para este usuario y dataset
         existing_rating = self.repository.get_user_rating(dsmetadata_id, user_id)
-        
+
         if existing_rating:
             # Actualiza la calificación existente
             existing_rating.rating = rating_value
@@ -298,7 +298,7 @@ class DSRatingService(BaseService):
                 rating=rating_value,
                 rated_date=datetime.utcnow()
             )
-        
+
         self.repository.session.commit()
         return existing_rating
 
@@ -307,7 +307,7 @@ class DSRatingService(BaseService):
 
     def get_total_ratings(self, dsmetadata_id: int) -> int:
         return self.repository.count_ratings(dsmetadata_id)
-    
+
     def get_datasets_with_rating(self, current_user_id):
         datasets = self.repository.get_synchronized(current_user_id)
         for dataset in datasets:
