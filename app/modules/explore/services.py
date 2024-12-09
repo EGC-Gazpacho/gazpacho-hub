@@ -31,4 +31,3 @@ class ModelService:
         if name:
             query = query.join(FMMetaData).filter(FMMetaData.title.contains(name))
         return query.all()
-    

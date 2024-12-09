@@ -18,7 +18,7 @@ class FeatureModel(db.Model):
             'data_set_title': self.data_set.ds_meta_data.title if self.data_set else None,
             'fm_meta_data': self.fm_meta_data.to_dict() if self.fm_meta_data else {}
         }
-        
+
     def __repr__(self):
         return f'FeatureModel<{self.id}>'
 
@@ -47,7 +47,7 @@ class FMMetaData(db.Model):
             'tags': self.tags,
             'uvl_version': self.uvl_version
         }
-    
+
     def __repr__(self):
         return f'FMMetaData<{self.title}'
 
