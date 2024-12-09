@@ -307,3 +307,9 @@ class DSRatingService(BaseService):
 
     def get_total_ratings(self, dsmetadata_id: int) -> int:
         return self.repository.count_ratings(dsmetadata_id)
+    
+    def get_datasets_with_rating(self, current_user_id):
+        datasets = self.repository.get_synchronized(current_user_id)
+        for dataset in datasets:
+            dataset.ds_meta_data.rating = self.dsrating_repository.get_average_rating(dataset.ds_meta_data.id)
+        return datasets
