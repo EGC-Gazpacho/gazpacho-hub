@@ -1,18 +1,19 @@
 from locust import HttpUser, TaskSet, task
 from core.environment.host import get_host_for_locust_testing
 
+
 class GitHubBehavior(TaskSet):
     def on_start(self):
         self.index()
-        
+
     @task
     def index(self):
         # Realizar la solicitud GET al índice
         response = self.client.get("/github/upload/2")
-        
+
         if response.status_code != 200:
             print(f"GitHub index failed: {response.status_code}")
-            
+
     @task(2)
     def upload(self):
         data = {
@@ -24,13 +25,14 @@ class GitHubBehavior(TaskSet):
             "access_token": "your_access_token",
             "license": "MIT"
         }
-        
+
         response = self.client.post("/github/upload/2", data=data)
-        
+
         if response.status_code != 200:
             print(f"GitHub upload failed: {response.status_code}")
         else:
             print(f"GitHub upload successful: {response.status_code}")
+
 
 class GitHubUser(HttpUser):
     tasks = [GitHubBehavior]  # Establecer las tareas a ejecutar
