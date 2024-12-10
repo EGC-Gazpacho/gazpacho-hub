@@ -39,17 +39,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Wait for MySQL to be ready
-      run: |
-        until mysqladmin ping -h 127.0.0.1 --silent; do
-          echo "Waiting for MySQL to be ready..."
-          sleep 5
-        done
-
     - name: Run Tests
       env:
         FLASK_ENV: testing
-        SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://uvlhub_user:uvlhub_password@127.0.0.1:3306/uvlhubdb_test'
         MARIADB_HOSTNAME: 127.0.0.1
         MARIADB_PORT: 3306
         MARIADB_TEST_DATABASE: uvlhubdb_test
