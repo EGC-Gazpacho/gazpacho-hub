@@ -8,11 +8,12 @@ class DataSetFormGithub(FlaskForm):
     commit_message = StringField('Commit Message', validators=[DataRequired()])
     owner = StringField('Repository Owner', validators=[DataRequired()])
     repo_name = StringField('Repository Name', validators=[DataRequired()])
+    branch = StringField('Branch', default='main')
 
     repo_type = SelectField('Repository Type', choices=[
         ('new', 'New Repository'),
         ('existing', 'Existing Repository')
-    ])
+    ], default='existing')
 
     access_token = PasswordField('Personal Access Token', validators=[DataRequired()])
     license = SelectField('Dataset License', choices=[
@@ -22,5 +23,4 @@ class DataSetFormGithub(FlaskForm):
         ('CC BY', 'CC BY'),
         ('None', 'None')
     ])
-
     submit = SubmitField('Upload Dataset to GitHub')

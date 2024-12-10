@@ -130,9 +130,25 @@ function send_query() {
                                             <a href="/dataset/download/${dataset.id}" class="btn btn-outline-primary btn-sm" id="search" style="border-radius: 5px;">
                                                 Download (${dataset.total_size_in_human_format})
                                             </a>
+                                            <a href="/github/upload/${dataset.id}" class="btn btn-outline-primary btn-sm" id="search" style="border-radius: 5px;">
+                                                Backup dataset to GitHub 
+                                            </a>
                                         </div>
 
 
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-md-12 d-flex justify-content-between align-items-center" style="min-height: 60px;">
+                                            
+                                                <!-- Promedio -->
+                                                <span id="average-rating-${dataset.id}" 
+                                                    class="ms-2" 
+                                                    style="font-size: 1.2em; color: #000;">
+                                                    ${dataset.rating ? dataset.rating.toFixed(1) + '/5' : '0.0/5'}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -145,6 +161,7 @@ function send_query() {
         });
     });
 }
+
 
 function formatDate(dateString) {
     const options = {day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric'};
@@ -260,6 +277,13 @@ function clearFilters() {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    console.log('DOMContentLoaded event triggered');
+
+    const datasetIds = Array.from(document.querySelectorAll('[id^="average-rating-"]'))
+        .map(element => element.id.replace('average-rating-', ''));
+
+    console.log('Dataset IDs found:', datasetIds);
+
     //let queryInput = document.querySelector('#query');
     //queryInput.dispatchEvent(new Event('input', {bubbles: true}));
 
@@ -276,6 +300,53 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         const queryInput = document.getElementById('query');
         queryInput.dispatchEvent(new Event('input', {bubbles: true}));
+    }
+
+    // Actualizar el promedio para cada dataset
+    datasetIds.forEach(datasetId => {
+        avgRateUpdate(datasetId);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const datasetIds = Array.from(document.querySelectorAll('[id^="average-rating-"]'))
+        .map(el => el.id.split('-')[2]); // Obtener los IDs de dataset desde el HTML
+
+    console.log('Dataset IDs found:', datasetIds);
+
+    // Obtener y actualizar el promedio para cada dataset
+    datasetIds.forEach(datasetId => {
+        fetchAverageRating(datasetId);
+    });
+
+    // Función para obtener el promedio desde el backend
+    function fetchAverageRating(datasetId) {
+        console.log(`Fetching average rating for datasetId: ${datasetId}`);
+        fetch(`/datasets/${datasetId}/average-rating`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch average rating. Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(`Average rating for datasetId ${datasetId}:`, data);
+                updateAverageRating(datasetId, data.average_rating || 0);
+            })
+            .catch(error => {
+                console.error(`Error fetching average rating for datasetId ${datasetId}:`, error);
+            });
+    }
+
+    // Función para actualizar el promedio en el DOM
+    function updateAverageRating(datasetId, averageRating) {
+        const avgRatingElement = document.getElementById(`average-rating-${datasetId}`);
+        if (avgRatingElement) {
+            avgRatingElement.innerText = averageRating.toFixed(1); // Mostrar el promedio con 1 decimal
+            console.log(`Updated average rating for datasetId ${datasetId}: ${averageRating}`);
+        } else {
+            console.warn(`Element with ID average-rating-${datasetId} not found in DOM.`);
+        }
     }
 });
 
