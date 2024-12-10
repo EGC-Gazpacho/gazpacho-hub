@@ -51,3 +51,4 @@ jobs:
         MARIADB_USER: uvlhub_user
         MARIADB_PASSWORD: uvlhub_password
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
