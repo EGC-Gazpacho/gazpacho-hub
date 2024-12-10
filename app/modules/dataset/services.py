@@ -6,6 +6,9 @@ import tempfile
 from typing import Optional
 import uuid
 from zipfile import ZipFile
+from flamapy.metamodels.fm_metamodel.transformations import UVLReader, GlencoeWriter, SPLOTWriter
+from flamapy.metamodels.pysat_metamodel.transformations import FmToPysat, DimacsWriter
+import tempfile
 
 from flask import request
 
@@ -138,14 +141,50 @@ class DataSetService(BaseService):
             raise exc
         return dataset
     
+    
+    # Los datasets contienen los archivos en formato UVL, los cuales se deben convertir a otros formatos
+    
+    def convert_uvl_to_formats(self, uvl_file_path: str, output_formats: list) -> dict:
+        """
+        Convierte un archivo UVL a múltiples formatos (Glencoe, Dinamacs, SPLOT).
+        
+        :param uvl_file_path: Ruta del archivo UVL de entrada.
+        :param output_formats: Lista de formatos a los que convertir (Glencoe, Dinamacs, SPLOT).
+        :return: Diccionario con las rutas de los archivos convertidos.
+        """
+        fm = UVLReader(uvl_file_path).transform()
+        converted_files = {}
+
+        for format_name in output_formats:
+            temp_file = tempfile.NamedTemporaryFile(suffix=f'.{format_name.lower()}', delete=False)
+            output_file_path = temp_file.name
+
+            try:
+                if format_name == "Glencoe":
+                    GlencoeWriter(output_file_path, fm).transform()
+                elif format_name == "SPLOT":
+                    SPLOTWriter(output_file_path, fm).transform()
+                elif format_name == "Dinamacs":
+                    sat = FmToPysat(fm).transform()
+                    DimacsWriter(output_file_path, sat).transform()
+                else:
+                    raise ValueError(f"Formato no soportado: {format_name}")
+
+                converted_files[format_name] = output_file_path
+            except Exception as exc:
+                logger.error(f"Error al convertir {uvl_file_path} a {format_name}: {exc}")
+                temp_file.close()
+                os.remove(output_file_path)
+                raise exc
+
+        return converted_files
+
+
     def zip_all_datasets(self) -> str:
-        
-        # Creamos un directorio temporal para guardar los archivos
-        
         temp_dir = tempfile.mkdtemp()
         zip_path = os.path.join(temp_dir, "all_datasets.zip")
-        
-        
+        supported_formats = ["Glencoe", "Dinamacs", "SPLOT"]
+
         with ZipFile(zip_path, "w") as zipf:
             for user_dir in os.listdir("uploads"):
                 user_path = os.path.join("uploads", user_dir)
@@ -158,16 +197,29 @@ class DataSetService(BaseService):
                             dataset_id = int(dataset_dir.split("_")[1])
 
                             if self.is_synchronized(dataset_id):
-                                for subdir, dirs, files in os.walk(dataset_path):
+                                for subdir, _, files in os.walk(dataset_path):
                                     for file in files:
-                                        full_path = os.path.join(subdir, file)
+                                        if file.endswith(".uvl"):
+                                            uvl_file_path = os.path.join(subdir, file)
 
-                                        relative_path = os.path.relpath(full_path, dataset_path)
-                                        zipf.write(
-                                            full_path,
-                                            arcname=os.path.join(dataset_dir, relative_path),
-                                        )
+                                            # Añadir el archivo UVL original al ZIP
+                                            uvl_relative_path = os.path.join(
+                                                dataset_dir, "UVL", file
+                                            )
+                                            zipf.write(uvl_file_path, arcname=uvl_relative_path)
+
+                                            # Convertir a otros formatos y añadirlos al ZIP
+                                            converted_files = self.convert_uvl_to_formats(
+                                                uvl_file_path, supported_formats
+                                            )
+                                            for fmt, converted_file in converted_files.items():
+                                                fmt_relative_path = os.path.join(
+                                                    dataset_dir, fmt, os.path.basename(converted_file)
+                                                )
+                                                zipf.write(converted_file, arcname=fmt_relative_path)
+
         return zip_path
+
 
     def update_dsmetadata(self, id, **kwargs):
         return self.dsmetadata_repository.update(id, **kwargs)
