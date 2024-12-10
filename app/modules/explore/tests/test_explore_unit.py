@@ -13,7 +13,7 @@ def test_client():
         with app.app_context():
             db.create_all()
             yield client
-    
+
 
 def test_model_search_by_name(test_client):
     # Test for the search query 'Test Model 1'
