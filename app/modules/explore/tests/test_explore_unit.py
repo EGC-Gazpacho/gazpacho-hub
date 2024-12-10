@@ -8,7 +8,8 @@ def test_client():
     app = create_app()
     app.config['TESTING'] = True
     app.config['SERVER_NAME'] = 'localhost:5000'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://uvlhub_user:uvlhub_password@127.0.0.1:3306/uvlhubdb_test' 
+    app.config['SQLALCHEMY_DATABASE_URI'] =
+    'mysql+pymysql://uvlhub_user:uvlhub_password@127.0.0.1:3306/uvlhubdb_test' 
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
