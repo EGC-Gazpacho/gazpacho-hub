@@ -21,6 +21,16 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        entrypoint: |
+          bash -c "
+            docker-entrypoint.sh mysqld &
+            until mysqladmin -u root -p$MYSQL_ROOT_PASSWORD ping --silent; do
+              echo 'Waiting for MySQL...';
+              sleep 5;
+            done;
+            mysql -u root -p$MYSQL_ROOT_PASSWORD -e 'GRANT ALL PRIVILEGES ON uvlhubdb_test.* TO \"uvlhub_user\"@\"%\"; FLUSH PRIVILEGES;'
+            wait
+          "
 
     steps:
     - uses: actions/checkout@v4

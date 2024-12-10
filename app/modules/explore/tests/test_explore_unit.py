@@ -39,12 +39,12 @@ def test_client():
             data_set1 = DataSet(
                 user_id=user.id,
                 ds_meta_data=ds_meta_data1,
-                created_at=datetime.utcnow()
+                created_at=datetime.now()
             )
             data_set2 = DataSet(
                 user_id=user.id,
                 ds_meta_data=ds_meta_data2,
-                created_at=datetime.utcnow()
+                created_at=datetime.now()
             )
 
             # Create FMMetaData instances
