@@ -1,6 +1,5 @@
 from flask import render_template
 from flask_login import login_required
-from app.modules.dashboard.forms import DashboardForm
 from app.modules.dashboard import dashboard_bp
 from app.modules.dashboard.services import DashboardService
 from app.modules.dataset.services import DataSetService
@@ -16,16 +15,40 @@ READ ALL
 @dashboard_bp.route('/dashboard', methods=['GET'])
 @login_required
 def index():
-    form = DashboardForm()
-    ndatasets = datasetservice.count_dsmetadata()
-    nauthors = datasetservice.count_authors()
-
-    # author_names = ["Juan", "Pedro", "Maria", "Ana"]
-    # datasets_count = [2,3,4,7]
-
+    # General
+    statistics = dashboardService.get_detailed_statistics()
     author_names, dataset_counts = dashboardService.get_all_author_names_and_dataset_counts()
-    print("Author Names:", author_names)
-    print("Dataset Counts:", dataset_counts)
+    datasets_names_views, datasets_views = dashboardService.get_views_per_dataset_lists()
+    datasets_names_downloads, datasets_downloads = dashboardService.get_downloads_per_dataset_lists()
+    month, downloads = dashboardService.get_downloads_per_month()
+    month_views, views = dashboardService.get_views_per_month()
 
-    return render_template('dashboard/index.html', ndatasets=ndatasets, nauthors=nauthors,
-                           author_names=author_names, datasets_count=dataset_counts, form=form)
+    # User
+    datasets_names_user, datasets_views_user = dashboardService.get_views_per_dataset_user_logued()
+    datasets_names_user_downloads, datasets_download_user = dashboardService.get_downloads_per_dataset_user_logued()
+    month_views_user, views_user = dashboardService.get_downloads_per_month_user_logued()
+    month_downloads_user, downloads_user = dashboardService.get_views_per_month_user_logued()
+    print(month_downloads_user)
+    print(downloads_user)
+
+    return render_template('dashboard/index.html',
+                           statistics=statistics,
+                           author_names=author_names,
+                           datasets_count=dataset_counts,
+                           datasets_names_views=datasets_names_views,
+                           datasets_views=datasets_views,
+                           datasets_names_downloads=datasets_names_downloads,
+                           datasets_downloads=datasets_downloads,
+                           months=month,
+                           downloads=downloads,
+                           datasets_names_user=datasets_names_user,
+                           datasets_views_user=datasets_views_user,
+                           months_views=month_views,
+                           views_per_month=views,
+                           datasets_names_user_downloads=datasets_names_user_downloads,
+                           datasets_download_user=datasets_download_user,
+                           month_views_user=month_views_user,
+                           views_per_month_user=views_user,
+                           month_downloads_user=month_downloads_user,
+                           downloads_per_month_user=downloads_user
+                           )

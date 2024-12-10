@@ -8,14 +8,15 @@ import uuid
 from flask import request
 
 from app.modules.auth.services import AuthenticationService
-from app.modules.dataset.models import DSViewRecord, DataSet, DSMetaData, DSMetrics
+from app.modules.dataset.models import DSViewRecord, DataSet, DSMetaData, DSMetrics, DSRating
 from app.modules.dataset.repositories import (
     AuthorRepository,
     DOIMappingRepository,
     DSDownloadRecordRepository,
     DSMetaDataRepository,
     DSViewRecordRepository,
-    DataSetRepository
+    DataSetRepository,
+    DSRatingRepository
 )
 from app.modules.featuremodel.repositories import FMMetaDataRepository, FeatureModelRepository
 from app.modules.hubfile.repositories import (
@@ -24,6 +25,7 @@ from app.modules.hubfile.repositories import (
     HubfileViewRecordRepository
 )
 from core.services.BaseService import BaseService
+from datetime import datetime
 
 
 logger = logging.getLogger(__name__)
@@ -112,6 +114,7 @@ class DataSetService(BaseService):
         self.hubfilerepository = HubfileRepository()
         self.dsviewrecord_repostory = DSViewRecordRepository()
         self.hubfileviewrecord_repository = HubfileViewRecordRepository()
+        self.dsrating_repository = DSRatingRepository()
 
     def move_feature_models(self, dataset: DataSet):
         current_user = AuthenticationService().get_authenticated_user()
@@ -319,3 +322,41 @@ class SizeService():
             return f'{round(size / (1024 ** 2), 2)} MB'
         else:
             return f'{round(size / (1024 ** 3), 2)} GB'
+
+
+class DSRatingService(BaseService):
+    def __init__(self):
+        super().__init__(DSRatingRepository())
+
+    def add_or_update_rating(self, dsmetadata_id: int, user_id: int, rating_value: int) -> DSRating:
+        # Verificar si ya existe una calificación para este usuario y dataset
+        existing_rating = self.repository.get_user_rating(dsmetadata_id, user_id)
+
+        if existing_rating:
+            # Actualiza la calificación existente
+            existing_rating.rating = rating_value
+            existing_rating.rated_date = datetime.utcnow()
+        else:
+            # Crea una nueva calificación
+            existing_rating = self.repository.create(
+                commit=False,
+                ds_meta_data_id=dsmetadata_id,
+                user_id=user_id,
+                rating=rating_value,
+                rated_date=datetime.utcnow()
+            )
+
+        self.repository.session.commit()
+        return existing_rating
+
+    def get_dataset_average_rating(self, dsmetadata_id: int) -> float:
+        return self.repository.get_average_rating(dsmetadata_id)
+
+    def get_total_ratings(self, dsmetadata_id: int) -> int:
+        return self.repository.count_ratings(dsmetadata_id)
+
+    def get_datasets_with_rating(self, current_user_id):
+        datasets = self.repository.get_synchronized(current_user_id)
+        for dataset in datasets:
+            dataset.ds_meta_data.rating = self.dsrating_repository.get_average_rating(dataset.ds_meta_data.id)
+        return datasets
