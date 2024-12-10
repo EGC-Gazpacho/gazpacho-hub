@@ -131,21 +131,12 @@ function send_query() {
 
                                     <div class="row mb-2">
                                         <div class="col-md-12 d-flex justify-content-between align-items-center" style="min-height: 60px;">
-                                            <!-- Texto del promedio -->
-                                            <span class="text-secondary" style="font-size: 1em;">Rating</span>
-
-                                            <!-- Contenedor de estrellas y promedio -->
-                                            <div class="d-flex align-items-center">
-                                                <!-- Estrellas -->
-                                                <div id="star-rating-${dataset.id}" class="stars" 
-                                                    style="color: #ddd; font-size: 1.8em;">
-                                                    ${[1, 2, 3, 4, 5].map(i => `<span data-value="${i}">★</span>`).join('')}
-                                                </div>
+                                            
                                                 <!-- Promedio -->
                                                 <span id="average-rating-${dataset.id}" 
                                                     class="ms-2" 
                                                     style="font-size: 1.2em; color: #000;">
-                                                    ${dataset.average_rating ? dataset.average_rating.toFixed(1) + '/5' : '0.0/5'}
+                                                    ${dataset.rating ? dataset.rating.toFixed(1) + '/5' : '0.0/5'}
                                                 </span>
                                             </div>
                                         </div>
@@ -161,6 +152,7 @@ function send_query() {
         });
     });
 }
+
 
 function formatDate(dateString) {
     const options = {day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric'};
@@ -242,35 +234,6 @@ function clearFilters() {
     // Perform a new search with the reset filters
     queryInput.dispatchEvent(new Event('input', {bubbles: true}));
 }
-
-function avgRateUpdate(datasetId) {
-    console.log(`Fetching average rating for dataset ${datasetId}`);
-    fetch(`/datasets/${datasetId}/average-rating`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error fetching average rating for dataset ${datasetId}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(`Average rating data for dataset ${datasetId}:`, data);
-            const avgRatingElement = document.getElementById('average-rating-' + datasetId);
-            if (avgRatingElement) {
-                const avgRating = data.average_rating || 0;
-                avgRatingElement.innerText = avgRating.toFixed(1);
-
-                const starRatingContainer = document.getElementById('star-rating-' + datasetId);
-                if (starRatingContainer) {
-                    starRatingContainer.querySelectorAll('span').forEach(star => {
-                        const starValue = parseInt(star.getAttribute('data-value'));
-                        star.style.color = starValue <= Math.round(avgRating) ? '#FFD700' : '#ddd';
-                    });
-                }
-            }
-        })
-        .catch(error => console.error('Error fetching average rating:', error));
-}
-
 
 document.addEventListener('DOMContentLoaded', () => {
 
