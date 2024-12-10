@@ -1,0 +1,36 @@
+name: Publish image in Docker Hub
+
+on:
+  pull_request:
+      types: [closed]
+      branches:
+        - main
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: docker build --build-arg VERSION_TAG=1.0 -t rafcabran/gazpachohub:1.0 -f docker/images/Dockerfile.prod .
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+
+      - name: Push Docker image to Docker Hub
+        run: docker push rafcabran/gazpachohub:1.0
+
+      - name: Tag and push latest
+        run: |
+          docker tag rafcabran/gazpachohub:1.0 rafcabran/gazpachohub:latest
+          docker push rafcabran/gazpachohub:latest
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
