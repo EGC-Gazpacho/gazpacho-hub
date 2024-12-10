@@ -210,6 +210,46 @@
                 </div>
                 
             </div>
+
+            <div class="row mb-2">
+                <div class="col-md-12 d-flex align-items-center">
+                    <!-- Estrellas para mostrar el promedio -->
+                    <div id="average-rating-container-{{ dataset.id }}" style="margin-left: 30px; margin-right: 20px;"> 
+                        <div style="display: inline-block; color: rgb(248, 186, 15); font-size: 1.8em;">
+                            {% set rating = dataset.ds_meta_data.rating if dataset.ds_meta_data.rating is not none else 0 %}
+                            {% for i in range(1, 6) %}
+                                {% if i <= rating %}
+                                    <span style="color: rgb(248, 186, 15);" data-value="{{ i }}">★</span> <!-- Estrella llena -->
+                                {% else %}
+                                    <span style="color: #9b9b9b;" data-value="{{ i }}">★</span> <!-- Estrella vacía -->
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span id="average-rating-{{ dataset.id }}">{{ dataset.ds_meta_data.rating or 0 }}</span>/5
+                    </div>                 
+
+                    <!-- Estrellas para calificar -->
+                    {% if current_user.is_authenticated %}
+                    <div style="padding-left: 90px; display: inline-block; cursor: pointer; color: #ddd;" id="star-rating-{{ dataset.id }}">
+                        {% for i in range(1, 6) %}
+                            <span data-value="{{ i }}" style="font-size: 1.8em;">☆</span>
+                        {% endfor %}
+                    </div>
+                    <!-- Botón para enviar la calificación -->
+                    <!-- Botón para enviar la calificación -->
+                    <button id="rate-button-{{ dataset.id }}" onclick="submitRating('{{ dataset.id }}')" class="btn btn-primary btn-sm" style="margin-left: 50px; font-size: 0.9rem; border-radius: 5px">
+                        Rate
+                    </button>
+
+
+                    {% endif %}
+
+                    
+
+                </div>
+            </div>
+            
+
             {% endif %}
 
 
@@ -474,7 +514,9 @@
             // Handle fetch errors
             outputDiv.innerHTML = `<span class="badge badge-danger">An unexpected error occurred: ${error.message}</span>`;
         });
-}
+    }
+
+    
 
 
     /*
@@ -536,6 +578,160 @@
             console.error('Failed to copy text: ', err);
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const datasetId = {{ dataset.id }};
+        const rateContainer = document.getElementById('star-rating-' + datasetId);
+        const initialRating = parseFloat({{ dataset.ds_meta_data.rating or 0 }}); 
+
+        if (rateContainer) {
+            // Asignar evento click a cada estrella
+            rateContainer.querySelectorAll('span').forEach(star => {
+                star.addEventListener('click', function () {
+                    const rating = parseInt(this.getAttribute('data-value'), 10); // Obtener valor
+                    defRate[datasetId] = rating; // Almacenar calificación seleccionada
+                    highlightStars(rateContainer, rating); // Resaltar estrellas seleccionadas
+                });
+            });
+        }
+
+        // Función para resaltar estrellas seleccionadas
+        function highlightStars(container, rating) {
+            container.querySelectorAll('span').forEach(star => {
+                const starRate = parseInt(star.getAttribute('data-value'), 10);
+                star.textContent = '☆'; // Restablecer el ícono a vacío
+                star.style.color = starRate <= rating ? '#FFD700' : '#ddd'; // Color según selección
+                if (starRate <= rating) {
+                    star.textContent = '★'; // Estrella llena
+                }
+            });
+        }
+
+        // Actualizar promedio dinámicamente desde el backend
+        avgRateUpdate(datasetId);
+
+        function avgRateUpdate(datasetId) {
+            fetch(`/datasets/${datasetId}/average-rating`)
+                .then(response => response.json())
+                .then(data => {
+                    const avgRatingElement = document.getElementById('average-rating-' + datasetId);
+                    if (avgRatingElement) {
+                        const avgRating = data.average_rating || 0; // Valor por defecto
+                        avgRatingElement.innerText = avgRating.toFixed(1);
+
+                        // Actualizar las estrellas
+                        const starRatingContainer = document.getElementById('average-rating-container-' + datasetId);
+                        if (starRatingContainer) {
+                            starRatingContainer.querySelectorAll('span').forEach(star => {
+                                const starValue = parseInt(star.getAttribute('data-value'));
+                                star.style.color = starValue <= Math.round(avgRating) ? '#FFD700' : '#9b9b9b';
+                            });
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching average rating:', error));
+        }
+        
+    });
+    
+        // Variables globales para almacenar las calificaciones seleccionadas
+        const defRate = {};
+
+        // Enviar calificación al backend
+        // Enviar calificación al backend
+        function submitRating(datasetId) {
+            console.log('Submitting rating for dataset:', datasetId);
+
+            // Verificar si se seleccionó una calificación
+            const rating = defRate[datasetId];
+            console.log('Rating to submit:', rating);
+
+            if (!rating || rating < 1 || rating > 5) {
+                alert('Please select a valid rating (1-5) before submitting.');
+                return;
+            }
+
+            // Deshabilitar temporalmente el botón para evitar múltiples envíos
+            const rateButton = document.querySelector(`#rate-button-${datasetId}`);
+            rateButton.disabled = true;
+
+            // Enviar calificación al backend
+            fetch(`/datasets/${datasetId}/rate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: rating })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Rating submitted:', data);
+
+                    // Actualizar promedio en el frontend
+                    const avgRatingElement = document.getElementById('average-rating-' + datasetId);
+                    if (avgRatingElement) {
+                        avgRatingElement.innerText = data.average_rating.toFixed(1);
+                    }
+
+                    // Actualizar las estrellas de promedio visual
+                    updateAverageStars(data.average_rating);
+
+                    // Rehabilitar el botón después de la respuesta
+                    rateButton.disabled = false;
+
+                    alert('Rating submitted successfully!');
+
+                    // Recargar la página para reflejar los cambios
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error submitting rating:', error);
+                    alert('Failed to submit rating. Please try again.');
+
+                    // Rehabilitar el botón en caso de error
+                    rateButton.disabled = false;
+                });
+        }
+
+        // Función para actualizar las estrellas de promedio
+        function updateAverageStars(avgRating) {
+            const avgContainer = document.getElementById('average-rating-container');
+            if (avgContainer) {
+                avgContainer.querySelectorAll('span').forEach(star => {
+                    const starValue = parseInt(star.getAttribute('data-value'), 10);
+                    star.style.color = starValue <= avgRating ? '#FFD700' : '#9b9b9b'; // Color del promedio
+                });
+            }
+        }
+
+
+
+        // Actualizar promedio inicial al cargar
+        avgRateUpdate({{ dataset.id }});
+
+        function avgRateUpdate(datasetId) {
+            fetch(`/datasets/${datasetId}/average-rating`)
+                .then(response => response.json())
+                .then(data => {
+                    const avgRatingElement = document.getElementById('average-rating-' + datasetId);
+                    if (avgRatingElement) {
+                        const avgRating = data.average_rating || 0; // Valor por defecto
+                        avgRatingElement.innerText = avgRating.toFixed(1);
+
+                        // Actualizar visualización promedio
+                        updateAverageStars(avgRating);
+                    }
+                })
+                .catch(error => console.error('Error fetching average rating:', error));
+        }
+
+        
+
+
+
 </script>
 
 {% endblock %}
