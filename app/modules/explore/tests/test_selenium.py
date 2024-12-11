@@ -39,8 +39,8 @@ def test_explore_models_page():
         try:
             print('Looking for model Feature Model 11...')
             time.sleep(1)
-            model_element = driver.find_element
-            (By.XPATH, "//h5[contains(@class, 'card-title') and contains(text(), 'Feature Model 11')]")
+            model_element = driver.find_element(By.XPATH,
+                                                "/html/body/div[1]/div/main/div/div/div[1]/div/div[11]/div/div/h5")
             assert model_element.is_displayed(), 'Model Feature Model 11 not found'
             print('Feature Model 11 found')
         except NoSuchElementException:
@@ -51,8 +51,8 @@ def test_explore_models_page():
         try:
             print('Looking for download button...')
             time.sleep(1)
-            download_button = driver.find_element
-            (By.XPATH, "/html/body/div[1]/div/main/div/div/div[1]/div/div[11]/div/div/a")
+            download_button = driver.find_element(By.XPATH,
+                                                  "/html/body/div[1]/div/main/div/div/div[1]/div/div[11]/div/div/a")
             assert download_button.is_displayed(), 'Download button not found'
             print('Download button detected')
         except NoSuchElementException:
