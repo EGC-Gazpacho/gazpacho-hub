@@ -57,3 +57,25 @@ class TestExploreRepositoryFilter(unittest.TestCase):
 
         # Verifica el resultado esperado
         self.assertEqual(result, ["dataset_with_tags"])
+
+    
+    @patch("app.modules.explore.repository.DSMetaData")  # Simular DSMetaData
+    def test_filter_with_sorting(self, MockDSMetaData):
+        # Simula una consulta de SQLAlchemy
+        mock_query = MagicMock(spec=Query)
+        self.repo.model.query = mock_query
+
+        # Simula el retorno de la consulta
+        mock_query.join.return_value = mock_query
+        mock_query.filter.return_value = mock_query
+        mock_query.order_by.return_value = mock_query
+        mock_query.all.return_value = ["dataset_sorted"]
+
+        # Ejecutar la función con sorting por "oldest"
+        result = self.repo.filter(query="", sorting="oldest")
+
+        # Verifica que se usó el orden correcto
+        mock_query.order_by.assert_called_once_with(self.repo.model.created_at.asc())
+
+        # Verifica el resultado esperado
+        self.assertEqual(result, ["dataset_sorted"])
