@@ -17,14 +17,12 @@ def test_explore_models_page():
         # Step 1: Go to explore page
         driver.get(f'{host}/explore')
 
-        # Wait a little while to make sure the page has loaded completely
         time.sleep(4)
 
         # Step 2: Press the button that says Search Models
         search_models_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Search Models')]")
         search_models_button.click()
 
-        # Wait a little while to ensure that the action has been completed
         time.sleep(4)
 
         # Step 3: Now it goes to the explore models page because of the button
@@ -35,7 +33,6 @@ def test_explore_models_page():
         search_bar.send_keys('Feature Model 11')
         search_bar.send_keys(Keys.RETURN)
 
-        # Wait a little while to ensure that the search has been completed
         time.sleep(4)
 
         # Step 5: It checks that the model appears
@@ -47,7 +44,7 @@ def test_explore_models_page():
             assert model_element.is_displayed(), 'Model Feature Model 11 not found'
             print('Feature Model 11 found')
         except NoSuchElementException:
-            print(driver.page_source)  # Print the page source for debugging
+            print(driver.page_source)
             raise AssertionError('Model Feature Model 11 not found')
 
         # Step 6: Look for the download button
@@ -59,7 +56,7 @@ def test_explore_models_page():
             assert download_button.is_displayed(), 'Download button not found'
             print('Download button detected')
         except NoSuchElementException:
-            print(driver.page_source)  # Print the page source for debugging
+            print(driver.page_source)
             raise AssertionError('Download button not found')
 
         # Step 7: Click the download button
@@ -77,5 +74,4 @@ def test_explore_models_page():
         close_driver(driver)
 
 
-# Call the test function
 test_explore_models_page()
