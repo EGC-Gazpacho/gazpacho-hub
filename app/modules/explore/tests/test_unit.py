@@ -36,3 +36,24 @@ class TestExploreRepositoryFilter(unittest.TestCase):
 
         # Verifica el resultado esperado
         self.assertEqual(result, ["dataset_1", "dataset_2"])
+
+    @patch("app.modules.explore.repository.DSMetaData")  # Simular DSMetaData
+    def test_filter_with_tags(self, MockDSMetaData):
+        # Simula una consulta de SQLAlchemy
+        mock_query = MagicMock(spec=Query)
+        self.repo.model.query = mock_query
+
+        # Simula el retorno de la consulta
+        mock_query.join.return_value = mock_query
+        mock_query.filter.return_value = mock_query
+        mock_query.all.return_value = ["dataset_with_tags"]
+
+        # Ejecutar la función con tags
+        result = self.repo.filter(query="tag_query", tags=["tag1", "tag2"])
+
+        # Verifica que se agregaron los filtros correspondientes
+        mock_query.filter.assert_any_call(DSMetaData.tags.ilike("%tag1%"))
+        mock_query.filter.assert_any_call(DSMetaData.tags.ilike("%tag2%"))
+
+        # Verifica el resultado esperado
+        self.assertEqual(result, ["dataset_with_tags"])
