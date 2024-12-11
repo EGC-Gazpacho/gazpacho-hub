@@ -3,9 +3,9 @@ import random
 
 
 class ExploreModelBehavoiur(HttpUser):
-    wait_time = between(1, 5)
+    wait_time = between(1, 2)
 
-    @task(3)
+    @task(2)
     def view_models(self):
         with self.client.get("/explore.explore2_models", catch_response=True) as response:
             if response.status_code == 200:
