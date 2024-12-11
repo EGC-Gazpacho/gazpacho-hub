@@ -87,6 +87,9 @@ class AuthenticationService(BaseService):
     def temp_folder_by_user(self, user: User) -> str:
         return os.path.join(uploads_folder_name(), "temp", str(user.id))
 
+    def list_users(self) -> User:
+        return self.repository.get_all()
+
     def generate_recovery_token(self, user):
         """Genera un token de recuperación para el usuario"""
         expiration = datetime.utcnow() + timedelta(hours=1)
@@ -105,7 +108,7 @@ class AuthenticationService(BaseService):
             return None
 
     def update_password(self, user_id, new_password):
-        """Actualiza la contrasena del usuario"""
+        """Actualiza la contraseña del usuario"""
         user = self.repository.get_by_id(user_id)
         if user:
             user.set_password(new_password)
@@ -114,18 +117,18 @@ class AuthenticationService(BaseService):
         return False
 
     def send_recovery_email(self, to, token):
-        """Envía un correo electrónico con el enlace de recuperacion de contrasena"""
-        subject = "Recuperacion de contraseña"
+        """Envía un correo electrónico con el enlace de recuperación de contraseña"""
+        subject = "Recuperación de contraseña"
         recovery_url = f"{current_app.config['BASE_URL']}/password_reset/{token}"
         body = f"Por favor, haz clic en el siguiente enlace para restablecer tu contraseña: {recovery_url}"
 
         msg = Message(subject=subject, recipients=[to])
-        msg.body = body  # No es necesario codificarlo a UTF-8, ya lo maneja flask_mail automáticamente
+        msg.body = body
         msg.charset = 'utf-8'
         print("hola3", msg.body, msg.subject)
         try:
-            mail.send(msg)  # Enviar el correo
-            return True  # Correo enviado correctamente
+            mail.send(msg)
+            return True
         except Exception as e:
-            current_app.logger.error(f"Error al enviar correo: {str(e)}")  # Registrar error
-            raise e  # Volver a lanzar el error para manejarlo en el controlador
+            current_app.logger.error(f"Error al enviar correo: {str(e)}")
+            raise e
