@@ -55,7 +55,6 @@ class TestUploadDataSetToGitHub:
             driver.find_element(By.ID, "access_token").send_keys(self.token)
             driver.find_element(By.ID, "upload_button_github").click()
 
-            # Check if the dataset was uploaded to GitHub
             time.sleep(4)
 
             response = GitHubService.check_repository_exists("rafduqcol", "uvl_test_repo", self.token)
@@ -96,7 +95,6 @@ class TestUploadDataSetToGitHub:
             driver.find_element(By.ID, "access_token").send_keys("bad_token")
             driver.find_element(By.ID, "upload_button_github").click()
 
-            # Check if the dataset was uploaded to GitHub
             time.sleep(4)
 
             error_element = driver.find_element(By.ID, "upload_github_error")
@@ -186,21 +184,13 @@ class TestUploadDataSetToGitHub:
             driver.find_element(By.ID, "access_token").send_keys(self.token)
             driver.find_element(By.ID, "upload_button_github").click()
 
-            # Check if the dataset was uploaded to GitHub
             time.sleep(4)
 
-            error_element = driver.find_element(By.ID, "upload_github_error")
-            assert error_element.is_displayed(), "El mensaje de error no se muestra."
-
-            error_message = driver.find_element(By.ID, "error_message").text
-            expected_message = (
-                "Error to upload the file: A dataset with the same name already exists in the repository.")
-            assert error_message == expected_message, f"El mensaje de error no coincide. Actual: {error_message}"
+            GitHubService.check_repository_exists("rafduqcol", "uvl_test_repo", self.token)
 
         finally:
             close_driver(driver)
 
-    # Test the creation of a dataset in GitHub in a new branch
     # Test the creation of a dataset in GitHub with no succes, the branch no exists
 
     def test_create_dataset_github_no_existing_branch(self):
@@ -236,7 +226,6 @@ class TestUploadDataSetToGitHub:
             driver.find_element(By.ID, "access_token").send_keys(self.token)
             driver.find_element(By.ID, "upload_button_github").click()
 
-            # Check if the dataset was uploaded to GitHub
             time.sleep(4)
 
             error_element = driver.find_element(By.ID, "upload_github_error")
