@@ -57,7 +57,6 @@ class TestExploreRepositoryFilter(unittest.TestCase):
 
         # Verifica el resultado esperado
         self.assertEqual(result, ["dataset_with_tags"])
-
     
     @patch("app.modules.explore.repository.DSMetaData")  # Simular DSMetaData
     def test_filter_with_sorting(self, MockDSMetaData):
@@ -79,3 +78,25 @@ class TestExploreRepositoryFilter(unittest.TestCase):
 
         # Verifica el resultado esperado
         self.assertEqual(result, ["dataset_sorted"])
+
+    @patch("app.modules.explore.repository.DSMetaData")  # Simular DSMetaData
+    def test_filter_with_publication_type(self, MockDSMetaData):
+        # Simula una consulta de SQLAlchemy
+        mock_query = MagicMock(spec=Query)
+        self.repo.model.query = mock_query
+
+        # Simula el retorno de la consulta
+        mock_query.join.return_value = mock_query
+        mock_query.filter.return_value = mock_query
+        mock_query.all.return_value = ["dataset_publication"]
+
+        # Ejecutar la función con un tipo de publicación específico
+        result = self.repo.filter(query="", publication_type="journal")
+
+        # Verifica que el filtro para publication_type se agregó
+        mock_query.filter.assert_any_call(DSMetaData.publication_type == "JOURNAL")
+
+        # Verifica el resultado esperado
+        self.assertEqual(result, ["dataset_publication"])
+
+    
