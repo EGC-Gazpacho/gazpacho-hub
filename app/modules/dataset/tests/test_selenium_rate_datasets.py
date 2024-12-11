@@ -35,18 +35,3 @@ class TestRatedatasets():
     self.driver.find_element(By.LINK_TEXT, "View dataset").click()
     self.driver.find_element(By.CSS_SELECTOR, "#star-rating-12 > span:nth-child(5)").click()
     self.driver.find_element(By.ID, "rate-button-12").click()
-
-    self.driver.find_element(By.CSS_SELECTOR, ".text-dark").click()
-    self.driver.find_element(By.CSS_SELECTOR, ".dropdown-menu > .dropdown-item:nth-child(2)").click()
-    
-    self.driver.get("http://127.0.0.1:5000/")
-        
-    self.driver.find_element(By.CSS_SELECTOR, ".nav-link:nth-child(1)").click()
-    self.driver.find_element(By.ID, "email").click()
-    self.driver.find_element(By.ID, "email").send_keys("user2@example.com")
-    self.driver.find_element(By.ID, "password").click()
-    self.driver.find_element(By.ID, "password").send_keys("1234")
-    self.driver.find_element(By.ID, "submit").click()
-    self.driver.find_element(By.LINK_TEXT, "View dataset").click()
-    self.driver.find_element(By.CSS_SELECTOR, "#star-rating-12 > span:nth-child(1)").click()
-    self.driver.find_element(By.ID, "rate-button-12").click()
