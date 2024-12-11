@@ -1,13 +1,7 @@
 import pytest
-from app.modules.dataset.services import DataSetService
-import unittest
-import pytest
-from unittest.mock import patch, MagicMock,mock_open
+from unittest.mock import MagicMock
 from app.modules.dataset.models import DataSet, DSMetaData
-from app.modules.dataset.services import DataSetService
-from app import db
-from app.modules.auth.models import User
-from app.modules.profile.models import UserProfile
+import unittest
 
 @pytest.fixture(scope="module")
 def extended_test_client(test_client):
@@ -34,8 +28,6 @@ class TestDatasetExport(unittest.TestCase):
             MagicMock(id=2, name="file_2.uvl", size=1024),
             MagicMock(id=3, name="file3.uvl", size=2048),
             MagicMock(id=4, name="file4.uvl", size=2048),
-
-
         ]
 
         # Crear dataset con mocks
@@ -58,13 +50,13 @@ class TestDatasetExport(unittest.TestCase):
         self.assertTrue(response["success"])
         self.assertEqual(response["export_format"], "JSON")
 
-    # 3. Prueba de exportación en formato xml
-    def test_export_cnf(self):
+    # 3. Prueba de exportación en formato XML
+    def test_export_xml(self):
         response = self.export_dataset("XML")
         self.assertTrue(response["success"])
         self.assertEqual(response["export_format"], "XML")
     
-    # 5. Exportación de dataset vacío
+    # 4. Exportación de dataset vacío
     def test_export_empty_dataset(self):
         empty_dataset = DataSet(
             id=2, user_id=1, ds_meta_data=self.ds_meta_data, feature_models=[]
@@ -73,7 +65,7 @@ class TestDatasetExport(unittest.TestCase):
         self.assertFalse(response["success"])
         self.assertEqual(response["error"], "Dataset vacío no puede ser exportado")
 
-    # 6. Formato no válido
+    # 5. Formato no válido
     def test_invalid_format(self):
         response = self.export_dataset("INVALID_FORMAT")
         self.assertFalse(response["success"])
@@ -84,8 +76,8 @@ class TestDatasetExport(unittest.TestCase):
             dataset = self.dataset
         if export_format not in ["UVL", "JSON", "XML"]:
             return {"success": False, "error": "Formato de exportación no válido"}
-        if not dataset.files():
+        if not dataset.feature_models or not any(f.files for f in dataset.feature_models):
             return {"success": False, "error": "Dataset vacío no puede ser exportado"}
-        if any(file.size < 0 for file in dataset.files()):
+        if any(file.size < 0 for file in dataset.feature_models[0].files):
             return {"success": False, "error": "Archivo corrupto detectado"}
         return {"success": True, "export_format": export_format}
