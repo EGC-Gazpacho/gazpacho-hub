@@ -1,0 +1,32 @@
+name: Deploy with Vagrant
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy VM with Vagrant and Provision with Ansible
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Vagrant
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y vagrant virtualbox
+
+      - name: Initialize Vagrant
+        run: |
+          vagrant up
+
+      - name: Provision Vagrant VM with Ansible
+        run: |
+          vagrant provision
+
+      - name: Clean up after deployment
+        run: |
+          vagrant destroy -f
