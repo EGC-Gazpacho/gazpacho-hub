@@ -99,4 +99,24 @@ class TestExploreRepositoryFilter(unittest.TestCase):
         # Verifica el resultado esperado
         self.assertEqual(result, ["dataset_publication"])
 
+    @patch("app.modules.explore.repository.DSMetrics")  # Simular DSMetrics
+    def test_filter_with_number_of_features(self, MockDSMetrics):
+        # Simula una consulta de SQLAlchemy
+        mock_query = MagicMock(spec=Query)
+        self.repo.model.query = mock_query
+
+        # Simula el retorno de la consulta
+        mock_query.join.return_value = mock_query
+        mock_query.filter.return_value = mock_query
+        mock_query.all.return_value = ["dataset_features"]
+
+        # Ejecutar la función con un número específico de características
+        result = self.repo.filter(query="", number_of_features=10)
+
+        # Verifica que el filtro para number_of_features se agregó
+        mock_query.filter.assert_any_call(DSMetrics.number_of_features == 10)
+
+        # Verifica el resultado esperado
+        self.assertEqual(result, ["dataset_features"])
+
     
