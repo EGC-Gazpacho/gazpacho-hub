@@ -152,7 +152,7 @@ class TestUploadDataSetToGitHub:
         finally:
             close_driver(driver)
 
-    # Test the creation of a dataset in GitHub with no succes, the dataset already exists 
+    # Test the creation of a dataset in GitHub with no succes, the dataset already exists
 
     def test_create_dataset_github_dataset_exists(self):
 
