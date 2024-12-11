@@ -1,7 +1,8 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from flask import url_for
 from app import create_app
+
 
 @pytest.fixture(scope="module")
 def test_client():
@@ -11,6 +12,7 @@ def test_client():
     with app.test_client() as client:
         with app.app_context():
             yield client
+
 
 @patch('app.modules.explore.services.ModelService.filter')
 def test_model_search_by_name(mock_filter, test_client):
@@ -31,13 +33,13 @@ def test_model_search_by_name(mock_filter, test_client):
         }
     ]
 
-
     response = test_client.get(url_for('explore.explore2_models', query='Feature Model 1'))
-    
+
     assert response.status_code == 200
     assert b'Feature Model 1' in response.data
     assert b'Another Model' not in response.data
     mock_filter.assert_called_once_with(name='Feature Model 1')
+
 
 @patch('app.modules.explore.services.ModelService.filter')
 def test_model_search_partial_match(mock_filter, test_client):
@@ -71,10 +73,11 @@ def test_model_search_non_existent(mock_filter, test_client):
     mock_filter.return_value = []
 
     response = test_client.get(url_for('explore.explore2_models', query='NonExistentModel'))
-    
+
     assert response.status_code == 200
     assert b'NonExistentModel' not in response.data
     mock_filter.assert_called_once_with(name='NonExistentModel')
+
 
 @patch('app.modules.explore.services.ModelService.filter')
 def test_model_search_case_insensitivity(mock_filter, test_client):
@@ -96,11 +99,12 @@ def test_model_search_case_insensitivity(mock_filter, test_client):
     ]
 
     response = test_client.get(url_for('explore.explore2_models', query='feature Model 1'))
-    
+
     assert response.status_code == 200
     assert b'Feature Model 1' in response.data
     assert b'Another Model' not in response.data
     mock_filter.assert_called_once_with(name='feature Model 1')
+
 
 @patch('app.modules.explore.services.ModelService.filter')
 def test_model_search_multiple_matches(mock_filter, test_client):
@@ -142,4 +146,3 @@ def test_model_search_multiple_matches(mock_filter, test_client):
     assert b'Feature Model 2' in response.data
     assert b'Another Model' not in response.data
     mock_filter.assert_called_once_with(name='Model')
-
