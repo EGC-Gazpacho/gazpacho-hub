@@ -14,24 +14,24 @@
                         <th>ID</th>
                         <th>Nombre de Usuario</th>
                         <th>Email</th>
-                        <th>Fecha de creacion</th>
+                        <th>Fecha de creación</th>
                         <th>Datasets</th>
                     </tr>
                     {% for usuario in users %}
                         <tr>
                             <td>{{ usuario['id'] }}</td>
-                            <td>{{ usuario['profile']|replace('<', '')|replace('>', '')}}</td>
-                            <td>{{ usuario['email']}}</td>
+                            <td>{{ usuario['profile']|replace('<', '')|replace('>', '') }}</td>
+                            <td>{{ usuario['email'] }}</td>
                             <td>{{ usuario['created_at'] }}</td>
-                            <td> 
-                            {% for dataset in usuario['data_sets'] %}
-                                <a href="{{ dataset.get_uvlhub_doi() }}" class="btn btn-primary" role="button">
-                                Ir a Dataset {{ dataset.ds_meta_data.id }}
-                                </a>
-                            {%endfor%}
+                            <td>
+                                {% for dataset in usuario['data_sets'] %}
+                                    <a href="{{ dataset.get_uvlhub_doi() }}" class="btn btn-primary" role="button">
+                                        Ir a Dataset {{ dataset.ds_meta_data.id }}
+                                    </a>
+                                {% endfor %}
                             </td>
                         </tr>
-                    {%endfor%}
+                    {% endfor %}
                 </table>
             </div>
         </div>
@@ -47,5 +47,8 @@
                     No hay usuarios registrados en el sistema.
                 </p>
             </div>
+        </div>
+    </div>
 {% endif %}
+
 {% endblock %}

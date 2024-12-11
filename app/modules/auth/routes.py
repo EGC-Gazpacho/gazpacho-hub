@@ -47,12 +47,13 @@ def login():
 
     return render_template('auth/login_form.html', form=form)
 
+
 @auth_bp.route('/listarUsuarios', methods=['GET'])
 def listar():
     if current_user.is_authenticated:
         if request.method == 'GET':
-            users=authentication_service.list_users()
-            return render_template("auth/list_users.html", users=users, error='Invalid credentials')
+            users = authentication_service.list_users()
+            return render_template("auth/list_users.html", users=users)
     else:
         return render_template('auth/login_form.html', form=LoginForm())
 
@@ -62,19 +63,16 @@ def logout():
     logout_user()
     return redirect(url_for('public.index'))
 
-# Ruta de recuperación de contrasena
 
-
+# Ruta de recuperación de contraseña
 @auth_bp.route('/password_recovery', methods=['GET', 'POST'])
 def password_recovery():
     if request.method == 'POST':
         email = request.form.get('email')
-        user = authentication_service.get_user_by_email(email)
-        print("hola", user)  # Obtener usuario por correo electrónico
+        user = authentication_service.get_user_by_email(email)  # Obtener usuario por correo electrónico
         if user:
             # Llamar a `generate_recovery_token` usando la instancia del servicio
             token = authentication_service.generate_recovery_token(user)
-            print("hola2", user)
             try:
                 authentication_service.send_recovery_email(user.email, token)  # Enviar correo
                 flash("Se ha enviado un enlace de recuperación a tu correo electrónico.", 'success')
@@ -89,9 +87,7 @@ def password_recovery():
     return render_template('auth/password_recovery.html')
 
 
-# Ruta de restablecer contrasena
-
-
+# Ruta de restablecer contraseña
 @auth_bp.route('/password_reset/<token>', methods=['GET', 'POST'])
 def password_reset(token):
     user_id = authentication_service.verify_recovery_token(token)
@@ -102,7 +98,7 @@ def password_reset(token):
     if request.method == 'POST':
         new_password = request.form.get('new_password')
         if authentication_service.update_password(user_id, new_password):
-            flash("Tu contrasena ha sido actualizada con éxito.")
+            flash("Tu contraseña ha sido actualizada con éxito.")
             return redirect(url_for('auth.login'))
 
     return render_template('auth/password_reset.html')
