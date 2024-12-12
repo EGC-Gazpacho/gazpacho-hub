@@ -48,10 +48,6 @@ jobs:
           sudo apt-get install -y vagrant virtualbox
       - name: Initialize Vagrant
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          python3 -m venv venv
-          source venv/bin/activate
           vagrant up
 
       - name: Provision Vagrant VM with Ansible
