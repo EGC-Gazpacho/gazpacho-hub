@@ -1,9 +1,13 @@
 name: Deploy with Vagrant
 
 on:
-  push:
+  pull_request:
+      types: [closed]
+      branches:
+        - main
+  push: 
     branches:
-      - main
+      - feature/109-vagrant
 
 jobs:
   deploy:
