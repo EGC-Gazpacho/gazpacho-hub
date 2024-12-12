@@ -1,7 +1,6 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import current_user, login_user, logout_user
 
-
 from app.modules.auth import auth_bp
 from app.modules.auth.forms import SignupForm, LoginForm
 from app.modules.auth.services import AuthenticationService
@@ -64,7 +63,8 @@ def listar():
 def logout():
     logout_user()
     return redirect(url_for('public.index'))
- 
+
+
 # Ruta de recuperación de contraseña
 @auth_bp.route('/password_recovery', methods=['GET', 'POST'])
 def password_recovery():
@@ -87,6 +87,7 @@ def password_recovery():
             return redirect(url_for('auth.password_recovery'))  # Redirect to try again
 
     return render_template('auth/password_recovery.html')
+
 
 @auth_bp.route('/password_reset/<token>', methods=['GET', 'POST'])
 def password_reset(token):
