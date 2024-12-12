@@ -34,11 +34,15 @@ jobs:
 
       - name: Initialize Vagrant
         run: |
+          python -m venv venv
+          source venv/bin/activate
           vagrant up
 
       - name: Provision Vagrant VM with Ansible
         run: |
           vagrant provision
+          vagrant ssh
+          
 
       - name: Clean up after deployment
         run: |
