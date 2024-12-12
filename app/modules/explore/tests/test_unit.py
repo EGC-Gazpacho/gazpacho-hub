@@ -108,3 +108,52 @@ def test_filter_combined_with_number_features_and_products(explore_service):
 
         assert result == ['dataset4', 'dataset5']
         mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, number_of_products, [], **{})
+
+def test_filter_edge_case_empty_query(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        mock_filter.return_value = []
+
+        result = explore_service.filter(query="")
+
+        assert result == []
+        mock_filter.assert_called_once_with("", 'newest', 'any', None, None, [], **{})
+
+def test_filter_large_number_of_tags(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        tags = [f"tag{i}" for i in range(100)]
+        mock_filter.return_value = ['dataset_large_tags']
+
+        result = explore_service.filter(tags=tags)
+
+        assert result == ['dataset_large_tags']
+        mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
+def test_filter_special_characters_in_query(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        query = "@#*&^%$"
+        mock_filter.return_value = []
+
+        result = explore_service.filter(query=query)
+
+        assert result == []
+        mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, [], **{})
+
+def test_filter_combination_publication_and_features(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        publication_type = "journal"
+        number_of_features = 50
+        mock_filter.return_value = ['dataset_pub_features']
+
+        result = explore_service.filter(publication_type=publication_type, number_of_features=number_of_features)
+
+        assert result == ['dataset_pub_features']
+        mock_filter.assert_called_once_with("", 'newest', publication_type, number_of_features, None, [], **{})
+
+def test_filter_no_results(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        mock_filter.return_value = []
+
+        result = explore_service.filter(query="nonexistent")
+
+        assert result == []
+        mock_filter.assert_called_once_with("nonexistent", 'newest', 'any', None, None, [], **{})
