@@ -51,7 +51,6 @@ jobs:
 
       - name: Set up Vagrant
         run: |
-          sudo apt-get update
           sudo apt-get install -y vagrant virtualbox
 
       - name: Initialize Vagrant
@@ -59,7 +58,7 @@ jobs:
           cd vagrant
           vagrant up
 
-      - name: Provision Vagrant VM with Ansible
+      - name: Check Vagrant status
         run: |
           cd vagrant
           vagrant global-status
