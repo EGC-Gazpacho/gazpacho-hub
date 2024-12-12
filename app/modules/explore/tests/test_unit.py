@@ -157,3 +157,93 @@ def test_filter_no_results(explore_service):
 
         assert result == []
         mock_filter.assert_called_once_with("nonexistent", 'newest', 'any', None, None, [], **{})
+
+def test_filter_with_null_values(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        mock_filter.return_value = ['dataset_null_handling']
+
+        result = explore_service.filter(query=None, tags=None)
+
+        assert result == ['dataset_null_handling']
+        mock_filter.assert_called_once_with(None, 'newest', 'any', None, None, None, **{})
+
+def test_filter_case_insensitivity_query(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        query = "Machine Learning"
+        mock_filter.return_value = ['dataset_case_insensitive']
+
+        result = explore_service.filter(query=query)
+
+        assert result == ['dataset_case_insensitive']
+        mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, [], **{})
+
+def test_filter_edge_case_special_tag_matching(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        tags = ["*special_tag*"]
+        mock_filter.return_value = ['dataset_special_tag']
+
+        result = explore_service.filter(tags=tags)
+
+        assert result == ['dataset_special_tag']
+        mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
+def test_filter_high_number_of_features(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        number_of_features = 1000000
+        mock_filter.return_value = ['dataset_high_features']
+
+        result = explore_service.filter(number_of_features=number_of_features)
+
+        assert result == ['dataset_high_features']
+        mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, None, [], **{})
+
+def test_filter_high_number_of_products(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        number_of_products = 1000000
+        mock_filter.return_value = ['dataset_high_products']
+
+        result = explore_service.filter(number_of_products=number_of_products)
+
+        assert result == ['dataset_high_products']
+        mock_filter.assert_called_once_with("", 'newest', 'any', None, number_of_products, [], **{})
+
+def test_filter_invalid_tag_format(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        tags = ["invalid tag format"]
+        mock_filter.return_value = []
+
+        result = explore_service.filter(tags=tags)
+
+        assert result == []
+        mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
+def test_filter_partial_matches_query(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        query = "partial match"
+        mock_filter.return_value = ['dataset_partial']
+
+        result = explore_service.filter(query=query)
+
+        assert result == ['dataset_partial']
+        mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, [], **{})
+
+def test_filter_empty_tags(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        tags = []
+        mock_filter.return_value = ['dataset_empty_tags']
+
+        result = explore_service.filter(tags=tags)
+
+        assert result == ['dataset_empty_tags']
+        mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
+def test_filter_combination_query_and_tags(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        query = "AI"
+        tags = ["machine learning", "big data"]
+        mock_filter.return_value = ['dataset_query_tags']
+
+        result = explore_service.filter(query=query, tags=tags)
+
+        assert result == ['dataset_query_tags']
+        mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, tags, **{})
