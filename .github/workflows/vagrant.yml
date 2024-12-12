@@ -2,10 +2,10 @@ name: Deploy with Vagrant
 
 on:
   pull_request:
-      types: [closed]
-      branches:
-        - main
-  push: 
+    types: [closed]
+    branches:
+      - main
+  push:
     branches:
       - feature/109-vagrant
 
@@ -13,8 +13,14 @@ jobs:
   deploy:
     name: Deploy VM with Vagrant and Provision with Ansible
     runs-on: ubuntu-latest
-    
+
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Export environment variables
         run: |
           echo "FLASK_ENV=testing" >> $GITHUB_ENV
@@ -23,7 +29,8 @@ jobs:
           echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> $GITHUB_ENV
           echo "MARIADB_USER=uvlhub_user" >> $GITHUB_ENV
           echo "MARIADB_PASSWORD=uvlhub_password" >> $GITHUB_ENV
-          echo "WORKING_DIR= /vagrant/" >> $GITHUB_ENV
+          echo "WORKING_DIR=/vagrant/" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -34,6 +41,8 @@ jobs:
 
       - name: Initialize Vagrant
         run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
           python3 -m venv venv
           source venv/bin/activate
           vagrant up
@@ -42,10 +51,7 @@ jobs:
         run: |
           vagrant provision
           vagrant ssh
-          
 
       - name: Clean up after deployment
         run: |
           vagrant destroy -f
-
-
