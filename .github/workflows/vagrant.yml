@@ -24,14 +24,12 @@ jobs:
       - name: Crear archivo .env
         run: |
           echo "FLASK_ENV=testing" > $GITHUB_WORKSPACE/.env
-          echo "MARIADB_HOSTNAME=127.0.0.1" >> .env
-          echo "MARIADB_PORT=3306" >> .env
-          echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> .env
-          echo "MARIADB_USER=uvlhub_user" >> .env
-          echo "MARIADB_PASSWORD=uvlhub_password" >> .env
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
+          echo "MARIADB_HOSTNAME=127.0.0.1" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_PORT=3306" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_USER=uvlhub_user" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_PASSWORD=uvlhub_password" >> $GITHUB_WORKSPACE/.env
+          echo "WORKING_DIR=/vagrant/" >> $GITHUB_WORKSPACE/.env
 
       - name: Install dependencies
         run: |
