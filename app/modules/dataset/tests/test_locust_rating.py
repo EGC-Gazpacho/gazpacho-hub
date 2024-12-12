@@ -58,6 +58,7 @@ class WebsiteTestUser(HttpUser):
                 # Handle non-JSON response
                 logging.error(f"Non-JSON response received: {response.text}")
                 response.failure("Non-JSON response received.")
+            logging.info(f"Raw response: {response.text}")
 
     def on_stop(self):
         """Logout at the end of a simulated session."""
