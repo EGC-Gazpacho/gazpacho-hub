@@ -287,23 +287,26 @@ def rate_dataset(dataset_id):
     user_id = current_user.id
     rate = request.json.get('rating')  # Obtener el valor de la calificación
 
-    # Intentar convertir la calificación a entero
     try:
-        rate = int(rate)  # Convertir el valor de rating a un entero
-    except ValueError:
-        return jsonify({'message': 'Invalid rating value'}), 400  # Si no se puede convertir, devolver error
+        # Intentar convertir la calificación a entero
+        try:
+            rate = int(rate)  # Convertir el valor de rating a un entero
+        except ValueError:
+            return jsonify({'message': 'Invalid rating value'}), 400  # Si no se puede convertir, devolver error
 
-    # Validar que la calificación esté en el rango de 1 a 5
-    if not (1 <= rate <= 5):
-        return jsonify({'message': 'Invalid rating value, it should be between 1 and 5'}), 400
+        # Validar que la calificación esté en el rango de 1 a 5
+        if not (1 <= rate <= 5):
+            return jsonify({'message': 'Invalid rating value, it should be between 1 and 5'}), 400
 
-    # Agregar o actualizar la calificación
-    ds_rating_service.add_or_update_rating(dataset_id, user_id, rate)
+        # Agregar o actualizar la calificación
+        ds_rating_service.add_or_update_rating(dataset_id, user_id, rate)
 
-    # Calcular el promedio actualizado
-    avg_rating = ds_rating_service.get_dataset_average_rating(dataset_id)
+        # Calcular el promedio actualizado
+        avg_rating = ds_rating_service.get_dataset_average_rating(dataset_id)
 
-    return jsonify({'message': 'Rating added/updated', 'average_rating': avg_rating}), 200
+        return jsonify({'message': 'Rating added/updated', 'average_rating': avg_rating}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @dataset_bp.route('/datasets/<int:dataset_id>/average-rating', methods=['GET'])
