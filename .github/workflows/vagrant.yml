@@ -21,15 +21,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Export environment variables
+      - name: Crear archivo .env
         run: |
-          echo "FLASK_ENV=testing" >> $GITHUB_ENV
-          echo "MARIADB_HOSTNAME=127.0.0.1" >> $GITHUB_ENV
-          echo "MARIADB_PORT=3306" >> $GITHUB_ENV
-          echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> $GITHUB_ENV
-          echo "MARIADB_USER=uvlhub_user" >> $GITHUB_ENV
-          echo "MARIADB_PASSWORD=uvlhub_password" >> $GITHUB_ENV
-          echo "WORKING_DIR=/vagrant/" >> $GITHUB_ENV
+          echo "FLASK_ENV=testing" > .env
+          echo "MARIADB_HOSTNAME=127.0.0.1" >> .env
+          echo "MARIADB_PORT=3306" >> .env
+          echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> .env
+          echo "MARIADB_USER=uvlhub_user" >> .env
+          echo "MARIADB_PASSWORD=uvlhub_password" >> .env
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -38,14 +37,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Create Python virtual environment
         run: |
           python3 -m venv venv
           source venv/bin/activate
+
       - name: Set up Vagrant
         run: |
           sudo apt-get update
           sudo apt-get install -y vagrant virtualbox
+
       - name: Initialize Vagrant
         run: |
           cd vagrant
