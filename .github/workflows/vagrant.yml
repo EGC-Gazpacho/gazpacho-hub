@@ -62,8 +62,7 @@ jobs:
       - name: Provision Vagrant VM with Ansible
         run: |
           cd vagrant
-          vagrant provision
-          vagrant ssh
+          vagrant global-status
 
       - name: Clean up after deployment
         run: |
