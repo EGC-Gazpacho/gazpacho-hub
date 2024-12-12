@@ -117,9 +117,17 @@ chico sundermann">
                     </li>
 
                     <li class="sidebar-header">
-                        Communities
+                        Users
                     </li>
-
+                    <li class="sidebar-item {{ 'active' if request.endpoint == 'auth.listar' else '' }}">
+                        <a class="sidebar-link" href="{{ url_for('auth.listar') }}">
+                            <i class="align-middle" data-feather="list"></i> <span
+                                class="align-middle">List of users</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-header">
+                    Communities
+                    </li>
                     <li class="sidebar-item {{ 'active' if request.endpoint == 'community.index' else '' }}">
                         <a class="sidebar-link" href="{{ url_for('community.index') }}">
                             <i class="align-middle" data-feather="zoom-in"></i> <span
