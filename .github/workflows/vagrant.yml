@@ -23,7 +23,7 @@ jobs:
 
       - name: Crear archivo .env
         run: |
-          echo "FLASK_ENV=testing" > .env
+          echo "FLASK_ENV=testing" > $GITHUB_WORKSPACE/.env
           echo "MARIADB_HOSTNAME=127.0.0.1" >> .env
           echo "MARIADB_PORT=3306" >> .env
           echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> .env
