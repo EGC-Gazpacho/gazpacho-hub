@@ -49,7 +49,11 @@ class WebsiteTestUser(HttpUser):
             logging.info("Session expired. Re-authenticating.")
             self.on_start()  # Re-login
 
-        with self.client.post(f"/datasets/{dataset_id}/rate", json=payload, catch_response=True) as response:
+        csrf_token = self.get_csrf_token()  # Implement a method to fetch the token
+        headers = {"X-CSRFToken": csrf_token}
+        with self.client.post(f"/datasets/{dataset_id}/rate",
+                              json=payload, headers=headers, catch_response=True) as response:
+            # Process response
             if response.status_code == 200:
                 try:
                     response_data = response.json()
@@ -64,6 +68,7 @@ class WebsiteTestUser(HttpUser):
             else:
                 logging.error(f"Rating failed for dataset {dataset_id}: {response.status_code}")
                 response.failure(f"Rating error: {response.text}")
+        logging.info(f"Session cookies: {self.client.cookies.get_dict()}")
 
     def on_stop(self):
         """Logout at the end of a simulated session."""
