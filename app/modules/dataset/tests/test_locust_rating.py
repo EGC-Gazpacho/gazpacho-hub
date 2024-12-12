@@ -10,7 +10,6 @@ class WebsiteTestUser(HttpUser):
     wait_time = between(1, 3)
 
     def on_start(self):
-        """Login at the start of a simulated session."""
         credentials = {
             "email": "user@example.com",
             "password": "test1234"
@@ -18,6 +17,13 @@ class WebsiteTestUser(HttpUser):
         with self.client.post("/login", data=credentials, catch_response=True) as response:
             if response.status_code == 200:
                 logging.info("Login successful.")
+                # Verify authentication
+                with self.client.get("/protected/resource", catch_response=True) as auth_check:
+                    if auth_check.status_code == 200:
+                        logging.info("Session authenticated.")
+                    else:
+                        logging.error("Authentication verification failed.")
+                        auth_check.failure("Authentication verification failed.")
             else:
                 logging.error(f"Login failed: {response.status_code}")
                 response.failure(f"Login error: {response.text}")
