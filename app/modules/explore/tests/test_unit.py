@@ -67,3 +67,44 @@ def test_filter_invalid_parameters(explore_service):
 
         with pytest.raises(ValueError, match="Invalid parameters"):
             explore_service.filter(query=None, sorting="invalid_sort")
+
+def test_filter_number_of_features(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        number_of_features = 10
+        mock_filter.return_value = ['dataset1']
+
+        result = explore_service.filter(number_of_features=number_of_features)
+
+        assert result == ['dataset1']
+        mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, None, [], **{})
+
+def test_filter_number_of_products(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        number_of_products = 20
+        mock_filter.return_value = ['dataset2']
+
+        result = explore_service.filter(number_of_products=number_of_products)
+
+        assert result == ['dataset2']
+        mock_filter.assert_called_once_with("", 'newest', 'any', None, number_of_products, [], **{})
+
+def test_filter_tags(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        tags = ["AI", "big data"]
+        mock_filter.return_value = ['dataset3']
+
+        result = explore_service.filter(tags=tags)
+
+        assert result == ['dataset3']
+        mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
+def test_filter_combined_with_number_features_and_products(explore_service):
+    with patch.object(explore_service.repository, 'filter') as mock_filter:
+        number_of_features = 15
+        number_of_products = 30
+        mock_filter.return_value = ['dataset4', 'dataset5']
+
+        result = explore_service.filter(number_of_features=number_of_features, number_of_products=number_of_products)
+
+        assert result == ['dataset4', 'dataset5']
+        mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, number_of_products, [], **{})
