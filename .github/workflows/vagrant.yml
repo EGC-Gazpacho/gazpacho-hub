@@ -23,13 +23,21 @@ jobs:
 
       - name: Crear archivo .env
         run: |
-          echo "FLASK_ENV=testing" > $GITHUB_WORKSPACE/.env
+          echo "FLASK_APP_NAME=your_flask_app_name" > $GITHUB_WORKSPACE/.env
+          echo "FLASK_ENV=testing" >> $GITHUB_WORKSPACE/.env
+          echo "DOMAIN=your_domain.com" >> $GITHUB_WORKSPACE/.env
           echo "MARIADB_HOSTNAME=127.0.0.1" >> $GITHUB_WORKSPACE/.env
           echo "MARIADB_PORT=3306" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_DATABASE=uvlhubdb" >> $GITHUB_WORKSPACE/.env
           echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> $GITHUB_WORKSPACE/.env
           echo "MARIADB_USER=uvlhub_user" >> $GITHUB_WORKSPACE/.env
           echo "MARIADB_PASSWORD=uvlhub_password" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_ROOT_PASSWORD=your_root_password" >> $GITHUB_WORKSPACE/.env
           echo "WORKING_DIR=/vagrant/" >> $GITHUB_WORKSPACE/.env
+
+      - name: Verify environment variables
+        run: |
+          cat $GITHUB_WORKSPACE/.env
 
       - name: Install dependencies
         run: |
