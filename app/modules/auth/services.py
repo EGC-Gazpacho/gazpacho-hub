@@ -91,13 +91,13 @@ class AuthenticationService(BaseService):
         return self.repository.get_all()
 
     def generate_recovery_token(self, user):
-        """Genera un token de recuperación para el usuario"""
+        """Generates a recovery token for the user"""
         expiration = datetime.utcnow() + timedelta(hours=1)
         token = jwt.encode({'user_id': user.id, 'exp': expiration}, current_app.config['SECRET_KEY'], algorithm='HS256')
         return token
 
     def verify_recovery_token(self, token):
-        """Verifica el token de recuperación"""
+        """Verifies the recovery token"""
         try:
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
             user_id = data.get('user_id')
@@ -108,7 +108,7 @@ class AuthenticationService(BaseService):
             return None
 
     def update_password(self, user_id, new_password):
-        """Actualiza la contraseña del usuario"""
+        """Updates the user's password"""
         user = self.repository.get_by_id(user_id)
         if user:
             user.set_password(new_password)
@@ -117,18 +117,18 @@ class AuthenticationService(BaseService):
         return False
 
     def send_recovery_email(self, to, token):
-        """Envía un correo electrónico con el enlace de recuperación de contraseña"""
-        subject = "Recuperación de contraseña"
+        """Sends a recovery email with the password reset link"""
+        subject = "Password Recovery"
         recovery_url = f"{current_app.config['BASE_URL']}/password_reset/{token}"
-        body = f"Por favor, haz clic en el siguiente enlace para restablecer tu contraseña: {recovery_url}"
+        body = f"Please click the following link to reset your password: {recovery_url}"
 
         msg = Message(subject=subject, recipients=[to])
-        msg.body = body
+        msg.body = body  # No need to encode it to UTF-8, Flask-Mail handles it automatically
         msg.charset = 'utf-8'
-        print("hola3", msg.body, msg.subject)
+        print("hello3", msg.body, msg.subject)
         try:
-            mail.send(msg)
-            return True
+            mail.send(msg)  # Send the email
+            return True  # Email sent successfully
         except Exception as e:
-            current_app.logger.error(f"Error al enviar correo: {str(e)}")
-            raise e
+            current_app.logger.error(f"Error sending email: {str(e)}")  # Log error
+            raise e  # Reraise the error to handle it in the controller

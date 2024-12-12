@@ -21,6 +21,7 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        
 
     steps:
     - uses: actions/checkout@v4
@@ -46,5 +47,6 @@ jobs:
         MARIADB_TEST_DATABASE: uvlhubdb_test
         MARIADB_USER: uvlhub_user
         MARIADB_PASSWORD: uvlhub_password
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
       run: |
         pytest app/modules/ --ignore-glob='*selenium*'
