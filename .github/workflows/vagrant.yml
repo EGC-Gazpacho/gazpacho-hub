@@ -11,6 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Export environment variables
+        run: |
+          echo "FLASK_ENV=testing" >> $GITHUB_ENV
+          echo "MARIADB_HOSTNAME=127.0.0.1" >> $GITHUB_ENV
+          echo "MARIADB_PORT=3306" >> $GITHUB_ENV
+          echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> $GITHUB_ENV
+          echo "MARIADB_USER=uvlhub_user" >> $GITHUB_ENV
+          echo "MARIADB_PASSWORD=uvlhub_password" >> $GITHUB_ENV
+          echo "WORKING_DIR= /vagrant/" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -30,3 +39,5 @@ jobs:
       - name: Clean up after deployment
         run: |
           vagrant destroy -f
+
+
