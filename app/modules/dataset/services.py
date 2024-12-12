@@ -10,7 +10,7 @@ from flamapy.metamodels.fm_metamodel.transformations import UVLReader, GlencoeWr
 from flamapy.metamodels.pysat_metamodel.transformations import FmToPysat, DimacsWriter
 import tempfile
 
-from flask import request
+from flask import abort, request
 
 from app.modules.auth.services import AuthenticationService
 from app.modules.dataset.models import DSViewRecord, DataSet, DSMetaData
@@ -185,6 +185,8 @@ class DataSetService(BaseService):
         zip_path = os.path.join(temp_dir, "all_datasets.zip")
         supported_formats = ["Glencoe", "Dinamacs", "SPLOT"]
 
+        datasets_found = False  
+
         with ZipFile(zip_path, "w") as zipf:
             for user_dir in os.listdir("uploads"):
                 user_path = os.path.join("uploads", user_dir)
@@ -197,6 +199,7 @@ class DataSetService(BaseService):
                             dataset_id = int(dataset_dir.split("_")[1])
 
                             if self.is_synchronized(dataset_id):
+                                datasets_found = True  # Se encontró al menos un dataset sincronizado
                                 for subdir, _, files in os.walk(dataset_path):
                                     for file in files:
                                         if file.endswith(".uvl"):
@@ -217,6 +220,10 @@ class DataSetService(BaseService):
                                                     dataset_dir, fmt, os.path.basename(converted_file)
                                                 )
                                                 zipf.write(converted_file, arcname=fmt_relative_path)
+
+        # Si no se encontraron datasets, devolver un error 404
+        if not datasets_found:
+            abort(404, description="No synchronized datasets found.")
 
         return zip_path
 
