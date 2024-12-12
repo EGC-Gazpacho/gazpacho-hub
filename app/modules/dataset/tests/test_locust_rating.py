@@ -11,8 +11,8 @@ class WebsiteTestUser(HttpUser):
 
     def on_start(self):
         credentials = {
-            "email": "user@example.com",
-            "password": "test1234"
+            "email": "user2@example.com",
+            "password": "1234"
         }
         with self.client.post("/login", data=credentials, catch_response=True) as response:
             if response.status_code == 200:
