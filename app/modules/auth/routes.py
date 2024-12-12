@@ -1,5 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import current_user, login_user, logout_user
+
+
 from app.modules.auth import auth_bp
 from app.modules.auth.forms import SignupForm, LoginForm
 from app.modules.auth.services import AuthenticationService
@@ -63,42 +65,44 @@ def logout():
     logout_user()
     return redirect(url_for('public.index'))
 
-
 # Ruta de recuperación de contraseña
 @auth_bp.route('/password_recovery', methods=['GET', 'POST'])
 def password_recovery():
     if request.method == 'POST':
         email = request.form.get('email')
-        user = authentication_service.get_user_by_email(email)  # Obtener usuario por correo electrónico
+        user = authentication_service.get_user_by_email(email)
+        print("hello", user)  # Get user by email
         if user:
-            # Llamar a `generate_recovery_token` usando la instancia del servicio
+            # Call `generate_recovery_token` using the service instance
             token = authentication_service.generate_recovery_token(user)
+            print("hello2", user)
             try:
-                authentication_service.send_recovery_email(user.email, token)  # Enviar correo
-                flash("Se ha enviado un enlace de recuperación a tu correo electrónico.", 'success')
+                authentication_service.send_recovery_email(user.email, token)  # Send email
+                flash("A recovery link has been sent to your email.", 'success')
                 return redirect(url_for('auth.password_recovery'))
             except Exception as e:
-                flash(f"Hubo un error al enviar el correo de recuperación: {str(e)}", 'error')
+                flash(f"An error occurred while sending the recovery email: {str(e)}", 'error')
                 return redirect(url_for('auth.password_recovery'))
         else:
-            flash("Correo electrónico no registrado.", 'error')  # Si el correo no está registrado
-            return redirect(url_for('auth.password_recovery'))  # Redirigir para intentar nuevamente
+            flash("Email not registered.", 'error')  # If email is not registered
+            return redirect(url_for('auth.password_recovery'))  # Redirect to try again
 
     return render_template('auth/password_recovery.html')
 
 
-# Ruta de restablecer contraseña
+# Reset password route
+
 @auth_bp.route('/password_reset/<token>', methods=['GET', 'POST'])
 def password_reset(token):
     user_id = authentication_service.verify_recovery_token(token)
     if not user_id:
-        flash("El enlace de recuperación es inválido o ha expirado.")
+        flash("The recovery link is invalid or has expired.")
         return redirect(url_for('auth.password_recovery'))
 
     if request.method == 'POST':
         new_password = request.form.get('new_password')
         if authentication_service.update_password(user_id, new_password):
-            flash("Tu contraseña ha sido actualizada con éxito.")
+            flash("Your password has been successfully updated.")
             return redirect(url_for('auth.login'))
 
-    return render_template('auth/password_reset.html')
+    return render_template('auth/password_reset.html', token=token)
