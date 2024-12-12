@@ -32,7 +32,7 @@ jobs:
           echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> $GITHUB_WORKSPACE/.env
           echo "MARIADB_USER=uvlhub_user" >> $GITHUB_WORKSPACE/.env
           echo "MARIADB_PASSWORD=uvlhub_password" >> $GITHUB_WORKSPACE/.env
-          echo "MARIADB_ROOT_PASSWORD=your_root_password" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_ROOT_PASSWORD=uvlhubdb_root_password" >> $GITHUB_WORKSPACE/.env
           echo "WORKING_DIR=/vagrant/" >> $GITHUB_WORKSPACE/.env
 
       - name: Verify environment variables
