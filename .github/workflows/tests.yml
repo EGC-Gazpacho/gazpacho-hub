@@ -81,3 +81,13 @@ jobs:
           print(",".join(coverage))
           ')
           echo "coverage=$coverage_report" >> $GITHUB_ENV
+
+    - name: Format and Comment on PR with Coverage Results
+      if: github.event_name == 'pull_request'
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        token: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          ## Test Coverage Report
+          ${{ env.coverage }}
