@@ -1,5 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import current_user, login_user, logout_user
+
+
 from app.modules.auth import auth_bp
 from app.modules.auth.forms import SignupForm, LoginForm
 from app.modules.auth.services import AuthenticationService
@@ -75,6 +77,7 @@ def password_recovery():
                 return redirect(url_for('auth.password_recovery'))
         else:
             flash("Email not registered.", 'success')  # If email is not registered
+            flash("Email not registered.", 'error')  # If email is not registered
             return redirect(url_for('auth.password_recovery'))  # Redirect to try again
 
     return render_template('auth/password_recovery.html')
