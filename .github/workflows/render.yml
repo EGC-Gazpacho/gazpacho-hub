@@ -46,6 +46,7 @@ jobs:
         MARIADB_TEST_DATABASE: uvlhubdb_test
         MARIADB_USER: uvlhub_user
         MARIADB_PASSWORD: uvlhub_password
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
       run: |
         pytest app/modules/ --ignore-glob='*selenium*'
 
