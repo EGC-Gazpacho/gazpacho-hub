@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from app.modules.auth.models import User
 from app.modules.profile.models import UserProfile
+from app.modules.dataset.services import DSRatingService, DataSetService
 from app import db
 
 
@@ -21,6 +22,12 @@ def test_client_with_ratings(test_client):
         db.session.add(profile)
         db.session.commit()
 
+        # Log in the test client
+        test_client.post('/login', json={
+            'email': "rater@example.com",
+            'password': "password123"
+        })
+
         # Store user ID in the test client
         test_client.user_id = user_test.id
 
@@ -31,7 +38,7 @@ def test_add_or_update_rating_mocked(test_client_with_ratings):
     """
     Test adding or updating a dataset rating using mocks.
     """
-    with patch('app.services.DSRatingService.add_or_update_rating') as mock_add_rating:
+    with patch('app.modules.dataset.services.DSRatingService.add_or_update_rating') as mock_add_rating:
         # Mock the return value of the service
         mock_add_rating.return_value = MagicMock(
             id=1, ds_meta_data_id=1, user_id=test_client_with_ratings.user_id, rating=4
@@ -53,7 +60,7 @@ def test_get_average_rating_mocked(test_client_with_ratings):
     """
     Test retrieving average rating for a dataset using mocks.
     """
-    with patch('app.services.DSRatingService.get_dataset_average_rating') as mock_avg_rating:
+    with patch('app.modules.dataset.services.DSRatingService.get_dataset_average_rating') as mock_avg_rating:
         # Mock the average rating
         mock_avg_rating.return_value = 4.5
 
@@ -87,8 +94,8 @@ def test_view_dataset_with_average_rating_mocked(test_client_with_ratings):
     """
     Test viewing a dataset with its average rating using mocks.
     """
-    with patch('app.services.DataSetService.get_dataset_by_id') as mock_get_dataset, \
-            patch('app.services.DSRatingService.get_dataset_average_rating') as mock_avg_rating:
+    with patch('app.modules.dataset.services.DataSetService.get_dataset_by_id') as mock_get_dataset, \
+         patch('app.modules.dataset.services.DSRatingService.get_dataset_average_rating') as mock_avg_rating:
 
         # Mock the dataset and average rating
         mock_dataset = MagicMock(id=1, ds_meta_data=MagicMock(rating=None))
