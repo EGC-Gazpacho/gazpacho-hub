@@ -76,6 +76,7 @@ def password_recovery():
                 flash(f"An error occurred while sending the recovery email: {str(e)}", 'error')
                 return redirect(url_for('auth.password_recovery'))
         else:
+            flash("Email not registered.", 'success')  # If email is not registered
             flash("Email not registered.", 'error')  # If email is not registered
             return redirect(url_for('auth.password_recovery'))  # Redirect to try again
 
