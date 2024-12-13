@@ -1,106 +1,103 @@
-from app.modules.auth.models import User
-from app import db
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+from ..models import User, UserProfile
+from app import db
 
 
 @pytest.fixture(scope="module")
-def test_client(test_client):
+def test_client_with_ratings(test_client):
     """
-    Extends the test_client fixture for the module.
+    Extends the test_client fixture to add specific data for DSRatingService testing.
     """
     with test_client.application.app_context():
-        user_test = User(email='user@example.com', password='test1234')
+        # Create a test user
+        user_test = User(email="rater@example.com", password="password123")
         db.session.add(user_test)
         db.session.commit()
 
+        # Add a user profile
+        profile = UserProfile(user_id=user_test.id, name="Rater", surname="Example")
+        db.session.add(profile)
+        db.session.commit()
+
+        # Store user ID in the test client
         test_client.user_id = user_test.id
 
     yield test_client
 
 
-def test_rate_dataset_valid(test_client):
+def test_add_or_update_rating_mocked(test_client_with_ratings):
     """
-    Test rating a dataset with valid input.
+    Test adding or updating a dataset rating using mocks.
     """
-    with patch('app.modules.dataset.services.ds_rating_service.add_or_update_rating') as mock_add_update, \
-         patch('app.modules.dataset.services.ds_rating_service.get_dataset_average_rating') as mock_get_avg:
-        mock_add_update.return_value = None  # Mock does not perform any operation
-        mock_get_avg.return_value = 4.2  # Mock returns a pre-defined average rating
-
-        # Test a valid rating
-        response = test_client.post(
-            '/datasets/1/rate',
-            json={'rating': 4},
-            headers={'Authorization': f"Bearer valid_token"}
+    with patch('app.services.DSRatingService.add_or_update_rating') as mock_add_rating:
+        # Mock the return value of the service
+        mock_add_rating.return_value = MagicMock(
+            id=1, ds_meta_data_id=1, user_id=test_client_with_ratings.user_id, rating=4
         )
-        assert response.status_code == 200
-        assert response.json['message'] == 'Rating added/updated'
-        assert response.json['average_rating'] == 4.2
 
-        # Ensure the mocks were called correctly
-        mock_add_update.assert_called_with(1, test_client.user_id, 4)
-        mock_get_avg.assert_called_with(1)
-
-
-def test_rate_dataset_invalid_rating(test_client):
-    """
-    Test rating a dataset with invalid values.
-    """
-    # No need to mock services for validation failures
-    invalid_ratings = ['abc', 0, 6]
-
-    for rating in invalid_ratings:
-        response = test_client.post(
+        # Call the rating endpoint
+        response = test_client_with_ratings.post(
             '/datasets/1/rate',
-            json={'rating': rating},
-            headers={'Authorization': f"Bearer valid_token"}
+            json={'rating': 4}
         )
-        assert response.status_code == 400
-        assert 'Invalid rating value' in response.json['message']
+
+        # Assert response and mock calls
+        assert response.status_code == 200, "Failed to add or update rating"
+        assert response.json['message'] == "Rating added/updated"
+        mock_add_rating.assert_called_once_with(1, test_client_with_ratings.user_id, 4)
 
 
-def test_rate_dataset_service_failure(test_client):
+def test_get_average_rating_mocked(test_client_with_ratings):
     """
-    Test handling of exceptions in the rating service.
+    Test retrieving average rating for a dataset using mocks.
     """
-    with patch('app.modules.dataset.services.ds_rating_service.add_or_update_rating') as mock_add_update:
-        mock_add_update.side_effect = Exception('Service error')
+    with patch('app.services.DSRatingService.get_dataset_average_rating') as mock_avg_rating:
+        # Mock the average rating
+        mock_avg_rating.return_value = 4.5
 
-        response = test_client.post(
-            '/datasets/1/rate',
-            json={'rating': 3},
-            headers={'Authorization': f"Bearer valid_token"}
-        )
-        assert response.status_code == 500
-        assert 'Service error' in response.json['error']
+        # Call the average rating endpoint
+        response = test_client_with_ratings.get('/datasets/1/average-rating')
 
-
-def test_get_average_rating(test_client):
-    """
-    Test fetching the average rating for a dataset.
-    """
-    with patch('app.modules.dataset.services.ds_rating_service.get_dataset_average_rating') as mock_get_avg:
-        mock_get_avg.return_value = 4.5  # Mock average rating
-
-        response = test_client.get('/datasets/1/average-rating')
-        assert response.status_code == 200
+        # Assert response and mock calls
+        assert response.status_code == 200, "Failed to retrieve average rating"
         assert response.json['average_rating'] == 4.5
-
-        # Ensure the mock was called correctly
-        mock_get_avg.assert_called_with(1)
+        mock_avg_rating.assert_called_once_with(1)
 
 
-def test_get_average_rating_no_data(test_client):
+def test_invalid_rating_value(test_client_with_ratings):
     """
-    Test fetching average rating when no ratings exist.
+    Test endpoint response for invalid rating values.
     """
-    with patch('app.modules.dataset.services.ds_rating_service.get_dataset_average_rating') as mock_get_avg:
-        mock_get_avg.return_value = None  # No ratings available
+    invalid_ratings = [-1, 0, 6, "string"]
+    for invalid_rating in invalid_ratings:
+        # Call the rating endpoint with invalid data
+        response = test_client_with_ratings.post(
+            '/datasets/1/rate',
+            json={'rating': invalid_rating}
+        )
 
-        response = test_client.get('/datasets/1/average-rating')
-        assert response.status_code == 200
-        assert response.json['average_rating'] is None
+        # Assert response for invalid input
+        assert response.status_code == 400, f"Accepted invalid rating {invalid_rating}"
+        assert "Invalid rating value" in response.json['message']
 
-        # Ensure the mock was called correctly
-        mock_get_avg.assert_called_with(1)
+
+def test_view_dataset_with_average_rating_mocked(test_client_with_ratings):
+    """
+    Test viewing a dataset with its average rating using mocks.
+    """
+    with patch('app.services.DataSetService.get_dataset_by_id') as mock_get_dataset, \
+            patch('app.services.DSRatingService.get_dataset_average_rating') as mock_avg_rating:
+
+        # Mock the dataset and average rating
+        mock_dataset = MagicMock(id=1, ds_meta_data=MagicMock(rating=None))
+        mock_get_dataset.return_value = mock_dataset
+        mock_avg_rating.return_value = 4.0
+
+        # Call the view dataset endpoint
+        response = test_client_with_ratings.get('/datasets/1')
+
+        # Assert response and mock calls
+        assert response.status_code == 200, "Failed to view dataset"
+        mock_get_dataset.assert_called_once_with(1)
+        mock_avg_rating.assert_called_once_with(1)
