@@ -36,14 +36,14 @@ def mock_send_email():
 
 def test_login_fail(app, auth_service, mock_get_by_email):
     mock_get_by_email.return_value = None
-    with app.app_context():  
+    with app.app_context():
         result = auth_service.login("test@example.com", "wrongpassword")
     assert result is False
 
 
 def test_is_email_available(app, auth_service, mock_get_by_email):
     mock_get_by_email.return_value = None  # Simula que el email no está registrado
-    with app.app_context():  
+    with app.app_context():
         result = auth_service.is_email_available("test@example.com")
     assert result is True
 
@@ -55,14 +55,14 @@ def test_is_email_available(app, auth_service, mock_get_by_email):
 
 def test_generate_recovery_token(app, auth_service):
     user = User(id=1, email="test@example.com", password="password")
-    with app.app_context():  
+    with app.app_context():
         token = auth_service.generate_recovery_token(user)
     assert token is not None  # Verifica que el token es generado
 
 
 def test_verify_recovery_token(app, auth_service):
     user = User(id=1, email="test@example.com", password="password")
-    with app.app_context():  
+    with app.app_context():
         token = auth_service.generate_recovery_token(user)
         user_id = auth_service.verify_recovery_token(token)
     assert user_id == user.id  # Verifica que el token es válido
@@ -71,7 +71,7 @@ def test_verify_recovery_token(app, auth_service):
 def test_send_recovery_email_success(app, auth_service, mock_send_email):
     token = "fake_token"
     email = "test@example.com"
-    with app.app_context():  
+    with app.app_context():
         mock_send_email.return_value = True
         result = auth_service.send_recovery_email(email, token)
     assert result is True  # Verifica que el correo se envió correctamente
@@ -80,7 +80,7 @@ def test_send_recovery_email_success(app, auth_service, mock_send_email):
 def test_send_recovery_email_fail(app, auth_service, mock_send_email):
     token = "fake_token"
     email = "test@example.com"
-    with app.app_context():  
+    with app.app_context():
         mock_send_email.side_effect = Exception("Email sending failed")
         with pytest.raises(Exception):
             auth_service.send_recovery_email(email, token)  # Verifica que la excepción es lanzada
