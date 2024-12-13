@@ -60,24 +60,50 @@ jobs:
       run: |
         pytest app/modules/ --cov=app/modules/ --cov-report=xml:coverage.xml --ignore-glob='*selenium*'
 
-    - name: Parse Coverage Report
-      id: parse-coverage
+    - name: Get Coverage Percentage
+      if: github.event_name == 'pull_request'
+      id: coverage
       run: |
-          coverage_report=$(python -c '
-          import xml.etree.ElementTree as ET
+          coverage=$(python -c 'import xml.etree.ElementTree as ET
           tree = ET.parse("coverage.xml")
           root = tree.getroot()
-          report = []
+          coverage = []
+          exclude_files = {"locustfile.py", "seeders.py"}
           for package in root.findall(".//package"):
               package_name = package.get("name")
-              report.append(f"## {package_name}")
+              coverage.append(f"**{package_name}**")
               for class_elem in package.findall(".//class"):
                   class_name = class_elem.get("name")
-                  line_rate = float(class_elem.get("line-rate")) * 100
-                  report.append(f"{class_name}: {line_rate:.2f}%")
-          print("\\n".join(report))
+                  line_rate = class_elem.get("line-rate")
+                  if class_name not in exclude_files and line_rate:
+                      coverage.append(f"{class_name}_{line_rate}")
+          print(",".join(coverage))
           ')
-          echo "coverage=$coverage_report" >> $GITHUB_ENV
+          echo "coverage=$coverage" >> $GITHUB_ENV
+
+    - name: Parse Coverage and Format for Comment
+      if: github.event_name == 'pull_request'
+      id: parse-coverage
+      run: |
+          IFS=',' read -r -a coverage_array <<< "${{ env.coverage }}"
+          formatted_coverage=""
+          current_category=""
+          for coverage_pair in "${coverage_array[@]}"; do
+            if [[ -n "$coverage_pair" && "$coverage_pair" =~ ^\*\*([a-zA-Z0-9_-]+)\*\*$ ]]; then
+              current_category="${BASH_REMATCH[1]}"
+              formatted_coverage+="\n### **$current_category**\n"
+            elif [[ -n "$coverage_pair" && "$coverage_pair" =~ ^[a-zA-Z0-9_.-]+_[0-9.]+$ ]]; then
+              IFS='_' read -r file coverage <<< "$coverage_pair"
+              if [[ -n "$file" && -n "$coverage" && "$coverage" =~ ^[0-9.]+$ ]]; then
+                percentage_coverage=$(echo "scale=2; $coverage * 100" | bc)
+                formatted_coverage+="  **$file**: $percentage_coverage%\n"
+              fi
+            fi
+          done
+          
+          echo "formatted_coverage<<EOF" >> $GITHUB_ENV
+          echo -e "$formatted_coverage" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
     - name: Format and Comment on PR with Coverage Results
       if: github.event_name == 'pull_request'
@@ -87,4 +113,4 @@ jobs:
         issue-number: ${{ github.event.pull_request.number }}
         body: |
           ## Test Coverage Report
-          ${{ env.coverage }}
+          ${{ env.formatted_coverage }}
