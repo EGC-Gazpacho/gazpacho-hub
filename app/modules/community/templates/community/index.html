@@ -10,12 +10,7 @@
     <ul>
     {% for community in communities %}
         <li>
-            <strong><a href="{{ url_for('community.get_community', community_id=community.id) }}">{{ community.name }}</a></strong> - {{ community.description }}
-            <a href="{{ url_for('community.edit_community', community_id=community.id) }}">Edit</a>
-            <form method="POST" action="{{ url_for('community.delete_community', community_id=community.id) }}">
-                {{ form.hidden_tag() }}
-                <button type="submit">Delete</button>
-            </form>
+            <strong><a href="{{ url_for('community.get_community', community_id=community.id) }}">{{ community.name }}</a></strong>: {{ community.description }}
         </li>
     {% endfor %}
     </ul>

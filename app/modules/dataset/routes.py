@@ -4,8 +4,11 @@ import json
 import shutil
 import tempfile
 import uuid
+import yaml
 from datetime import datetime, timezone
 from zipfile import ZipFile
+from xml.etree.ElementTree import Element, SubElement, tostring
+import xml.dom.minidom as minidom
 
 from flask import (
     redirect,
@@ -31,7 +34,8 @@ from app.modules.dataset.services import (
     DSMetaDataService,
     DSViewRecordService,
     DataSetService,
-    DOIMappingService
+    DOIMappingService,
+    DSRatingService
 )
 from app.modules.fakenodo.services import FakenodoService
 from app.modules.zenodo.services import ZenodoService
@@ -47,6 +51,7 @@ zenodo_service = ZenodoService()
 fakenodo_service = FakenodoService()
 doi_mapping_service = DOIMappingService()
 ds_view_record_service = DSViewRecordService()
+ds_rating_service = DSRatingService()
 
 
 @dataset_bp.route("/dataset/upload", methods=["GET", "POST"])
@@ -277,6 +282,7 @@ def download_dataset(dataset_id):
     return resp
 
 
+
 @dataset_bp.route("/dataset/download/all", methods=["GET"])
 def download_all_dataset():
     zip_path = dataset_service.zip_all_datasets()
@@ -286,6 +292,276 @@ def download_all_dataset():
     zip_filename = f"all_datasets_{current_date}.zip"
 
     return send_file(zip_path, as_attachment=True, download_name=zip_filename)
+  
+@dataset_bp.route('/datasets/<int:dataset_id>/rate', methods=['POST'])
+@login_required
+def rate_dataset(dataset_id):
+    user_id = current_user.id
+    rate = request.json.get('rating')  # Obtener el valor de la calificación
+
+    # Intentar convertir la calificación a entero
+    try:
+        rate = int(rate)  # Convertir el valor de rating a un entero
+    except ValueError:
+        return jsonify({'message': 'Invalid rating value'}), 400  # Si no se puede convertir, devolver error
+
+    # Validar que la calificación esté en el rango de 1 a 5
+    if not (1 <= rate <= 5):
+        return jsonify({'message': 'Invalid rating value, it should be between 1 and 5'}), 400
+
+    # Agregar o actualizar la calificación
+    ds_rating_service.add_or_update_rating(dataset_id, user_id, rate)
+
+    # Calcular el promedio actualizado
+    avg_rating = ds_rating_service.get_dataset_average_rating(dataset_id)
+
+    return jsonify({'message': 'Rating added/updated', 'average_rating': avg_rating}), 200
+
+
+@dataset_bp.route('/datasets/<int:dataset_id>/average-rating', methods=['GET'])
+def get_average_rating(dataset_id):
+    average_rating = ds_rating_service.get_dataset_average_rating(dataset_id)
+    return jsonify({'average_rating': average_rating})
+
+
+@dataset_bp.route('/datasets/<int:dataset_id>', methods=['GET'])
+def view_dataset(dataset_id):
+    # Obtener el dataset
+    dataset = dataset_service.get_dataset_by_id(dataset_id)  # Ajusta según tu implementación
+
+    # Calcular el promedio de calificaciones
+    average_rating = ds_rating_service.get_dataset_average_rating(dataset_id) or 0.0
+
+    # Asignar el promedio al dataset
+    dataset.ds_meta_data.rating = average_rating
+
+    # Renderizar el template
+    return render_template('dataset/view_dataset.html', dataset=dataset)
+
+
+# Descargar los datos en .json
+def convert_uvl_to_json(content):
+    lines = content.splitlines()
+    result = {}
+    current_feature = None
+    current_mandatory = None
+    current_optional = None
+    in_constraints = False
+
+    for line in lines:
+        stripped_line = line.strip()
+        if stripped_line.startswith("features"):
+            result["features"] = {}
+            current_feature = result["features"]
+        elif stripped_line.startswith("constraints"):
+            in_constraints = True
+            result["constraints"] = {}
+            current_constraint = result["constraints"]
+        elif stripped_line.startswith("Chat"):
+            current_feature["Chat"] = {"mandatory": {}, "optional": {}}
+            current_mandatory = current_feature["Chat"]["mandatory"]
+            current_optional = current_feature["Chat"]["optional"]
+        elif stripped_line.startswith("mandatory"):
+            pass
+        elif stripped_line.startswith("optional"):
+            pass
+        elif "=>" in stripped_line:
+            if in_constraints:
+                # Asumiendo que la restricción es en formato "A => B"
+                key, value = stripped_line.split("=>")
+                current_constraint[key.strip()] = value.strip().strip('"')
+        else:
+            if current_mandatory is not None:
+                current_mandatory[stripped_line] = stripped_line
+            elif current_optional is not None:
+                current_optional[stripped_line] = stripped_line
+
+    return result
+
+# Descargar los elementos en xml
+
+
+def convert_uvl_to_xml(content):
+    # Crear el elemento raíz
+    root = Element("UVLData")
+    current_parent = root  # Empezamos en el nodo raíz
+    parent_stack = []  # Pila para gestionar el nivel jerárquico
+    indentation_level = 0  # Seguimiento de los niveles de sangría
+
+    for line in content.splitlines():
+        stripped_line = line.strip()  # Elimina espacios al inicio y final
+        if not stripped_line:
+            continue  # Saltar líneas en blanco
+
+        # Calcular el nivel de indentación (2 espacios por nivel en este ejemplo)
+        new_level = (len(line) - len(stripped_line)) // 4
+
+        # Actualizar el nivel de nodo
+        if new_level > indentation_level:
+            parent_stack.append(current_parent)
+        elif new_level < indentation_level:
+            for _ in range(indentation_level - new_level):
+                current_parent = parent_stack.pop()
+
+        # Crear el nuevo nodo bajo el nodo actual
+        element = SubElement(current_parent, "item", name=stripped_line)
+        current_parent = element
+        indentation_level = new_level
+
+    # Generar una cadena XML bonita
+    xml_str = minidom.parseString(tostring(root)).toprettyxml(indent="  ")
+    return xml_str
+
+
+# Convierte el uvl en yaml
+def convert_uvl_to_yaml(content):
+    yaml_data = {
+        'features': {},
+        'constraints': {}
+    }
+
+    current_feature = None
+    current_mandatory = None
+    current_messages = None
+
+    for line in content.splitlines():
+        stripped_line = line.strip()
+
+        if not stripped_line:  # Ignora líneas vacías
+            continue
+
+        if stripped_line.startswith("features"):
+            current_feature = "features"
+        elif stripped_line.startswith("constraints"):
+            current_feature = "constraints"
+            continue  # No procesar más por el momento, solo ir a constraints
+        elif current_feature == "features":
+            # Manejar las secciones de features
+            if stripped_line == "Chat":
+                yaml_data[current_feature]["Chat"] = {
+                    "mandatory": {},
+                    "optional": []
+                }
+                current_mandatory = yaml_data[current_feature]["Chat"]["mandatory"]
+            elif stripped_line == "mandatory":
+                current_mandatory = {}
+                yaml_data[current_feature]["Chat"]["mandatory"] = current_mandatory
+            elif stripped_line == "optional":
+                # Cambiar a una lista para almacenar elementos directamente
+                yaml_data[current_feature]["Chat"]["optional"] = []
+                current_mandatory = None  # No se necesita más
+            elif stripped_line == "Connection":
+                current_mandatory["Connection"] = {}
+                current_mandatory["Connection"]["alternative"] = []
+            elif stripped_line == "alternative":
+                # La línea "alternative" se procesa aquí, pero no agrega nada aún
+                pass
+            elif stripped_line.startswith('"'):
+                # Maneja las alternativas
+                if current_mandatory and "Connection" in current_mandatory:
+                    current_mandatory["Connection"]["alternative"].append(stripped_line.strip('"'))
+                elif current_feature == "features" and "optional" in yaml_data[current_feature]["Chat"]:
+                    yaml_data[current_feature]["Chat"]["optional"].append(stripped_line.strip('"'))
+            elif stripped_line == "Messages":
+                current_messages = {}
+                current_mandatory["Messages"] = current_messages
+            elif stripped_line == "or":
+                current_messages["or"] = []
+            elif stripped_line in ["Text", "Video", "Audio"]:
+                if current_messages and "or" in current_messages:
+                    current_messages["or"].append(stripped_line)
+
+        elif current_feature == "constraints":
+            # Manejo de restricciones
+            if '=>' in stripped_line:
+                key, value = map(str.strip, stripped_line.split('=>'))
+                yaml_data['constraints'][key] = value.strip('"')
+            elif ':' in stripped_line:
+                key, value = map(str.strip, stripped_line.split(':'))
+                yaml_data['constraints'][key] = value.strip('"')
+
+    return yaml.dump(yaml_data, default_flow_style=False, sort_keys=False)
+
+
+@dataset_bp.route("/dataset/download_informat/<file_format>/<int:dataset_id>", methods=["GET"])
+def download_dataset_json(file_format, dataset_id):
+    if file_format not in ["json", "xml", "yaml"]:
+        abort(400, "Formato no soportado")  # Solo acepta json,xmly yaml
+
+    dataset = dataset_service.get_or_404(dataset_id)
+    file_path = f"uploads/user_{dataset.user_id}/dataset_{dataset.id}/"
+
+    temp_dir = tempfile.mkdtemp()
+    zip_path = os.path.join(temp_dir, f"dataset_{dataset_id}.zip")
+
+    with ZipFile(zip_path, "w") as zipf:
+        for subdir, dirs, files in os.walk(file_path):
+            for file in files:
+                full_path = os.path.join(subdir, file)
+
+                if file.endswith('.uvl'):
+                    # Leer el contenido del archivo .uvl
+                    with open(full_path, 'r') as uvl_file:
+                        content = uvl_file.read()
+                        try:
+                            # Convertir según el formato solicitado
+                            if file_format == "json":
+                                converted_content = json.dumps(convert_uvl_to_json(content))
+                                new_file_name = file[:-4] + '.json'
+                            elif file_format == "xml":
+                                converted_content = convert_uvl_to_xml(content)
+                                new_file_name = file[:-4] + '.xml'
+                            elif file_format == "yaml":
+                                converted_content = convert_uvl_to_yaml(content)
+                                new_file_name = file[:-4] + '.yaml'
+                            zipf.writestr(new_file_name, converted_content)
+                        except Exception as e:
+                            print(f"Error al convertir {file}: {e}")
+                else:
+                    zipf.write(
+                        full_path,
+                        arcname=os.path.join(
+                            os.path.basename(zip_path[:-4]), file
+                        ),
+                    )
+
+    user_cookie = request.cookies.get("download_cookie")
+    if not user_cookie:
+        user_cookie = str(uuid.uuid4())
+        resp = make_response(
+            send_from_directory(
+                temp_dir,
+                f"dataset_{dataset_id}.zip",
+                as_attachment=True,
+                mimetype="application/zip",
+            )
+        )
+        resp.set_cookie("download_cookie", user_cookie)
+    else:
+        resp = send_from_directory(
+            temp_dir,
+            f"dataset_{dataset_id}.zip",
+            as_attachment=True,
+            mimetype="application/zip",
+                )
+
+    # Check if the download record already exists for this cookie
+    existing_record = DSDownloadRecord.query.filter_by(
+        user_id=current_user.id if current_user.is_authenticated else None,
+        dataset_id=dataset_id,
+        download_cookie=user_cookie
+    ).first()
+
+    if not existing_record:
+        # Record the download in your database
+        DSDownloadRecordService().create(
+            user_id=current_user.id if current_user.is_authenticated else None,
+            dataset_id=dataset_id,
+            download_date=datetime.now(timezone.utc),
+            download_cookie=user_cookie,
+        )
+
+    return resp
 
 
 @dataset_bp.route("/doi/<path:doi>/", methods=["GET"])
@@ -305,7 +581,6 @@ def subdomain_index(doi):
 
     # Get dataset
     dataset = ds_meta_data.data_set
-
     # Save the cookie to the user's browser
     user_cookie = ds_view_record_service.create_cookie(dataset=dataset)
     resp = make_response(render_template("dataset/view_dataset.html", dataset=dataset))

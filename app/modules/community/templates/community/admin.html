@@ -1,0 +1,62 @@
+{% extends "base_template.html" %}
+
+{% block title %}Community Admin Panel{% endblock %}
+
+{% block content %}
+
+<h1>Community Administrator Dashboard: {{ community.name }}</h1>
+<p>{{ community.description}}</p>
+
+<h2>Members</h2>
+<ul>
+    {% if not community.members %}
+        <p>There are no members in this community</p>
+    {% else %}
+        {% for member in community.member_associations %}
+            <li style="display: flex; align-items: center; gap: 10px;">
+                {{ member.user.profile.surname }}, {{ member.user.profile.name }} - Role: {{ member.role.value }} - Joined at {{ member.joined_at }}
+                
+                {% if member.role.value == 'member' %}
+                    <div style="display: flex; gap: 10px; margin-left: auto;">
+                        <form action="{{ url_for('community.remove_member', community_id=community.id, user_id=member.user_id) }}" method="post" style="margin: 0;">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove Member</button>
+                        </form>
+                        <form action="{{ url_for('community.make_admin', community_id=community.id, user_id=member.user_id) }}" method="post" style="margin: 0;">
+                            <button type="submit" class="btn btn-warning btn-sm">Make Admin</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </li>
+        {% endfor %}
+    {% endif %}
+</ul>
+
+{% if is_private %}
+    <h2>Pending Join Requests</h2>
+    <ul>
+        {% if not community.join_requests %}
+            <p>No pending join requests.</p>
+        {% else %}
+            {% for invite in community.join_requests %}
+                <li style="display: flex; align-items: center; gap: 10px;">
+                    {{ invite.user.profile.surname }}, {{ invite.user.profile.name }} - Sent at: {{invite.requested_at}}
+                    <div style="display: flex; gap: 10px; margin-left: auto;">
+                        <form action="{{ url_for('community.accept_join_request', community_id=community.id, request_id=invite.id) }}" method="post">
+                            <button type="submit" class="btn btn-primary btn-sm">Accept</button>
+                        </form>
+                        <form action="{{ url_for('community.reject_join_request', community_id=community.id, request_id=invite.id) }}" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+{% endif %}
+
+<a href="{{ url_for('community.index') }}">Back to Communities</a>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('community.scripts') }}"></script>
+{% endblock %}

@@ -11,14 +11,15 @@ from flamapy.metamodels.pysat_metamodel.transformations import FmToPysat, Dimacs
 from flask import abort, request
 
 from app.modules.auth.services import AuthenticationService
-from app.modules.dataset.models import DSViewRecord, DataSet, DSMetaData
+from app.modules.dataset.models import DSViewRecord, DataSet, DSMetaData, DSMetrics, DSRating
 from app.modules.dataset.repositories import (
     AuthorRepository,
     DOIMappingRepository,
     DSDownloadRecordRepository,
     DSMetaDataRepository,
     DSViewRecordRepository,
-    DataSetRepository
+    DataSetRepository,
+    DSRatingRepository
 )
 from app.modules.featuremodel.repositories import FMMetaDataRepository, FeatureModelRepository
 from app.modules.hubfile.repositories import (
@@ -27,6 +28,8 @@ from app.modules.hubfile.repositories import (
     HubfileViewRecordRepository
 )
 from core.services.BaseService import BaseService
+from datetime import datetime
+
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +40,69 @@ def calculate_checksum_and_size(file_path):
         content = file.read()
         hash_md5 = hashlib.md5(content).hexdigest()
         return hash_md5, file_size
+
+
+def parse_uvl(file_path):
+    features = []
+    constraints = []
+    feature_hierarchy = {}
+
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    # Track hierarchy for feature organization
+    current_parent = None
+    for line in lines:
+        line = line.strip()
+
+        # Identify feature sections
+        if line.startswith("features"):
+            continue
+        elif line.startswith("constraints"):
+            # Stop collecting features and move to constraints
+            break
+        elif line in ["mandatory", "optional", "alternative", "or"]:
+            current_parent = line
+            feature_hierarchy[current_parent] = []
+        else:
+            # Extract features (ignoring quotes if any)
+            feature = line.replace('"', '')
+            if feature:
+                features.append(feature)
+                if current_parent:
+                    feature_hierarchy[current_parent].append(feature)
+
+    # Extract constraints section
+    constraints_section = False
+    for line in lines:
+        line = line.strip()
+        if line.startswith("constraints"):
+            constraints_section = True
+            continue
+        if constraints_section:
+            constraints.append(line)
+
+    return {
+        "features": features,
+        "feature_hierarchy": feature_hierarchy,
+        "constraints": constraints
+    }
+
+
+def calculate_number_of_products(feature_hierarchy, constraints):
+    # Start with mandatory features (1 configuration)
+    product_count = 1
+
+    # Add optional features (each has 2 states: included or excluded)
+    product_count *= 2 ** len(feature_hierarchy["optional"])
+
+    # Handle "alternative" groups (1 choice per group)
+    product_count *= len(feature_hierarchy["alternative"])
+
+    # Handle "or" groups (any combination except empty set)
+    product_count *= (2 ** len(feature_hierarchy["or"])) - 1
+
+    return product_count
 
 
 class DataSetService(BaseService):
@@ -51,6 +117,7 @@ class DataSetService(BaseService):
         self.hubfilerepository = HubfileRepository()
         self.dsviewrecord_repostory = DSViewRecordRepository()
         self.hubfileviewrecord_repository = HubfileViewRecordRepository()
+        self.dsrating_repository = DSRatingRepository()
 
     def move_feature_models(self, dataset: DataSet):
         current_user = AuthenticationService().get_authenticated_user()
@@ -108,30 +175,73 @@ class DataSetService(BaseService):
             logger.info(f"Creating dsmetadata...: {form.get_dsmetadata()}")
             dsmetadata = self.dsmetadata_repository.create(**form.get_dsmetadata())
             for author_data in [main_author] + form.get_authors():
-                author = self.author_repository.create(commit=False, ds_meta_data_id=dsmetadata.id, **author_data)
+                author = self.author_repository.create(
+                    commit=False,
+                    ds_meta_data_id=dsmetadata.id,
+                    **author_data
+                )
                 dsmetadata.authors.append(author)
 
-            dataset = self.create(commit=False, user_id=current_user.id, ds_meta_data_id=dsmetadata.id)
+            dataset = self.create(
+                commit=False,
+                user_id=current_user.id,
+                ds_meta_data_id=dsmetadata.id
+            )
+
+            total_features = 0
+            total_models = len(form.feature_models)
+            total_products = 0
 
             for feature_model in form.feature_models:
                 uvl_filename = feature_model.uvl_filename.data
-                fmmetadata = self.fmmetadata_repository.create(commit=False, **feature_model.get_fmmetadata())
+                fmmetadata = self.fmmetadata_repository.create(
+                    commit=False,
+                    **feature_model.get_fmmetadata()
+                )
                 for author_data in feature_model.get_authors():
-                    author = self.author_repository.create(commit=False, fm_meta_data_id=fmmetadata.id, **author_data)
+                    author = self.author_repository.create(
+                        commit=False,
+                        fm_meta_data_id=fmmetadata.id,
+                        **author_data
+                    )
                     fmmetadata.authors.append(author)
 
                 fm = self.feature_model_repository.create(
-                    commit=False, data_set_id=dataset.id, fm_meta_data_id=fmmetadata.id
+                    commit=False,
+                    data_set_id=dataset.id,
+                    fm_meta_data_id=fmmetadata.id
                 )
 
-                # associated files in feature model
                 file_path = os.path.join(current_user.temp_folder(), uvl_filename)
                 checksum, size = calculate_checksum_and_size(file_path)
+                parse_result = parse_uvl(file_path)
+                feature_count = len(parse_result["features"])
+                total_features += feature_count
+
+                product_count = calculate_number_of_products(
+                    parse_result["feature_hierarchy"],
+                    parse_result["constraints"]
+                )
+                total_products += product_count
 
                 file = self.hubfilerepository.create(
-                    commit=False, name=uvl_filename, checksum=checksum, size=size, feature_model_id=fm.id
+                    commit=False,
+                    name=uvl_filename,
+                    checksum=checksum,
+                    size=size,
+                    feature_model_id=fm.id
                 )
                 fm.files.append(file)
+
+            dsmetrics = DSMetrics(
+                number_of_models=str(total_models),
+                number_of_features=str(total_features),
+                number_of_products=str(total_products)
+            )
+            dsmetadata.ds_metrics = dsmetrics
+
+            dataset.ds_meta_data = dsmetadata
+
             self.repository.session.commit()
         except Exception as exc:
             logger.info(f"Exception creating dataset from form...: {exc}")
@@ -302,3 +412,41 @@ class SizeService():
             return f'{round(size / (1024 ** 2), 2)} MB'
         else:
             return f'{round(size / (1024 ** 3), 2)} GB'
+
+
+class DSRatingService(BaseService):
+    def __init__(self):
+        super().__init__(DSRatingRepository())
+
+    def add_or_update_rating(self, dsmetadata_id: int, user_id: int, rating_value: int) -> DSRating:
+        # Verificar si ya existe una calificación para este usuario y dataset
+        existing_rating = self.repository.get_user_rating(dsmetadata_id, user_id)
+
+        if existing_rating:
+            # Actualiza la calificación existente
+            existing_rating.rating = rating_value
+            existing_rating.rated_date = datetime.utcnow()
+        else:
+            # Crea una nueva calificación
+            existing_rating = self.repository.create(
+                commit=False,
+                ds_meta_data_id=dsmetadata_id,
+                user_id=user_id,
+                rating=rating_value,
+                rated_date=datetime.utcnow()
+            )
+
+        self.repository.session.commit()
+        return existing_rating
+
+    def get_dataset_average_rating(self, dsmetadata_id: int) -> float:
+        return self.repository.get_average_rating(dsmetadata_id)
+
+    def get_total_ratings(self, dsmetadata_id: int) -> int:
+        return self.repository.count_ratings(dsmetadata_id)
+
+    def get_datasets_with_rating(self, current_user_id):
+        datasets = self.repository.get_synchronized(current_user_id)
+        for dataset in datasets:
+            dataset.ds_meta_data.rating = self.dsrating_repository.get_average_rating(dataset.ds_meta_data.id)
+        return datasets

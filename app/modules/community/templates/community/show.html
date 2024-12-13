@@ -6,6 +6,61 @@
 
 <h1>{{ community.name }}</h1>
 <p>{{ community.description}}</p>
+{% if is_creator %}
+    <form action="{{ url_for('community.admin_community', community_id=community.id) }}" method="get">
+        <button type="submit" class="btn btn-primary">Administrate Community</button>
+    </form>
+    <form action="{{ url_for('community.edit_community', community_id=community.id) }}" method="post">
+        <button type="submit" class="btn btn-warning">Edit Community</button>
+    </form>
+    <form action="{{ url_for('community.delete_community', community_id=community.id) }}" method="post">
+        <button type="submit" class="btn btn-danger">Delete Community</button>
+    </form>
+{% else %}
+    {% if is_admin %}
+        <form action="{{ url_for('community.admin_community', community_id=community.id) }}" method="get">
+            <button type="submit" class="btn btn-primary">Administrate Community</button>
+        </form>
+        <form action="{{ url_for('community.edit_community', community_id=community.id) }}" method="post">
+            <button type="submit" class="btn btn-warning">Edit Community</button>
+        </form>
+        <form action="{{ url_for('community.leave_community', community_id=community.id) }}" method="post">
+            <button type="submit" class="btn btn-danger">Leave Community</button>
+        </form>
+    {% else %}
+        {% if is_member %}
+            <form action="{{ url_for('community.leave_community', community_id=community.id) }}" method="post">
+                <button type="submit" class="btn btn-danger">Leave Community</button>
+            </form>
+        {% else %}
+            {% if is_private %}
+                <form action="{{ url_for('community.request_join_community', community_id=community.id) }}" method="post">
+                    <button type="submit" class="btn btn-primary" {% if request_pending %} disabled {% endif %}>
+                        {% if request_pending %}
+                            Request Pending
+                        {% else %}
+                            Request Join Community
+                        {% endif %}
+                    </button>
+                </form>
+            {% else %}
+                <form action="{{ url_for('community.join_community', community_id=community.id) }}" method="post">
+                    <button type="submit" class="btn btn-primary">Join Community</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endif %}
+<h2>Members</h2>
+<ul>
+    {% if not community.members %}
+        <p>There are no members in this community</p>
+    {% else %}
+        {% for member in community.member_associations %}
+            <li>{{ member.user.profile.surname }}, {{ member.user.profile.name }} - Role: {{member.role.value}}</li>
+        {% endfor %}
+    {% endif %}
+</ul>
 <a href="{{ url_for('community.index') }}">Back to Communities</a>
 {% endblock %}
 

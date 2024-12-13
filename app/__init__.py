@@ -1,11 +1,9 @@
 import os
-
 from flask import Flask
-
 from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv
 from flask_migrate import Migrate
-
+from flask_mail import Mail
+from dotenv import load_dotenv
 from core.configuration.configuration import get_app_version
 from core.managers.module_manager import ModuleManager
 from core.managers.config_manager import ConfigManager
@@ -18,6 +16,7 @@ load_dotenv()
 # Create the instances
 db = SQLAlchemy()
 migrate = Migrate()
+mail = Mail()  # Instancia para Flask-Mail
 
 
 def create_app(config_name='development'):
@@ -30,6 +29,17 @@ def create_app(config_name='development'):
     # Initialize SQLAlchemy and Migrate with the app
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # Flask-Mail configuration
+    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))  # Asegúrate de convertir a entero
+    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'  # Convierte el valor a booleano
+    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')  # Correo electrónico del remitente
+    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # Contrasena o token de la cuenta de correo
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'romerito3rubn@gmail.com')  # Remitente
+    app.config['BASE_URL'] = os.getenv('BASE_URL', 'http://localhost:5000')  # URL base para generar enlaces
+
+    mail.init_app(app)  # Inicializa Flask-Mail
 
     # Register modules
     module_manager = ModuleManager(app)
