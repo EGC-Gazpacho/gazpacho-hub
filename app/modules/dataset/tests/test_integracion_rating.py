@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from ..models import User, UserProfile
+from app.modules.auth.models import User
+from app.modules.profile.models import UserProfile
 from app import db
 
 
