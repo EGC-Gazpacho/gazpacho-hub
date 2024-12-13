@@ -3,11 +3,10 @@ from unittest.mock import MagicMock, patch
 import unittest
 
 from app.modules.dataset.models import DataSet, DSMetaData
-from app.modules.conftest import login, logout
+from app.modules.conftest import login
 from app.modules.auth.models import User
 from app.modules.profile.models import UserProfile
 from app import db
-from app.modules.dataset.services import DataSetService
 
 
 @pytest.fixture(scope="module")
