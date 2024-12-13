@@ -38,6 +38,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pytest-cov
 
     - name: Run Tests
       env:
@@ -56,5 +57,27 @@ jobs:
         MAIL_DEFAULT_SENDER: romerito3rubn@gmail.com
         BASE_URL: http://localhost:5000
         SECRET_KEY: ${{ secrets.FLASKMAIL_TOKEN }}
+
+      
       run: |
-        pytest app/modules/ --ignore-glob='*selenium*'
+        pytest app/modules/ --cov=app/modules/ --cov-report=xml:coverage.xml --ignore-glob='*selenium*'
+
+    - name: Parse Coverage Report
+      id: parse-coverage
+      run: |
+          coverage_report=$(python -c '
+          import xml.etree.ElementTree as ET
+          tree = ET.parse("coverage.xml")
+          root = tree.getroot()
+          coverage = []
+          for package in root.findall(".//package"):
+              package_name = package.get("name")
+              coverage.append(f"**{package_name}**")
+              for class_elem in package.findall(".//class"):
+                  class_name = class_elem.get("name")
+                  line_rate = class_elem.get("line-rate")
+                  if class_name and line_rate:
+                      coverage.append(f"{class_name}_{line_rate}")
+          print(",".join(coverage))
+          ')
+          echo "coverage=$coverage_report" >> $GITHUB_ENV
