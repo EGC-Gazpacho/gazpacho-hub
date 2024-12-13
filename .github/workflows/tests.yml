@@ -109,7 +109,7 @@ jobs:
       - name: Check if Token Exists Before Commenting
         if: github.event_name == 'pull_request'
         run: |
-          if [[ -z "${{ secrets.MY_GITHUB_TOKEN }}" ]]; then
+          if [[ -z "${{ secrets.UPLOAD_TOKEN_GITHUB }}" ]]; then
             echo "MY_GITHUB_TOKEN is not available. Skipping PR comment."
             echo "token_exists=false" >> $GITHUB_ENV
           else
@@ -120,7 +120,7 @@ jobs:
         if: github.event_name == 'pull_request' && env.token_exists == 'true'
         uses: peter-evans/create-or-update-comment@v2
         with:
-          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          token: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ## Test Coverage Report
