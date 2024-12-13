@@ -15,6 +15,7 @@ from flask import (
     render_template,
     request,
     jsonify,
+    send_file,
     send_from_directory,
     make_response,
     abort,
@@ -281,6 +282,17 @@ def download_dataset(dataset_id):
     return resp
 
 
+@dataset_bp.route("/dataset/download/all", methods=["GET"])
+def download_all_dataset():
+    zip_path = dataset_service.zip_all_datasets()
+
+    current_date = datetime.now().strftime("%Y_%m_%d")
+
+    zip_filename = f"all_datasets_{current_date}.zip"
+
+    return send_file(zip_path, as_attachment=True, download_name=zip_filename)
+
+
 @dataset_bp.route('/datasets/<int:dataset_id>/rate', methods=['POST'])
 @login_required
 def rate_dataset(dataset_id):
@@ -531,7 +543,7 @@ def download_dataset_json(file_format, dataset_id):
             f"dataset_{dataset_id}.zip",
             as_attachment=True,
             mimetype="application/zip",
-                )
+        )
 
     # Check if the download record already exists for this cookie
     existing_record = DSDownloadRecord.query.filter_by(
