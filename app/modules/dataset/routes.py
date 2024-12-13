@@ -318,7 +318,7 @@ def get_average_rating(dataset_id):
 @dataset_bp.route('/datasets/<int:dataset_id>', methods=['GET'])
 def view_dataset(dataset_id):
     # Obtener el dataset
-    dataset = dataset_service.get_dataset_by_id(dataset_id)  # Ajusta según tu implementación
+    dataset = dataset_service.get_or_404(dataset_id)  # Ajusta según tu implementación
 
     # Calcular el promedio de calificaciones
     average_rating = ds_rating_service.get_dataset_average_rating(dataset_id) or 0.0
