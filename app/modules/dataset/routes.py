@@ -276,6 +276,7 @@ def download_dataset(dataset_id):
 
     return resp
 
+
 @dataset_bp.route("/dataset/download/all", methods=["GET"])
 def download_all_dataset():
     zip_path = dataset_service.zip_all_datasets()

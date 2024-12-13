@@ -1,5 +1,4 @@
 import pytest
-from flask import url_for
 from app import create_app
 import io
 from unittest.mock import patch
@@ -15,6 +14,7 @@ def test_client():
         with app.app_context():
             yield client
 
+
 @patch('app.modules.dataset.services.DataSetService.zip_all_datasets')
 def test_download_all_endpoint(mock_generar_zip, test_client):
     """Testea que el endpoint de descarga devuelva un código 200."""
@@ -24,6 +24,7 @@ def test_download_all_endpoint(mock_generar_zip, test_client):
 
     assert response.status_code == 200
     mock_generar_zip.assert_called_once()
+
 
 @patch('app.modules.dataset.services.DataSetService.zip_all_datasets')
 def test_download_all_is_zip(mock_generar_zip, test_client):
@@ -35,7 +36,7 @@ def test_download_all_is_zip(mock_generar_zip, test_client):
     assert response.data == b'simulated zip content'
     assert response.content_type == 'application/zip'
     mock_generar_zip.assert_called_once()
-    
+
 
 @patch('app.modules.dataset.services.DataSetService.zip_all_datasets')
 def test_download_all_filename(mock_generar_zip, test_client):
@@ -51,7 +52,7 @@ def test_download_all_filename(mock_generar_zip, test_client):
     # Verificar que el encabezado 'Content-Disposition' tenga el nombre esperado
     assert response.headers['Content-Disposition'] == expected_filename
     mock_generar_zip.assert_called_once()
-    
+
 
 @patch('os.listdir')
 @patch('app.modules.dataset.services.DataSetService.is_synchronized')
@@ -66,8 +67,8 @@ def test_zip_all_datasets_no_datasets(mock_is_synchronized, mock_listdir, test_c
 
     # Verificar que el código de estado sea 404
     assert response.status_code == 404
-    
-    
+
+
 @patch('os.listdir')
 @patch('app.modules.dataset.services.DataSetService.is_synchronized')
 def test_zip_all_datasets_no_users(mock_is_synchronized, mock_listdir, test_client):
@@ -77,14 +78,6 @@ def test_zip_all_datasets_no_users(mock_is_synchronized, mock_listdir, test_clie
 
     # Ejecutar la solicitud y verificar que se devuelve un error 404
     response = test_client.get('/dataset/download/all')
-    
+
     # Verificar que el código de estado sea 404
     assert response.status_code == 404
-    
-
-
-
-
-
-    
-    

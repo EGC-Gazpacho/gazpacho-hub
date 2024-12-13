@@ -1,7 +1,6 @@
 import os
 import time
 
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -130,11 +129,10 @@ def test_upload_dataset():
 
         # Close the browser
         close_driver(driver)
-        
-        
-        
+
+
 def test_download_all_datasets():
-        
+
     driver = initialize_driver()
 
     try:
@@ -143,20 +141,18 @@ def test_download_all_datasets():
         # Open the login page
         driver.get(f"{host}")
         wait_for_page_to_load(driver)
-            
+
         driver.find_element(By.LINK_TEXT, "Download all Datasets!").click()
         time.sleep(2)
         driver.find_element(By.LINK_TEXT, "Confirmar Descarga").click()
         time.sleep(2)
-            
-            
+
     finally:
         close_driver(driver)
-        
 
-        
+
 def test_download_all_datasets_cancel():
-        
+
     driver = initialize_driver()
 
     try:
@@ -165,11 +161,10 @@ def test_download_all_datasets_cancel():
         # Open the login page
         driver.get(f"{host}")
         wait_for_page_to_load(driver)
-            
+
         driver.find_element(By.LINK_TEXT, "Download all Datasets!").click()
         time.sleep(2)
         driver.find_element(By.CSS_SELECTOR, ".btn-secondary").click()
-            
-            
+
     finally:
         close_driver(driver)

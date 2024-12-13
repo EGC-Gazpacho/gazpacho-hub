@@ -8,8 +8,6 @@ import uuid
 from zipfile import ZipFile
 from flamapy.metamodels.fm_metamodel.transformations import UVLReader, GlencoeWriter, SPLOTWriter
 from flamapy.metamodels.pysat_metamodel.transformations import FmToPysat, DimacsWriter
-import tempfile
-
 from flask import abort, request
 
 from app.modules.auth.services import AuthenticationService
@@ -66,7 +64,7 @@ class DataSetService(BaseService):
         for feature_model in dataset.feature_models:
             uvl_filename = feature_model.fm_meta_data.uvl_filename
             shutil.move(os.path.join(source_dir, uvl_filename), dest_dir)
-            
+
     def is_synchronized(self, dataset_id: int) -> bool:
         return self.repository.is_synchronized(dataset_id)
 
@@ -140,14 +138,13 @@ class DataSetService(BaseService):
             self.repository.session.rollback()
             raise exc
         return dataset
-    
-    
+
     # Los datasets contienen los archivos en formato UVL, los cuales se deben convertir a otros formatos
-    
+
     def convert_uvl_to_formats(self, uvl_file_path: str, output_formats: list) -> dict:
         """
         Convierte un archivo UVL a múltiples formatos (Glencoe, Dinamacs, SPLOT).
-        
+
         :param uvl_file_path: Ruta del archivo UVL de entrada.
         :param output_formats: Lista de formatos a los que convertir (Glencoe, Dinamacs, SPLOT).
         :return: Diccionario con las rutas de los archivos convertidos.
@@ -179,13 +176,12 @@ class DataSetService(BaseService):
 
         return converted_files
 
-
     def zip_all_datasets(self) -> str:
         temp_dir = tempfile.mkdtemp()
         zip_path = os.path.join(temp_dir, "all_datasets.zip")
         supported_formats = ["Glencoe", "Dinamacs", "SPLOT"]
 
-        datasets_found = False  
+        datasets_found = False
 
         with ZipFile(zip_path, "w") as zipf:
             for user_dir in os.listdir("uploads"):
@@ -227,7 +223,6 @@ class DataSetService(BaseService):
 
         return zip_path
 
-
     def update_dsmetadata(self, id, **kwargs):
         return self.dsmetadata_repository.update(id, **kwargs)
 
@@ -264,7 +259,7 @@ class DSViewRecordService(BaseService):
     def the_record_exists(self, dataset: DataSet, user_cookie: str):
         return self.repository.the_record_exists(dataset, user_cookie)
 
-    def create_new_record(self, dataset: DataSet,  user_cookie: str) -> DSViewRecord:
+    def create_new_record(self, dataset: DataSet, user_cookie: str) -> DSViewRecord:
         return self.repository.create_new_record(dataset, user_cookie)
 
     def create_cookie(self, dataset: DataSet) -> str:
