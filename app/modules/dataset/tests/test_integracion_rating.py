@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import patch, MagicMock
 from app.modules.auth.models import User
 from app.modules.profile.models import UserProfile
-from app.modules.dataset.services import DSRatingService, DataSetService
 from app import db
 
 
@@ -94,7 +93,7 @@ def test_view_dataset_with_average_rating_mocked(test_client_with_ratings):
     """
     Test viewing a dataset with its average rating using mocks.
     """
-    with patch('app.modules.dataset.services.DataSetService.get_dataset_by_id') as mock_get_dataset, \
+    with patch('app.modules.dataset.services.DataSetService.get_or_404') as mock_get_dataset, \
          patch('app.modules.dataset.services.DSRatingService.get_dataset_average_rating') as mock_avg_rating:
 
         # Mock the dataset and average rating
