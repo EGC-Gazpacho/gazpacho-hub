@@ -9,13 +9,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from core.environment.host import get_host_for_selenium_testing
 from core.selenium.common import initialize_driver, close_driver
 
-# Configurar Selenium para usar Chromium
-options = webdriver.ChromeOptions()
-
-# Quita '--headless' para ejecutar el navegador de manera visible
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-
 
 def wait_for_page_to_load(driver, timeout=4):
     WebDriverWait(driver, timeout).until(
