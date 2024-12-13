@@ -21,7 +21,6 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-        
 
     steps:
     - uses: actions/checkout@v4
@@ -57,7 +56,6 @@ jobs:
         MAIL_DEFAULT_SENDER: romerito3rubn@gmail.com
         BASE_URL: http://localhost:5000
         SECRET_KEY: ${{ secrets.FLASKMAIL_TOKEN }}
-
       
       run: |
         pytest app/modules/ --cov=app/modules/ --cov-report=xml:coverage.xml --ignore-glob='*selenium*'
@@ -69,16 +67,15 @@ jobs:
           import xml.etree.ElementTree as ET
           tree = ET.parse("coverage.xml")
           root = tree.getroot()
-          coverage = []
+          report = []
           for package in root.findall(".//package"):
               package_name = package.get("name")
-              coverage.append(f"**{package_name}**")
+              report.append(f"## {package_name}")
               for class_elem in package.findall(".//class"):
                   class_name = class_elem.get("name")
-                  line_rate = class_elem.get("line-rate")
-                  if class_name and line_rate:
-                      coverage.append(f"{class_name}_{line_rate}")
-          print(",".join(coverage))
+                  line_rate = float(class_elem.get("line-rate")) * 100
+                  report.append(f"{class_name}: {line_rate:.2f}%")
+          print("\\n".join(report))
           ')
           echo "coverage=$coverage_report" >> $GITHUB_ENV
 
