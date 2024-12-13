@@ -101,4 +101,3 @@ zstandard==0.22.0
 flask-mail
 pyjwt
 pyYAML==6.0.2
-pytest-cov==4.1.0
