@@ -47,5 +47,13 @@ jobs:
         MARIADB_USER: uvlhub_user
         MARIADB_PASSWORD: uvlhub_password
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
+        MAIL_SERVER: smtp.gmail.com
+        MAIL_PORT: 587
+        MAIL_USE_TLS: True
+        MAIL_USERNAME: romerito3rubn@gmail.com
+        MAIL_PASSWORD: ${{ secrets.FLASKMAIL_TOKEN }}
+        MAIL_DEFAULT_SENDER: romerito3rubn@gmail.com
+        BASE_URL: http://localhost:5000
+        SECRET_KEY: ${{ secrets.FLASKMAIL_TOKEN }}
       run: |
         pytest app/modules/ --ignore-glob='*selenium*'
