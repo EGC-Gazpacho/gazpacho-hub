@@ -1,6 +1,6 @@
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By  # Add this import
-from selenium.webdriver.common.keys import Keys  # Add this import
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 import time
 
 from core.environment.host import get_host_for_selenium_testing
