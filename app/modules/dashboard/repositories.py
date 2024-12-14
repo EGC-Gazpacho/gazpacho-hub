@@ -197,6 +197,3 @@ class DashboardRepository(BaseRepository):
         download_counts.reverse()
 
         return months, download_counts
-
-    def auxiliarfunc(self):
-        return datetime.today()
