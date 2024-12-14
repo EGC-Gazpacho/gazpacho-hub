@@ -4,6 +4,7 @@ from app.modules.conftest import login, logout
 from app.modules.auth.models import User
 from app.modules.dataset.models import DSMetaData, DSMetrics, DataSet, PublicationType
 
+
 @pytest.fixture(scope="module")
 def test_client(test_client):
     """
@@ -54,7 +55,6 @@ def test_client(test_client):
         db.session.add_all([dataset1, dataset2, dataset3])
         db.session.commit()
 
-
     yield test_client
 
 
@@ -73,9 +73,12 @@ def test_filter_by_query(test_client):
     assert response.status_code == 200, "Filtering datasets by query failed."
 
     json_data = response.get_json()
-    assert not any(dataset['title'] == "Physics Dataset" for dataset in json_data), "Physics Dataset incorrectly appeared in filtering results."
+    assert not any(
+        dataset['title'] == "Physics Dataset" for dataset in json_data
+    ), "Physics Dataset incorrectly appeared in filtering results."
 
     logout(test_client)
+
 
 def test_filter_by_features_count(test_client):
     """
@@ -84,15 +87,22 @@ def test_filter_by_features_count(test_client):
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
 
-    response = test_client.post('/explore', json={"number_of_features": 50}, follow_redirects=True)
+    response = test_client.post(
+        '/explore', json={"number_of_features": 50}, follow_redirects=True
+    )
     assert response.status_code == 200, "Filtering datasets by features count failed."
 
     json_data = response.get_json()
     assert len(json_data) == 0, "Size is not 0"
-    assert not any(dataset['title'] == "ML Dataset" for dataset in json_data), "ML Dataset was not found in the filtering results."
-    assert not any(dataset['title'] == "Physics Dataset" for dataset in json_data), "Physics Dataset incorrectly appeared in filtering results."
+    assert not any(
+        dataset['title'] == "ML Dataset" for dataset in json_data
+    ), "ML Dataset was not found in the filtering results."
+    assert not any(
+        dataset['title'] == "Physics Dataset" for dataset in json_data
+    ), "Physics Dataset incorrectly appeared in filtering results."
 
     logout(test_client)
+
 
 def test_combined_filtering(test_client):
     """
@@ -101,13 +111,18 @@ def test_combined_filtering(test_client):
     login_response = login(test_client, "user@example.com", "test1234")
     assert login_response.status_code == 200, "Login was unsuccessful."
 
-    response = test_client.post('/explore', json={"query": "ml", "number_of_features": 20}, follow_redirects=True)
+    response = test_client.post(
+        '/explore', json={"query": "ml", "number_of_features": 20}, follow_redirects=True
+    )
     assert response.status_code == 200, "Combined filtering request failed."
 
     json_data = response.get_json()
-    assert not any(dataset['title'] == "Physics Dataset" for dataset in json_data), "Physics Dataset incorrectly appeared in filtering results."
+    assert not any(
+        dataset['title'] == "Physics Dataset" for dataset in json_data
+    ), "Physics Dataset incorrectly appeared in filtering results."
 
     logout(test_client)
+
 
 def test_no_filter_results(test_client):
     """
@@ -117,7 +132,9 @@ def test_no_filter_results(test_client):
     assert login_response.status_code == 200, "Login was unsuccessful."
 
     # Perform a filtering request with a non-matching query
-    response = test_client.post('/explore', json={"query": "nonexistent"}, follow_redirects=True)
+    response = test_client.post(
+        '/explore', json={"query": "nonexistent"}, follow_redirects=True
+    )
     assert response.status_code == 200, "Filtering datasets with no results failed."
 
     json_data = response.get_json()

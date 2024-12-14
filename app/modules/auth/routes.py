@@ -5,6 +5,7 @@ from app.modules.auth.forms import SignupForm, LoginForm
 from app.modules.auth.services import AuthenticationService
 from app.modules.profile.services import UserProfileService
 
+
 # Instanciar los servicios aquí para evitar la creación repetida
 authentication_service = AuthenticationService()
 user_profile_service = UserProfileService()

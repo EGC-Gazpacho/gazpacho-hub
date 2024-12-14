@@ -1,10 +1,12 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from app.modules.explore.services import ExploreService
+
 
 @pytest.fixture
 def explore_service():
     return ExploreService()
+
 
 def test_filter_query(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -16,6 +18,7 @@ def test_filter_query(explore_service):
         assert result == ['dataset1', 'dataset2']
         mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, [], **{})
 
+
 def test_filter_sorting(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         sorting = "oldest"
@@ -26,6 +29,7 @@ def test_filter_sorting(explore_service):
         assert result == []
         mock_filter.assert_called_once_with("", sorting, 'any', None, None, [], **{})
 
+
 def test_filter_publication_type(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         publication_type = "journal"
@@ -35,6 +39,7 @@ def test_filter_publication_type(explore_service):
 
         assert result == ['dataset1']
         mock_filter.assert_called_once_with("", 'newest', publication_type, None, None, [], **{})
+
 
 def test_filter_with_multiple_parameters(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -61,12 +66,14 @@ def test_filter_with_multiple_parameters(explore_service):
             query, sorting, publication_type, number_of_features, number_of_products, tags, **{}
         )
 
+
 def test_filter_invalid_parameters(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         mock_filter.side_effect = ValueError("Invalid parameters")
 
         with pytest.raises(ValueError, match="Invalid parameters"):
             explore_service.filter(query=None, sorting="invalid_sort")
+
 
 def test_filter_number_of_features(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -78,6 +85,7 @@ def test_filter_number_of_features(explore_service):
         assert result == ['dataset1']
         mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, None, [], **{})
 
+
 def test_filter_number_of_products(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         number_of_products = 20
@@ -88,6 +96,7 @@ def test_filter_number_of_products(explore_service):
         assert result == ['dataset2']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, number_of_products, [], **{})
 
+
 def test_filter_tags(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         tags = ["AI", "big data"]
@@ -97,6 +106,7 @@ def test_filter_tags(explore_service):
 
         assert result == ['dataset3']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
 
 def test_filter_combined_with_number_features_and_products(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -109,6 +119,7 @@ def test_filter_combined_with_number_features_and_products(explore_service):
         assert result == ['dataset4', 'dataset5']
         mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, number_of_products, [], **{})
 
+
 def test_filter_edge_case_empty_query(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         mock_filter.return_value = []
@@ -117,6 +128,7 @@ def test_filter_edge_case_empty_query(explore_service):
 
         assert result == []
         mock_filter.assert_called_once_with("", 'newest', 'any', None, None, [], **{})
+
 
 def test_filter_large_number_of_tags(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -128,6 +140,7 @@ def test_filter_large_number_of_tags(explore_service):
         assert result == ['dataset_large_tags']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
 
+
 def test_filter_special_characters_in_query(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         query = "@#*&^%$"
@@ -137,6 +150,7 @@ def test_filter_special_characters_in_query(explore_service):
 
         assert result == []
         mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, [], **{})
+
 
 def test_filter_combination_publication_and_features(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -149,6 +163,7 @@ def test_filter_combination_publication_and_features(explore_service):
         assert result == ['dataset_pub_features']
         mock_filter.assert_called_once_with("", 'newest', publication_type, number_of_features, None, [], **{})
 
+
 def test_filter_no_results(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         mock_filter.return_value = []
@@ -158,6 +173,7 @@ def test_filter_no_results(explore_service):
         assert result == []
         mock_filter.assert_called_once_with("nonexistent", 'newest', 'any', None, None, [], **{})
 
+
 def test_filter_with_null_values(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         mock_filter.return_value = ['dataset_null_handling']
@@ -166,6 +182,7 @@ def test_filter_with_null_values(explore_service):
 
         assert result == ['dataset_null_handling']
         mock_filter.assert_called_once_with(None, 'newest', 'any', None, None, None, **{})
+
 
 def test_filter_case_insensitivity_query(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -177,6 +194,7 @@ def test_filter_case_insensitivity_query(explore_service):
         assert result == ['dataset_case_insensitive']
         mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, [], **{})
 
+
 def test_filter_edge_case_special_tag_matching(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         tags = ["*special_tag*"]
@@ -186,6 +204,7 @@ def test_filter_edge_case_special_tag_matching(explore_service):
 
         assert result == ['dataset_special_tag']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
 
 def test_filter_high_number_of_features(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -197,6 +216,7 @@ def test_filter_high_number_of_features(explore_service):
         assert result == ['dataset_high_features']
         mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, None, [], **{})
 
+
 def test_filter_high_number_of_products(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         number_of_products = 1000000
@@ -206,6 +226,7 @@ def test_filter_high_number_of_products(explore_service):
 
         assert result == ['dataset_high_products']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, number_of_products, [], **{})
+
 
 def test_filter_invalid_tag_format(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -217,6 +238,7 @@ def test_filter_invalid_tag_format(explore_service):
         assert result == []
         mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
 
+
 def test_filter_partial_matches_query(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         query = "partial match"
@@ -227,6 +249,7 @@ def test_filter_partial_matches_query(explore_service):
         assert result == ['dataset_partial']
         mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, [], **{})
 
+
 def test_filter_empty_tags(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         tags = []
@@ -236,6 +259,7 @@ def test_filter_empty_tags(explore_service):
 
         assert result == ['dataset_empty_tags']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
 
 def test_filter_combination_query_and_tags(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -248,6 +272,7 @@ def test_filter_combination_query_and_tags(explore_service):
         assert result == ['dataset_query_tags']
         mock_filter.assert_called_once_with(query, 'newest', 'any', None, None, tags, **{})
 
+
 def test_filter_edge_case_empty_features_and_products(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         number_of_features = 0
@@ -258,6 +283,7 @@ def test_filter_edge_case_empty_features_and_products(explore_service):
 
         assert result == []
         mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, number_of_products, [], **{})
+
 
 def test_filter_combined_high_tags_and_features(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -270,6 +296,7 @@ def test_filter_combined_high_tags_and_features(explore_service):
         assert result == ['dataset_high_tags_features']
         mock_filter.assert_called_once_with("", 'newest', 'any', number_of_features, None, tags, **{})
 
+
 def test_filter_high_publication_and_products(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         publication_type = "conference"
@@ -281,6 +308,7 @@ def test_filter_high_publication_and_products(explore_service):
         assert result == ['dataset_high_pub_products']
         mock_filter.assert_called_once_with("", 'newest', publication_type, None, number_of_products, [], **{})
 
+
 def test_filter_mixed_valid_and_invalid_tags(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         tags = ["valid_tag", "???invalid!!!"]
@@ -290,6 +318,7 @@ def test_filter_mixed_valid_and_invalid_tags(explore_service):
 
         assert result == ['dataset_valid']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, None, tags, **{})
+
 
 def test_filter_combined_query_and_high_features(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -302,6 +331,7 @@ def test_filter_combined_query_and_high_features(explore_service):
         assert result == ['dataset_query_high_features']
         mock_filter.assert_called_once_with(query, 'newest', 'any', number_of_features, None, [], **{})
 
+
 def test_filter_combined_publication_type_and_tags(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         publication_type = "journal"
@@ -312,6 +342,7 @@ def test_filter_combined_publication_type_and_tags(explore_service):
 
         assert result == ['dataset_pub_tags']
         mock_filter.assert_called_once_with("", 'newest', publication_type, None, None, tags, **{})
+
 
 def test_filter_combined_all_parameters(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -337,6 +368,7 @@ def test_filter_combined_all_parameters(explore_service):
             query, sorting, publication_type, number_of_features, number_of_products, tags, **{}
         )
 
+
 def test_filter_no_parameters_provided(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         mock_filter.return_value = ['dataset_no_params']
@@ -345,6 +377,7 @@ def test_filter_no_parameters_provided(explore_service):
 
         assert result == ['dataset_no_params']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, None, [], **{})
+
 
 def test_filter_empty_publication_type(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
@@ -356,6 +389,7 @@ def test_filter_empty_publication_type(explore_service):
         assert result == []
         mock_filter.assert_called_once_with("", 'newest', publication_type, None, None, [], **{})
 
+
 def test_filter_tags_and_products_combined(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
         tags = ["big data"]
@@ -366,6 +400,7 @@ def test_filter_tags_and_products_combined(explore_service):
 
         assert result == ['dataset_tags_products']
         mock_filter.assert_called_once_with("", 'newest', 'any', None, number_of_products, tags, **{})
+
 
 def test_filter_invalid_query_combined_with_valid_tags(explore_service):
     with patch.object(explore_service.repository, 'filter') as mock_filter:
