@@ -340,17 +340,20 @@ def test_route(test_client):
         assert b'400' in response.data
     logout(test_client)
 
+
 def test_repository_total_number_dataset_downloads(dashboard_repository):
     with patch.object(Query, 'count', return_value=1):
         result = dashboard_repository.total_number_dataset_downloads()
         assert result == 1
         Query.count.assert_called_once()
 
+
 def test_repository_total_number_dataset_views(dashboard_repository):
     with patch.object(Query, 'count', return_value=1):
         result = dashboard_repository.total_number_dataset_views()
         assert result == 1
         Query.count.assert_called_once()
+
 
 def test_repository_get_all_author_names_and_dataset_counts(dashboard_repository):
     mock_profile = MagicMock(spec=UserProfile)
