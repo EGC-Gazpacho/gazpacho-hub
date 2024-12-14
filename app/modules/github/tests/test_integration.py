@@ -29,7 +29,7 @@ class TestGitHubService:
             self.license = "MIT"
 
     # Test to check if repository creation fails with an invalid token
-    def test_create_repo_fail(self, github_service):   
+    def test_create_repo_fail(self, github_service):
         result = github_service.create_repo(self.repo_name, self.invalid_token)
         assert not result, "La creación del repositorio debería haber fallado"
 
