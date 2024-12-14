@@ -14,7 +14,7 @@ def github_service():
 class TestGitHubService:
 
     @pytest.fixture(autouse=True)
-    def github_setup(self, test_client):
+    def github_setup(self):
         self.token = os.getenv("GITHUB_TOKEN")
 
         app = create_app()
@@ -28,7 +28,6 @@ class TestGitHubService:
             self.commit_message = "Test commit"
             self.license = "MIT"
 
-        self.client = test_client
 
     # Test to check if repository creation fails with an invalid token
     def test_create_repo_fail(self, github_service):
