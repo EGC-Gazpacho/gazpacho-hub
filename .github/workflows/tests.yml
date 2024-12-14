@@ -20,7 +20,7 @@ jobs:
           MYSQL_PASSWORD: uvlhub_password
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - uses: actions/checkout@v4
@@ -53,7 +53,6 @@ jobs:
         MARIADB_USER: uvlhub_user
         MARIADB_PASSWORD: uvlhub_password
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
-        PYTHONHTTPSVERIFY: 0  # Disable SSL verification during tests
       run: |
         pytest app/modules/ --ignore-glob='*selenium*'
 
