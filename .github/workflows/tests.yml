@@ -29,20 +29,15 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Set up SSL monkey patching
+    - name: Prepare environment
       run: |
-        echo "Adding gevent monkey patching to prevent recursion issues."
-        sed -i '1i from gevent import monkey\nmonkey.patch_all()\n' app/__init__.py
+        sed -i '/rosemary @ file:\/\/\/app/d' requirements.txt
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-
-    - name: Configure OpenSSL (if needed)
-      run: |
-        echo "Ensuring OpenSSL compatibility."
-        sudo apt-get update && sudo apt-get install -y libssl-dev
+        pip install pytest-cov
 
     - name: Run Tests
       env:
@@ -53,9 +48,17 @@ jobs:
         MARIADB_USER: uvlhub_user
         MARIADB_PASSWORD: uvlhub_password
         GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
+        MAIL_SERVER: smtp.gmail.com
+        MAIL_PORT: 587
+        MAIL_USE_TLS: True
+        MAIL_USERNAME: romerito3rubn@gmail.com
+        MAIL_PASSWORD: ${{ secrets.FLASKMAIL_TOKEN }}
+        MAIL_DEFAULT_SENDER: romerito3rubn@gmail.com
+        BASE_URL: http://localhost:5000
+        SECRET_KEY: ${{ secrets.FLASKMAIL_TOKEN }}
+      
       run: |
-        pytest app/modules/ --ignore-glob='*selenium*'
-
+        pytest app/modules/ --cov=app/modules/ --cov-report=xml:coverage.xml --ignore-glob='*selenium*'
 
     - name: Get Coverage Percentage
       if: github.event_name == 'pull_request'
