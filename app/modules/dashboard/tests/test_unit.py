@@ -1,7 +1,7 @@
 import pytest
 from app.modules.dashboard.repositories import DashboardRepository
 from app.modules.dashboard.services import DashboardService
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from sqlalchemy.orm.query import Query
 from app import create_app, db
 from app.modules.auth.models import User
@@ -9,6 +9,7 @@ from app.modules.conftest import login, logout
 from flask_login import login_user
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from app.modules.profile.models import UserProfile
 
 
 @pytest.fixture
@@ -68,7 +69,7 @@ def test_get_detailed_statistics(
     assert result == expected_result
 
 
-@patch('app.modules.dashboard.repositories.DashboardRepository.get_author_names_and_dataset_counts')
+@patch('app.modules.dashboard.repositories.DashboardRepository.get_user_profile_and_dataset_counts')
 def test_service_get_all_author_names_and_dataset_counts(mock_get_author_names_and_dataset_counts):
     mock_data = [
         ("Author 1", 5),
@@ -350,16 +351,17 @@ def test_repository_total_number_dataset_views(dashboard_repository):
         result = dashboard_repository.total_number_dataset_views()
         assert result == 1
         Query.count.assert_called_once()
-def test_repository_get_all_author_names_and_dataset_counts(dashboard_repository):
-    mock_author_data = [
-        ('author1', 1),
-        ('author2', 2),
-    ]
 
-    with patch.object(Query, 'all', return_value=mock_author_data):
-        result = dashboard_repository.get_author_names_and_dataset_counts()
-        assert result == [('author1', 1), ('author2', 2)]
-        Query.all.assert_called_once()
+def test_repository_get_all_author_names_and_dataset_counts(dashboard_repository):
+    mock_profile = MagicMock(spec=UserProfile)
+    mock_profile.name = 'John'
+    mock_profile.surname = 'Doe'
+    with patch.object(Query, 'all', return_value=[mock_profile]):
+        with patch.object(Query, 'count', return_value=1):
+            result = dashboard_repository.get_user_profile_and_dataset_counts()
+            assert result == [('John Doe', 1)]
+            Query.all.assert_called_once()
+            Query.count.assert_called_once()
 
 
 def test_repository_get_views_per_dataset(dashboard_repository):
