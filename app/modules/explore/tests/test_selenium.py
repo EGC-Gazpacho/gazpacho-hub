@@ -1,13 +1,13 @@
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By  # Add this import
+from selenium.webdriver.common.keys import Keys  # Add this import
 import time
 
 from core.environment.host import get_host_for_selenium_testing
 from core.selenium.common import initialize_driver, close_driver
 
 
-
 def test_explore_models_page():
-
     driver = initialize_driver()
 
     try:

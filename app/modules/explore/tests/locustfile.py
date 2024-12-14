@@ -3,6 +3,7 @@ from locust import HttpUser, TaskSet, task
 from core.locust.common import get_csrf_token
 from core.environment.host import get_host_for_locust_testing
 
+
 class FilteringBehavior(TaskSet):
 
     def on_start(self):
@@ -80,6 +81,7 @@ class FilteringBehavior(TaskSet):
             else:
                 logging.error(f"Logout failed: {response.status_code}")
                 response.failure("Logout error.")
+
 
 class FilteringUser(HttpUser):
     tasks = [FilteringBehavior]

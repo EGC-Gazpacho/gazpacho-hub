@@ -66,6 +66,7 @@ def logout():
     logout_user()
     return redirect(url_for('public.index'))
 
+
 # Ruta de recuperación de contraseña
 @auth_bp.route('/password_recovery', methods=['GET', 'POST'])
 def password_recovery():
