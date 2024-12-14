@@ -23,7 +23,7 @@ class DashboardService(BaseService):
         return statistics
 
     def get_all_author_names_and_dataset_counts(self):
-        author_data = DashboardRepository.get_author_names_and_dataset_counts(self)
+        author_data = DashboardRepository.get_user_profile_and_dataset_counts(self)
         author_names = [item[0] for item in author_data]
         dataset_counts = [item[1] for item in author_data]
         return author_names, dataset_counts

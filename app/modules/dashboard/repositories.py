@@ -9,6 +9,7 @@ from app.modules.dataset.models import (
 from sqlalchemy import func
 from datetime import datetime, timedelta
 from flask_login import current_user
+from app.modules.profile.models import UserProfile
 
 
 class DashboardRepository(BaseRepository):
@@ -23,16 +24,18 @@ class DashboardRepository(BaseRepository):
         total_views = DSViewRecord.query.count()  
         return total_views
 
-    def get_author_names_and_dataset_counts(self):
-        result = (
-            Author.query
-            .outerjoin(DSMetaData, Author.ds_meta_data_id == DSMetaData.id)
-            .with_entities(Author.name, func.count(DSMetaData.id).label('dataset_count'))
-            .group_by(Author.name)
-            .order_by(func.count(DSMetaData.id).desc())
-            .all()
-        )
-        return result
+    def get_user_profile_and_dataset_counts(self):
+        profiles = UserProfile.query.all()
+        
+        user_info = []
+        for profile in profiles:
+            user = profile.user 
+            dataset_count = DataSet.query.filter_by(user_id=user.id).count() 
+            
+            user_info.append((f'{profile.name} {profile.surname}', dataset_count)
+            )
+        print(user_info)
+        return user_info
 
     def get_views_per_dataset(self):
         result = (
