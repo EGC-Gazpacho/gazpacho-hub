@@ -14,6 +14,14 @@ from flask_login import current_user
 class DashboardRepository(BaseRepository):
     def __init__(self):
         super().__init__(DataSet)
+    
+    def total_number_dataset_downloads(self):
+        total_downloads = DSDownloadRecord.query.count()  
+        return total_downloads
+    
+    def total_number_dataset_views(self):
+        total_views = DSViewRecord.query.count()  
+        return total_views
 
     def get_author_names_and_dataset_counts(self):
         result = (

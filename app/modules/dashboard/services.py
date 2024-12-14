@@ -1,6 +1,6 @@
 from app.modules.dashboard.repositories import DashboardRepository
 from core.services.BaseService import BaseService
-from app.modules.dataset.repositories import DSDownloadRecordRepository, DSViewRecordRepository, DataSetRepository
+from app.modules.dataset.repositories import DataSetRepository
 
 
 class DashboardService(BaseService):
@@ -8,12 +8,9 @@ class DashboardService(BaseService):
         self.repository = repo or DashboardRepository()
 
     def get_detailed_statistics(self):
-        download_repo = DSDownloadRecordRepository()
-        view_repo = DSViewRecordRepository()
         dataset_repo = DataSetRepository()
-
-        total_downloads = download_repo.total_dataset_downloads()
-        total_views = view_repo.total_dataset_views()
+        total_downloads = DashboardRepository.total_number_dataset_downloads(self)
+        total_views = DashboardRepository.total_number_dataset_views(self)
         total_synchronized_datasets = dataset_repo.count_synchronized_datasets()
         total_unsynchronized_datasets = dataset_repo.count_unsynchronized_datasets()
 
