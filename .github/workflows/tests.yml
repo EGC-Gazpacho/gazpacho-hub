@@ -58,7 +58,7 @@ jobs:
         SECRET_KEY: ${{ secrets.FLASKMAIL_TOKEN }}
       
       run: |
-          pytest app/modules/ --cov=app/modules/ --cov-report=xml:coverage.xml --ignore-glob='*selenium*' --deselect='app/modules/github/tests/test_integration.py'
+          pytest app/modules/ --cov=app/modules/ --cov-report=xml:coverage.xml --ignore-glob='*selenium*' --ignore-glob='app/modules/github/tests/test_integration.py'
 
     - name: Get Coverage Percentage
       if: github.event_name == 'pull_request'
