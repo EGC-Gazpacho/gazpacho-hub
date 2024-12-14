@@ -191,14 +191,40 @@ chico sundermann">
                 </div>
             </form>
 
+            <a class="custom-download-button ms-3" data-bs-toggle="modal" data-bs-target="#downloadWarningModal">
+                <i class="align-middle me-2" data-feather="download"></i> Download all Datasets!
+            </a>
+
+            <!-- Modal de confirmacion de descarga -->
+
+            <div class="modal fade" id="downloadWarningModal" tabindex="-1" aria-labelledby="downloadWarningModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="downloadWarningModalLabel">Aviso de Descarga</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            La descarga de todos los datasets puede tardar un tiempo considerable. ¿Desea continuar?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <a href="/dataset/download/all" class="btn btn-primary">Confirmar Descarga</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="navbar-collapse collapse">
                 <ul class="navbar-nav navbar-align">
                     <li class="nav-item dropdown">
 
                         {% if current_user.is_anonymous %}
+
                             <a class="nav-link  d-none d-sm-inline-block" href="{{ url_for('auth.login') }}">Login</a>
                             <a class="nav-link  d-none d-sm-inline-block" href="{{ url_for('auth.show_signup_form') }}">Sign
                                 up</a>
+                            
 
                         {% else %}
 
