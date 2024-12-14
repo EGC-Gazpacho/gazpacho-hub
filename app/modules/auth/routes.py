@@ -89,6 +89,7 @@ def password_recovery():
 
     return render_template('auth/password_recovery.html')
 
+
 @auth_bp.route('/password_reset/<token>', methods=['GET', 'POST'])
 def password_reset(token):
     user_id = authentication_service.verify_recovery_token(token)
