@@ -29,7 +29,6 @@ def test_client_with_ratings(test_client):
 
         # Store user ID in the test client
         test_client.user_id = user_test.id
-
     yield test_client
 
 
