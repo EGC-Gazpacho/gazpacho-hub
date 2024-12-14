@@ -87,6 +87,9 @@ class AuthenticationService(BaseService):
     def temp_folder_by_user(self, user: User) -> str:
         return os.path.join(uploads_folder_name(), "temp", str(user.id))
 
+    def list_users(self) -> User:
+        return self.repository.get_all()
+
     def generate_recovery_token(self, user):
         """Generates a recovery token for the user"""
         expiration = datetime.utcnow() + timedelta(hours=1)
