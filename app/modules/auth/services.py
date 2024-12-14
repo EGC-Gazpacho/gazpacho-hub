@@ -117,6 +117,8 @@ class AuthenticationService(BaseService):
         return False
 
     def send_recovery_email(self, to, token):
+        """Envía un correo electrónico con el enlace de recuperación de contraseña"""
+        subject = "Recuperación de contraseña"
         """Sends a recovery email with the password reset link"""
         subject = "Password Recovery"
         recovery_url = f"{current_app.config['BASE_URL']}/password_reset/{token}"

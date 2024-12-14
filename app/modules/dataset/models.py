@@ -48,8 +48,8 @@ class Author(db.Model):
 class DSMetrics(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number_of_models = db.Column(db.String(120))
-    number_of_features = db.Column(db.String(120))
-    number_of_products = db.Column(db.String(120))
+    number_of_features = db.Column(db.Integer)
+    number_of_products = db.Column(db.Integer)
 
     def __repr__(self):
         nm = self.number_of_models

@@ -1,6 +1,6 @@
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException
 import time
 
 from core.environment.host import get_host_for_selenium_testing
@@ -8,12 +8,10 @@ from core.selenium.common import initialize_driver, close_driver
 
 
 def test_explore_models_page():
-
     driver = initialize_driver()
 
     try:
         host = get_host_for_selenium_testing()
-
         # Step 1: Go to explore page
         driver.get(f'{host}/explore')
 
@@ -35,7 +33,7 @@ def test_explore_models_page():
 
         time.sleep(4)
 
-        # Step 5: It checks that the model appears
+        # Step 5: It checks that the model appears.
         try:
             print('Looking for model Feature Model 11...')
             time.sleep(1)

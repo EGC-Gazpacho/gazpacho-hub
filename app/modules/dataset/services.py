@@ -235,8 +235,8 @@ class DataSetService(BaseService):
 
             dsmetrics = DSMetrics(
                 number_of_models=str(total_models),
-                number_of_features=str(total_features),
-                number_of_products=str(total_products)
+                number_of_features=total_features,
+                number_of_products=total_products
             )
             dsmetadata.ds_metrics = dsmetrics
 
