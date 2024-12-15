@@ -52,9 +52,8 @@ else
 fi
 
 # Check if any user exists in the database
-USER_EXISTS=$(flask shell -c "from app.models import User; print(bool(User.query.first()))" 2>/dev/null)
-
-if [ "$USER_EXISTS" = "False" ]; then
+echo "Checking if users exist in the database..."
+if [ $(mariadb -u $MARIADB_USER -p$MARIADB_PASSWORD -h $MARIADB_HOSTNAME -P $MARIADB_PORT -D $MARIADB_DATABASE -sse "SELECT COUNT(*) FROM user;") -eq 0 ]; then
   echo "No users found in the database. Running seed command..."
   rosemary db:seed
 else
