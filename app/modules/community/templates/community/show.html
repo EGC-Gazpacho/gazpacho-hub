@@ -61,6 +61,22 @@
         {% endfor %}
     {% endif %}
 </ul>
+<h2>Recent Community Datasets</h2>
+<ul>
+    {% if recent_datasets %}
+        {% for dataset in recent_datasets %}
+            <li>
+                <a href="{{ dataset.get_uvlhub_doi() }}">
+                    {{ dataset.ds_meta_data.title }}
+                </a><br>
+                <strong>Created By:</strong> {{ dataset.user.profile.name }} {{ dataset.user.profile.surname }}<br>
+                <strong>Created At:</strong> {{ dataset.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+            </li>
+        {% endfor %}
+    {% else %}
+        <p>No datasets found.</p>
+    {% endif %}
+</ul>
 <a href="{{ url_for('community.index') }}">Back to Communities</a>
 {% endblock %}
 
