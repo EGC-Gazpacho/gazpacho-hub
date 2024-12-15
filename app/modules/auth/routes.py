@@ -1,11 +1,11 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import current_user, login_user, logout_user
 
-
 from app.modules.auth import auth_bp
 from app.modules.auth.forms import SignupForm, LoginForm
 from app.modules.auth.services import AuthenticationService
 from app.modules.profile.services import UserProfileService
+
 
 # Instanciar los servicios aquí para evitar la creación repetida
 authentication_service = AuthenticationService()
@@ -50,14 +50,23 @@ def login():
     return render_template('auth/login_form.html', form=form)
 
 
+@auth_bp.route('/listarUsuarios', methods=['GET'])
+def listar():
+    if current_user.is_authenticated:
+        if request.method == 'GET':
+            users = authentication_service.list_users()
+            return render_template("auth/list_users.html", users=users)
+    else:
+        return render_template('auth/login_form.html', form=LoginForm())
+
+
 @auth_bp.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('public.index'))
 
-# Password recovery route
 
-
+# Ruta de recuperación de contraseña
 @auth_bp.route('/password_recovery', methods=['GET', 'POST'])
 def password_recovery():
     if request.method == 'POST':
@@ -67,7 +76,6 @@ def password_recovery():
         if user:
             # Call `generate_recovery_token` using the service instance
             token = authentication_service.generate_recovery_token(user)
-            print("hello2", user)
             try:
                 authentication_service.send_recovery_email(user.email, token)  # Send email
                 flash("A recovery link has been sent to your email.", 'success')
@@ -80,9 +88,6 @@ def password_recovery():
             return redirect(url_for('auth.password_recovery'))  # Redirect to try again
 
     return render_template('auth/password_recovery.html')
-
-
-# Reset password route
 
 
 @auth_bp.route('/password_reset/<token>', methods=['GET', 'POST'])
