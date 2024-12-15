@@ -1,6 +1,5 @@
 import os
 import shutil
-import random
 from app.modules.auth.models import User
 from app.modules.featuremodel.models import FMMetaData, FeatureModel
 from app.modules.hubfile.models import Hubfile
@@ -10,11 +9,8 @@ from app.modules.dataset.models import (
     DSMetaData,
     PublicationType,
     DSMetrics,
-    Author,
-    DSDownloadRecord,
-    DSViewRecord
-)
-from datetime import datetime, timedelta, timezone
+    Author)
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 
@@ -45,7 +41,7 @@ class DataSetSeeder(BaseSeeder):
                 dataset_doi=f'10.1234/dataset{i + 1}',
                 tags='tag1, tag2',
                 ds_metrics_id=seeded_ds_metrics.id
-            ) for i in range(10)  # 10 datasets para el usuario 1
+            ) for i in range(4)
         ]
         seeded_ds_meta_data = self.seed(ds_meta_data_list)
 
@@ -55,54 +51,22 @@ class DataSetSeeder(BaseSeeder):
                 name=f'Author {i + 1}',
                 affiliation=f'Affiliation {i + 1}',
                 orcid=f'0000-0000-0000-000{i}',
-                ds_meta_data_id=seeded_ds_meta_data[i % 10].id
-            ) for i in range(10)
+                ds_meta_data_id=seeded_ds_meta_data[i % 4].id
+            ) for i in range(4)
         ]
         self.seed(authors)
 
-        # Create DataSet instances and associate them with user1
+        # Create DataSet instances
         datasets = [
             DataSet(
-                user_id=user1.id,
+                user_id=user1.id if i % 2 == 0 else user2.id,
                 ds_meta_data_id=seeded_ds_meta_data[i].id,
-                created_at=datetime.now(timezone.utc) - timedelta(days=i * 5)  # Fechas pasadas para cada dataset
-            ) for i in range(10)
+                created_at=datetime.now(timezone.utc)
+            ) for i in range(4)
         ]
         seeded_datasets = self.seed(datasets)
 
-        # Crear fechas pasadas distribuidas a lo largo de los últimos meses
-        current_time = datetime.now(timezone.utc)
-        past_dates = [current_time - timedelta(days=i) for i in range(30, 0, -1)]  # 30 fechas pasadas, 1 por día
-
-        # Para cada dataset de usuario 1, agregar descargas y vistas con números dispares
-        for dataset in seeded_datasets:
-            # Generar un número aleatorio de descargas entre 3 y 9 para cada dataset
-            num_downloads = random.randint(3, 9)  # Número de descargas aleatorio entre 3 y 9
-
-            # Asociamos las descargas
-            for i in range(num_downloads):
-                download_date = random.choice(past_dates)  # Escoge una fecha aleatoria
-                self.seed([DSDownloadRecord(
-                    user_id=user1.id,
-                    dataset_id=dataset.id,
-                    download_date=download_date,
-                    download_cookie=f'cookie_{dataset.id}_download_{i + 1}'
-                )])
-
-            # Generar un número aleatorio de vistas entre 2 y 5 para cada dataset
-            num_views = random.randint(2, 5)  # Número de vistas aleatorio entre 2 y 5
-
-            # Asociamos las vistas
-            for i in range(num_views):
-                view_date = random.choice(past_dates)  # Escoge una fecha aleatoria para vistas
-                self.seed([DSViewRecord(
-                    user_id=user1.id,
-                    dataset_id=dataset.id,
-                    view_date=view_date,
-                    view_cookie=f'cookie_{dataset.id}_view_{i + 1}'
-                )])
-
-        # Asumir que hay 12 archivos UVL, crear FMMetaData y FeatureModel correspondientes
+        # Assume there are 12 UVL files, create corresponding FMMetaData and FeatureModel
         fm_meta_data_list = [
             FMMetaData(
                 uvl_filename=f'file{i + 1}.uvl',
@@ -116,7 +80,7 @@ class DataSetSeeder(BaseSeeder):
         ]
         seeded_fm_meta_data = self.seed(fm_meta_data_list)
 
-        # Crear Author instances y asociarlas con FMMetaData
+        # Create Author instances and associate with FMMetaData
         fm_authors = [
             Author(
                 name=f'Author {i + 5}',
@@ -127,7 +91,6 @@ class DataSetSeeder(BaseSeeder):
         ]
         self.seed(fm_authors)
 
-        # Crear los modelos de características
         feature_models = [
             FeatureModel(
                 data_set_id=seeded_datasets[i // 3].id,
@@ -136,7 +99,7 @@ class DataSetSeeder(BaseSeeder):
         ]
         seeded_feature_models = self.seed(feature_models)
 
-        # Crear archivos, asociarlos con FeatureModels y copiarlos
+        # Create files, associate them with FeatureModels and copy files
         load_dotenv()
         working_dir = os.getenv('WORKING_DIR', '')
         src_folder = os.path.join(working_dir, 'app', 'modules', 'dataset', 'uvl_examples')
