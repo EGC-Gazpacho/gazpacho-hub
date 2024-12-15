@@ -51,6 +51,16 @@ else
     flask db upgrade
 fi
 
+# Check if any user exists in the database
+USER_EXISTS=$(flask shell -c "from app.models import User; print(bool(User.query.first()))" 2>/dev/null)
+
+if [ "$USER_EXISTS" = "False" ]; then
+  echo "No users found in the database. Running seed command..."
+  rosemary db:seed
+else
+  echo "Users already exist. Skipping seed command."
+fi
+
 # Start the application using Gunicorn, binding it to port 80
 # Set the logging level to info and the timeout to 3600 seconds
 exec gunicorn --bind 0.0.0.0:80 app:app --log-level info --timeout 3600
