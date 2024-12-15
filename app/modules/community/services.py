@@ -1,5 +1,6 @@
 from app.modules.community.models import CommunityType, UserRole
 from app.modules.community.repositories import CommunityRepository, JoinRequestRepository, UserCommunityRepository
+from app.modules.dataset.models import DataSet
 from core.services.BaseService import BaseService
 
 
@@ -196,3 +197,15 @@ class CommunityService(BaseService):
 
     def user_request_pending(self, user_id, community_id):
         return self.join_request_repository.is_request_already_made(user_id, community_id)
+
+    def get_recent_datasets(self, community_id):
+        community = self.repository.get_community_by_id(community_id)
+        if not community:
+            return False, 'Community does not exist.'
+        return (
+            DataSet.query
+            .filter(DataSet.user_id.in_([member.id for member in community.members]))
+            .order_by(DataSet.created_at.desc())
+            .limit(5)
+            .all()
+        )
