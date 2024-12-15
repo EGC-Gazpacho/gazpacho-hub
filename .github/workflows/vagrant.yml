@@ -1,0 +1,67 @@
+name: Deploy with Vagrant
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy VM with Vagrant and Provision with Ansible
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Crear archivo .env
+        run: |
+          echo "FLASK_APP_NAME=your_flask_app_name" > $GITHUB_WORKSPACE/.env
+          echo "FLASK_ENV=testing" >> $GITHUB_WORKSPACE/.env
+          echo "DOMAIN=your_domain.com" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_HOSTNAME=127.0.0.1" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_PORT=3306" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_DATABASE=uvlhubdb" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_TEST_DATABASE=uvlhubdb_test" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_USER=uvlhub_user" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_PASSWORD=uvlhub_password" >> $GITHUB_WORKSPACE/.env
+          echo "MARIADB_ROOT_PASSWORD=uvlhubdb_root_password" >> $GITHUB_WORKSPACE/.env
+          echo "WORKING_DIR=/vagrant/" >> $GITHUB_WORKSPACE/.env
+
+      - name: Verify environment variables
+        run: |
+          cat $GITHUB_WORKSPACE/.env
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create Python virtual environment
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+
+      - name: Set up Vagrant
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y vagrant virtualbox
+
+      - name: Initialize Vagrant
+        run: |
+          cd vagrant
+          vagrant up
+
+      - name: Check Vagrant status
+        run: |
+          cd vagrant
+          vagrant global-status
+          vagrant ssh
+
+      - name: Clean up after deployment
+        run: |
+          cd vagrant
+          vagrant destroy -f

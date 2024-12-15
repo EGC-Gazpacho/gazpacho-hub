@@ -140,7 +140,7 @@ function send_query() {
 
                                     <div class="row mb-2">
                                         <div class="col-md-12 d-flex justify-content-between align-items-center" style="min-height: 60px;">
-                                            
+                                                <span>Rating</span>
                                                 <!-- Promedio -->
                                                 <span id="average-rating-${dataset.id}" 
                                                     class="ms-2" 
@@ -349,5 +349,4 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
-
 
