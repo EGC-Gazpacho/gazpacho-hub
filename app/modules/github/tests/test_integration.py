@@ -10,6 +10,8 @@ def github_service():
     repo = GitHubRepository(name="my_repo", owner="my_user")
     return GitHubService(repository=repo)
 
+# This test are avoided int the CI/CD pipeline because of the rate limit of github api
+
 
 class TestGitHubService:
 
