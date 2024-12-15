@@ -49,5 +49,8 @@ RUN pip install -r requirements.txt
 # Expose port 80
 EXPOSE 80
 
+# Install rosemary
+RUN pip install -e .
+
 # Command to run the application
 CMD ["./render_entrypoint.sh"]

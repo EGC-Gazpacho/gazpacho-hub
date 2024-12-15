@@ -55,8 +55,7 @@ fi
 echo "Checking if users exist in the database..."
 if [ $(mariadb -u $MARIADB_USER -p$MARIADB_PASSWORD -h $MARIADB_HOSTNAME -P $MARIADB_PORT -D $MARIADB_DATABASE -sse "SELECT COUNT(*) FROM user;") -eq 0 ]; then
   echo "No users found in the database. Running seed command..."
-  pip install -e ./
-  rosemary db:seed
+  rosemary db:seed -y
 else
   echo "Users already exist. Skipping seed command."
 fi
