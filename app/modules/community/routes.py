@@ -48,13 +48,15 @@ def get_community(community_id):
     is_admin = community_service.is_user_community_admin(current_user.id, community_id)
     is_private = community.type == CommunityType.PRIVATE
     request_pending = community_service.user_request_pending(current_user.id, community_id)
+    recent_datasets = community_service.get_recent_datasets(community_id)
     return render_template('community/show.html',
                            community=community,
                            is_member=is_member,
                            is_creator=is_creator,
                            is_admin=is_admin,
                            is_private=is_private,
-                           request_pending=request_pending)
+                           request_pending=request_pending,
+                           recent_datasets=recent_datasets)
 
 
 @community_bp.route('/community/edit/<int:community_id>', methods=['GET', 'POST'])
