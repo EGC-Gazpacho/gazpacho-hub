@@ -61,13 +61,13 @@ class ExploreRepository(BaseRepository):
         if tags:
             datasets = datasets.filter(DSMetaData.tags.ilike(any_(f"%{tag}%" for tag in tags)))
 
-        if number_of_features != "":
+        if number_of_features != "" and number_of_features is not None:
             datasets = datasets.join(DSMetaData.ds_metrics)
-            datasets = datasets.filter(DSMetrics.number_of_features == number_of_features)
+            datasets = datasets.filter(DSMetrics.number_of_features == int(number_of_features))
 
-        if number_of_products != "":
+        if number_of_products != "" and number_of_products is not None:
             datasets = datasets.join(DSMetaData.ds_metrics)
-            datasets = datasets.filter(DSMetrics.number_of_products == number_of_products)
+            datasets = datasets.filter(DSMetrics.number_of_products == int(number_of_products))
 
         # Order by created_at
         if sorting == "oldest":

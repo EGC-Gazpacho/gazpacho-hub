@@ -46,6 +46,7 @@ jobs:
         MARIADB_TEST_DATABASE: uvlhubdb_test
         MARIADB_USER: uvlhub_user
         MARIADB_PASSWORD: uvlhub_password
+        GITHUB_TOKEN: ${{ secrets.UPLOAD_TOKEN_GITHUB }}
       run: |
         pytest app/modules/ --ignore-glob='*selenium*'
 
@@ -68,7 +69,7 @@ jobs:
     needs: deploy 
     steps:
       - name: Wait for deployment to be ready
-        run: sleep 90
+        run: sleep 300
 
       - name: Check Deployment Response
         run: |

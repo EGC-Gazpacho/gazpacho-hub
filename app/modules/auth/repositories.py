@@ -19,3 +19,6 @@ class UserRepository(BaseRepository):
 
     def get_by_email(self, email: str):
         return self.model.query.filter_by(email=email).first()
+
+    def get_all(self):
+        return self.model.query.all()

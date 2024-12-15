@@ -10,11 +10,13 @@ def github_service():
     repo = GitHubRepository(name="my_repo", owner="my_user")
     return GitHubService(repository=repo)
 
+# This test are avoided int the CI/CD pipeline because of the rate limit of github api
+
 
 class TestGitHubService:
 
     @pytest.fixture(autouse=True)
-    def github_setup(self, test_client):
+    def github_setup(self):
         self.token = os.getenv("GITHUB_TOKEN")
 
         app = create_app()
@@ -27,8 +29,6 @@ class TestGitHubService:
             self.branch = "main"
             self.commit_message = "Test commit"
             self.license = "MIT"
-
-        self.client = test_client
 
     # Test to check if repository creation fails with an invalid token
     def test_create_repo_fail(self, github_service):
