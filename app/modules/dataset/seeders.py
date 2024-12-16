@@ -115,6 +115,11 @@ class DataSetSeeder(BaseSeeder):
 
             file_path = os.path.join(dest_folder, file_name)
 
+            if os.path.exists(file_path):
+                print(f"File successfully created: {file_path}")
+            else:
+                print(f"File was not created: {file_path}")
+
             uvl_file = Hubfile(
                 name=file_name,
                 checksum=f'checksum{i + 1}',

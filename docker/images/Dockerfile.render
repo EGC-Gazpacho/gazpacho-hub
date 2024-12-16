@@ -22,7 +22,7 @@ COPY app/ ./app
 COPY core/ ./core
 COPY migrations/ ./migrations
 COPY rosemary/ ./rosemary
-COPY setup.py ./setup.py
+COPY setup.py .
 
 # Copy requirements.txt into the working directory /app
 COPY requirements.txt .
