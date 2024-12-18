@@ -69,6 +69,7 @@
                 <a href="{{ dataset.get_uvlhub_doi() }}">
                     {{ dataset.ds_meta_data.title }}
                 </a><br>
+                <strong>Dataset Id:</strong> {{ dataset.id }}<br>
                 <strong>Created By:</strong> {{ dataset.user.profile.name }} {{ dataset.user.profile.surname }}<br>
                 <strong>Created At:</strong> {{ dataset.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
             </li>
