@@ -369,15 +369,16 @@ def test_repository_get_downloads_per_dataset(dashboard_repository):
 
 
 @patch('app.modules.dashboard.repositories.DashboardRepository.auxiliarfunc')
-def test_repository_get_last_12_months_downloads(mock_today,dashboard_repository):
+def test_repository_get_last_12_months_downloads(mock_today, dashboard_repository):
     mock_today.return_value = datetime(2024, 12, 31)
     with patch.object(Query, 'count', return_value=1):
         result = dashboard_repository.get_last_12_months_downloads()
         assert result == (['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06', '2024-07',
                           '2024-08', '2024-09', '2024-10', '2024-11', '2024-12'], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
+
 @patch('app.modules.dashboard.repositories.DashboardRepository.auxiliarfunc')
-def test_repository_get_last_12_months_views(mock_today,dashboard_repository):
+def test_repository_get_last_12_months_views(mock_today, dashboard_repository):
     mock_today.return_value = datetime(2024, 12, 31)
     mock_author_data = 1
     with patch.object(Query, 'count', return_value=mock_author_data):
@@ -412,6 +413,7 @@ def test_repository_get_downloads_per_dataset_user_logued(dashboard_repository, 
         assert result == [('Dataset1', 1), ('Dataset2', 2)]
         Query.all.assert_called_once()
 
+
 @patch('app.modules.dashboard.repositories.DashboardRepository.auxiliarfunc')
 def test_repository_get_last_12_months_views_for_user(mock_today, dashboard_repository):
     mock_today.return_value = datetime(2024, 12, 31)
@@ -425,7 +427,7 @@ def test_repository_get_last_12_months_views_for_user(mock_today, dashboard_repo
 
 
 @patch('app.modules.dashboard.repositories.DashboardRepository.auxiliarfunc')
-def test_repository_get_last_12_months_downloads_user_logued(mock_today,dashboard_repository):
+def test_repository_get_last_12_months_downloads_user_logued(mock_today, dashboard_repository):
     mock_today.return_value = datetime(2024, 12, 31)
     mock_user = User(id=1)
     login_user(mock_user)
