@@ -53,7 +53,7 @@ class DashboardRepository(BaseRepository):
         return result
 
     def get_last_12_months_downloads(self):
-        today = datetime.today()
+        today = self.auxiliarfunc()
         months = []
         download_counts = []
         for i in range(12):
@@ -77,7 +77,7 @@ class DashboardRepository(BaseRepository):
         return months, download_counts
 
     def get_last_12_months_views(self):
-        today = datetime.today()
+        today = self.auxiliarfunc()
         months = []
         view_counts = []
 
@@ -131,7 +131,7 @@ class DashboardRepository(BaseRepository):
         return result
 
     def get_last_12_months_views_for_user(self):
-        today = datetime.today()
+        today = self.auxiliarfunc()
         months = []
         view_counts = []
 
@@ -161,8 +161,9 @@ class DashboardRepository(BaseRepository):
 
         return months, view_counts
 
+
     def get_last_12_months_downloads_user_logued(self):
-        today = datetime.today()
+        today = self.auxiliarfunc()
         months = []
         download_counts = []
 
@@ -190,3 +191,6 @@ class DashboardRepository(BaseRepository):
         download_counts.reverse()
 
         return months, download_counts
+    
+    def auxiliarfunc(self):
+        return datetime.today()
